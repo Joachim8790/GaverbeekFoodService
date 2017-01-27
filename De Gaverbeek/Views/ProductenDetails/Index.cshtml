@@ -1,0 +1,56 @@
+﻿@model De_Gaverbeek.ViewModels.ProductenDetailsViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutOther.cshtml";
+    int id = ViewBag.ID;
+    Console.WriteLine(id.ToString());
+    string[] tabnames = {"Zuur","Zuivel","Wijn","Vis","Suiker","Kruiden","Deegwaren","Conserven","Diepvries","Olie","Bake-off","Beleg","Non-food","Volledig gamma" };
+}
+<div class="page">
+    <br />
+    <div class="container-fluid">
+
+        <div class="ui horizontal divider customdivider">
+           Producten
+        </div>
+        <div class="ui grid">
+            <div class="twelve wide stretched column">
+                <div class="ui segment">
+                    @for (var i = 0; i < 14; i++)
+                    {
+                        if (i + 1 == id)
+                        {
+                            <div class="ui tab active" data-tab="@tabnames[i]">@tabnames[i]</div>
+                        }
+                        else
+                        {
+                            <div class="ui tab" data-tab="@tabnames[i]">@tabnames[i]</div>
+                        }
+                    }
+                   
+                </div>
+            </div>
+            <div class="four wide column">
+                <div class="ui vertical fluid right tabular menu">
+                    @for (var i = 0; i < 14; i++)
+                    {
+                        if (i + 1 == id)
+                        {
+                            <a class="active item" data-tab="@tabnames[i]">
+                                @tabnames[i]
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="item" data-tab="@tabnames[i]">
+                                @tabnames[i]
+                            </a>
+                        }                     
+                    }
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

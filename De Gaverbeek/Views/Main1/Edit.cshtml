@@ -1,0 +1,84 @@
+﻿@model De_Gaverbeek.Models.tblPosts
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_LayoutOther.cshtml";
+}
+
+@using (Html.BeginForm("Edit", "Main1", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="page">
+        <br />
+        <div class="ui horizontal divider customdivider">
+            Nieuws bewerken
+        </div>
+        <div class="container-fluid">
+            <div class="ui secondary raised segment">
+                @Html.AntiForgeryToken()
+
+                <div class="container-fluid" style="padding:0;">
+                    <div class="ui form form-horizontal">
+
+                        <div class="col-lg-14 col-md-14">
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            <div class="field form-group">
+
+                                @Html.EditorFor(model => model.PostID, new { htmlAttributes = new { @class = "form-control ui input", @id = "txtTitel",@type="hidden" } })
+
+                            </div>
+
+                            <div class="field form-group">
+                                @Html.LabelFor(model => model.PostTitel, htmlAttributes: new { @class = "control-label col-md-2", @style = "color:#000;" })
+                                @Html.EditorFor(model => model.PostTitel, new { htmlAttributes = new { @class = "form-control ui input", @id = "txtTitel" } })
+                                @Html.ValidationMessageFor(model => model.PostTitel, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="field form-group">
+                                @Html.LabelFor(model => model.PostText, htmlAttributes: new { @class = "control-label col-md-2", @style = "color:#000;" })
+                                @Html.EditorFor(model => model.PostText, new { htmlAttributes = new { @class = "form-control ui input", @id = "txtBeschrijving" } })
+                                @Html.ValidationMessageFor(model => model.PostText, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="field form-group">
+                                <input type="file" class="ui input" name="txtAfbeelding" id="txtAfbeelding" />
+                            </div>
+                            <div class="field form-group">
+
+                                <input type="submit" value="Aanpassen" class="ui button" />
+                            </div>
+                            <div>
+                                @Html.ActionLink("Terug naar het overzicht", "Index")
+                            </div>
+                        </div>
+                        <div class="col-lg-14 col-md-14" style="padding:0;">
+                            <h3 style="text-align:left;font-size:2em;">Preview promotiebericht:</h3>
+                            <br />
+                            <div class="ui segments">
+                                <div class="ui raised segment">
+                                    <div class="ui items">
+                                        <div class="item">
+                                            <div id="divAfbeelding">
+                                                <img alt="" class="postimage" src="data:image;base64,@System.Convert.ToBase64String(Model.PostImage)" />
+                                            </div>
+                                            <div class="content postcontent">
+
+                                                <div class="header" id="divTitel">@Model.PostTitel</div>
+                                                <div class="meta">
+                                                    <span>@Model.PostDatum</span>
+                                                </div>
+                                                <div class="description" id="divBeschrijving">
+                                                    <p>@Model.PostText</p>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

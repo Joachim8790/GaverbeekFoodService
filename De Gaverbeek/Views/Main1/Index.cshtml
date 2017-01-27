@@ -1,0 +1,62 @@
+﻿@model IEnumerable<De_Gaverbeek.Models.tblPosts>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutOther.cshtml";
+
+}
+
+@using (Html.BeginForm("Index", "Main1", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+<div class="page">
+    <br />
+    <div class="ui horizontal divider customdivider">
+        Nieuws overzicht
+    </div>
+    <div class="container-fluid">
+
+
+            <div class="ui container">
+                @Html.AntiForgeryToken()
+                <div class="field form-group">
+                    <input type="file" class="ui input" name="txtAfbeelding" id="txtAfbeelding" accept="application/vnd.openxmlformats-officedocument.presentationml.presentation,image/*,application/pdf" />
+                    <input type="submit" value="Aanmaken" class="ui button" />
+                </div>
+                <table class="ui secondary raised segment celled table" id="datatable">
+                    <tr>
+                       
+                        <th>
+                            @Html.DisplayNameFor(model => model.PostDatum)
+                        </th>
+                        
+                        <th>
+                            @Html.DisplayNameFor(model => model.PostImage)
+                        </th>
+                        <th></th>
+                    </tr>
+
+                    @foreach (var item in Model)
+                    {
+
+                        <tr>
+                           
+                            <td>
+                                @Html.DisplayFor(modelItem => item.PostDatum)
+                            </td>
+                           
+                            <td>
+                                <img alt="" class="postimage" src="data:image;base64,@System.Convert.ToBase64String(item.PostImage)" width="80" height="80"/>
+                            </td>
+                            <td>
+                                @Html.ActionLink("Details", "Details", new { id = item.PostID }) |
+                                @Html.ActionLink("Verwijder", "Delete", new { id = item.PostID })
+                            </td>
+                        </tr>
+                    }
+
+                </table>
+            </div>
+
+    </div>
+</div>
+}

@@ -1,0 +1,57 @@
+﻿@model De_Gaverbeek.ViewModels.HomeViewModel
+@{
+    ViewBag.Home = "Home";
+ }
+<div class="page nomargin demo-1" id="pageHome">
+
+    <img  class="logoGroot" alt="" src="~/Images/Logo.PNG"/>
+        <div id="slider" class="sl-slider-wrapper">
+            <div class="ui active dimmer" id="loader">
+                <div class="ui massive text loader">Loading</div>
+            </div>
+            <div class="sl-slider">
+
+                <div class="sl-slide bg-1" data-orientation="horizontal" data-slice1-rotation="-25" data-slice2-rotation="-25" data-slice1-scale="2" data-slice2-scale="2">
+                    <div class="sl-slide-inner">
+                       <div class="bg-img bg-img-1"></div>
+                        <h2>Verse garnalen, gerookte vis, maatjes</h2>
+
+                    </div>
+                </div>
+
+                <div class="sl-slide bg-2" data-orientation="vertical" data-slice1-rotation="10" data-slice2-rotation="-15" data-slice1-scale="1.5" data-slice2-scale="1.5">
+                    <div class="sl-slide-inner">
+                        <div class="bg-img bg-img-2"></div>
+                        <h2>Droge Voeding</h2>
+                       </div>
+                </div>
+
+                <div class="sl-slide bg-3" data-orientation="horizontal" data-slice1-rotation="3" data-slice2-rotation="3" data-slice1-scale="2" data-slice2-scale="1">
+                    <div class="sl-slide-inner">
+                        <div class="bg-img bg-img-3"></div>
+                        <h2>Diepvries producten</h2>
+                        </div>
+                </div>
+
+                <div class="sl-slide bg-4" data-orientation="vertical" data-slice1-rotation="-5" data-slice2-rotation="25" data-slice1-scale="2" data-slice2-scale="1">
+                    <div class="sl-slide-inner">
+                        <div class="bg-img bg-img-4"></div>
+                        <h2>Uitgebreid assortiment voor de horeca </h2>
+                        </div>
+                </div>
+            </div><!-- /sl-slider -->
+
+            <nav id="nav-arrows" class="nav-arrows">
+                <span class="nav-arrow-prev">Previous</span>
+                <span class="nav-arrow-next">Next</span>
+            </nav>
+            <nav id="nav-dots" class="nav-dots">
+                <span class="nav-dot-current"></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </nav>
+        </div><!-- /slider-wrapper -->
+
+</div>

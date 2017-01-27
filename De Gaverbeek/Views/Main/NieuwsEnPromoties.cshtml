@@ -1,0 +1,53 @@
+﻿@model De_Gaverbeek.ViewModels.OverOnsViewModel
+
+<div class="page" id="pageNieuwsEnPromoties">
+        <br />
+    <div class="container-fluid">
+       
+            <div class="ui horizontal divider customdivider">
+                Nieuws en Promoties
+            </div>
+        <div class="ui container">
+            <table id="myTable">
+                <thead>
+                    <tr>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+    @foreach (var item in ViewBag.sortedPosts)
+    {
+        <tr>
+            <td>
+
+                <div class="ui raised segment">
+                    <div class="ui items">
+                        <div class="item">
+                            <div id="divAfbeelding">
+                                <img alt="" class="postimage" src="data:image;base64,@System.Convert.ToBase64String(item.PostImage)" width="80" height="80" />
+                            </div>
+                            <div class="content postcontent">
+                              
+                                <div class="meta">
+                                    <span>@item.PostDatum</span>
+                                </div>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+    }
+</tbody>
+
+            </table>
+
+
+           
+        </div>
+        
+        </div>
+</div>

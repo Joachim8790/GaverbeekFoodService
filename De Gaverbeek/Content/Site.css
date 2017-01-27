@@ -1,0 +1,276 @@
+﻿
+body {
+    padding-bottom: 20px;
+}
+h1, h2, h3, h4, h5 {
+    font-size:3em;
+    text-align:center;
+
+}
+.body-content {
+    margin:0;
+    padding:0;
+
+}
+.dl-horizontal dt {
+    white-space: normal;
+}
+.page {
+    height:100vh;/*vh is the same as % of screen*/
+    margin:0;
+    padding:0;
+    margin-top:81px;
+    text-align:justify;
+}
+.wrapper{
+    padding:0;
+    margin:0;  
+}
+.ui.divider{
+    font-family:Infinity;
+    font-size:3em;
+    margin-top:80px;
+}
+.logo {
+    height:80px;
+    padding:0;
+    margin-left: 10px;
+}
+#liHome,#liNieuwsEnPromoties,#liProducten,#liContact,.actionlink
+{
+    padding:30px 15px;
+}
+.zwart
+{
+    padding:20px;
+
+    margin:0;
+
+}
+.colorblack {
+    color:black;
+}
+.wit {
+    padding:0;
+    margin:0;
+   
+}
+
+.contactform {
+    border-radius:5px;
+    padding:0;
+
+}
+
+
+input,textarea{
+    width:100%;
+    margin-top:5px;
+}
+textarea{
+    height:200px;
+}
+.producten
+{
+        margin:auto 0;
+}
+.ui.special.cards  img {
+    width:100%;
+    height:auto;
+    padding:3px;
+
+}
+
+.labels
+{
+    font-family:Infinity;
+    font-size:2em;
+    color:#000000;
+}
+.ui.special.cards {
+margin:25% 0;
+padding:0;
+width:100%;
+}
+iframe{
+    width:100%;
+}
+.navbar.navbar-inverse.navbar-fixed-top
+{
+    background-color:rgba(0,0,0,0.9);
+    padding-top:25px;
+    padding-bottom:25px;
+    border:solid 1px #000000;
+    margin:0;
+}
+.ui.form .field>label{
+    color:#ffffff;
+}
+.image img {
+    width:200px;
+}
+.logoGroot {
+    width: 20%;
+    position: absolute;
+    z-index: 1000;
+    top: 32%;
+    left: 40%;
+}
+.nomargin{
+    margin:0;
+}
+.nopadding{
+    padding:0;
+}
+@media only screen and (max-width: 1000px) {
+
+  .logoGroot {top:35%}
+  .ui.special.cards{
+      margin:0 0 10px 0;
+  }
+  #pageProducten{height:inherit;min-height:100vh;}
+
+}
+@media only screen and (max-width: 800px) {
+
+    #pageNieuwsEnPromoties{ overflow:scroll; }
+    .logoGroot {width:40%;left:31%}
+    .ui.special.cards img{max-width:180px;}
+
+
+}
+@media only screen and (max-width: 700px) {
+
+   .labels { font-size: 1em; }
+   h1,.ui.divider{font-size:2em;}
+   .header.overons{font-size:1em;}
+
+
+}
+@media only screen and (max-width: 500px) {
+
+    .logoGroot {width:53%;left:24%;}
+    .displaynone{
+    display:none;
+    }
+    .button{
+    width:100%;
+    }
+}
+@media only screen and (max-width: 300px) {
+    .labels {
+        font-size: 1em;
+    }
+
+
+
+    .ui.special.cards img {
+        padding: 5px;
+    }
+
+    h1, .ui.divider {
+        font-size: 2em;
+    }
+
+    .header.overons {
+        font-size: 1em;
+    }
+
+    .logoGroot {
+        width: 63%;
+        left: 19%;
+    }
+}
+.sl-slide-inner img
+{
+    height:100%;
+}
+#pageContact{
+    min-height:100vh;
+    height:inherit;
+}
+.label:empty {
+    display: none;
+}
+label.control-label{
+    padding:1px;
+    width:inherit;
+
+}
+.button{
+    width:150px;
+}
+#datatable td{
+    vertical-align:middle;
+}
+.postimage {
+    margin: 10px;
+    width: 150px;
+    height: 150px;
+    border-radius:75px;
+}
+#divAfbeelding{
+    text-align:center;
+}
+#divTitel{
+    margin-top:10px;
+}
+.postcontent{
+    margin-top:3.5%;
+}
+
+
+ /* jssor slider bullet navigator skin 05 css */
+        /*
+        .jssorb05 div           (normal)
+        .jssorb05 div:hover     (normal mouseover)
+        .jssorb05 .av           (active)
+        .jssorb05 .av:hover     (active mouseover)
+        .jssorb05 .dn           (mousedown)
+        */
+        .jssorb05 {
+            position: absolute;
+        }
+        .jssorb05 div, .jssorb05 div:hover, .jssorb05 .av {
+            position: absolute;
+            /* size of bullet elment */
+            width: 16px;
+            height: 16px;
+            background: url('../Images/b05.png') no-repeat;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .jssorb05 div { background-position: -7px -7px; }
+        .jssorb05 div:hover, .jssorb05 .av:hover { background-position: -37px -7px; }
+        .jssorb05 .av { background-position: -67px -7px; }
+        .jssorb05 .dn, .jssorb05 .dn:hover { background-position: -97px -7px; }
+
+        /* jssor slider arrow navigator skin 22 css */
+        /*
+        .jssora22l                  (normal)
+        .jssora22r                  (normal)
+        .jssora22l:hover            (normal mouseover)
+        .jssora22r:hover            (normal mouseover)
+        .jssora22l.jssora22ldn      (mousedown)
+        .jssora22r.jssora22rdn      (mousedown)
+        .jssora22l.jssora22lds      (disabled)
+        .jssora22r.jssora22rds      (disabled)
+        */
+        .jssora22l, .jssora22r {
+            display: block;
+            position: absolute;
+            /* size of arrow element */
+            width: 40px;
+            height: 58px;
+            cursor: pointer;
+            background: url('../Images/a22.png') center center no-repeat;
+            overflow: hidden;
+        }
+        .jssora22l { background-position: -10px -31px; }
+        .jssora22r { background-position: -70px -31px; }
+        .jssora22l:hover { background-position: -130px -31px; }
+        .jssora22r:hover { background-position: -190px -31px; }
+        .jssora22l.jssora22ldn { background-position: -250px -31px; }
+        .jssora22r.jssora22rdn { background-position: -310px -31px; }
+        .jssora22l.jssora22lds { background-position: -10px -31px; opacity: .3; pointer-events: none; }
+        .jssora22r.jssora22rds { background-position: -70px -31px; opacity: .3; pointer-events: none; }

@@ -1,0 +1,49 @@
+﻿@model De_Gaverbeek.Models.tblPosts
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_LayoutOther.cshtml";
+}
+<div class="page">
+    <br />
+    <div class="ui horizontal divider customdivider">
+        Nieuws verwijderen
+    </div>
+    <div class="ui container">
+
+        <h4>Ben je zeker dat je dit promotiebericht wilt verwijderen?</h4>
+
+            <div>
+                
+                    <div class="ui secondary raised segment">
+                        <div class="ui items">
+                            <div class="item">
+                                <div id="divAfbeelding">
+                                    <img alt="" class="postimage" src="data:image;base64,@System.Convert.ToBase64String(Model.PostImage)"/>
+                                </div>
+                                <div class="content postcontent">
+
+                                    <div class="meta">
+                                        <span>@Html.DisplayFor(model => model.PostDatum)</span>
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <br />
+
+                @using (Html.BeginForm())
+            {
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-actions no-color">
+                        <input type="submit" value="Verwijder" class="ui button" /> |
+                        @Html.ActionLink("Terug naar het overzicht", "Index")
+                    </div>
+                }
+            </div>
+   
+       </div>
+    </div>

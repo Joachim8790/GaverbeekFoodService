@@ -1,0 +1,15 @@
+﻿
+@{
+    ViewBag.Title = "De Gaverbeek - Foodservice";
+    ViewBag.Home = "Home";
+    ViewBag.Contact = "Contact";
+    ViewBag.OverOns = "Over Ons";
+    ViewBag.Producten = "Producten";
+
+}
+
+@Html.Partial("~/Views/Main/Home.cshtml",new De_Gaverbeek.ViewModels.HomeViewModel())
+@Html.Partial("~/Views/Main/NieuwsEnPromoties.cshtml", new De_Gaverbeek.ViewModels.OverOnsViewModel())
+@Html.Partial("~/Views/Main/Producten.cshtml", new De_Gaverbeek.ViewModels.ProductenViewModel())
+@Html.Partial("~/Views/Main/Contact.cshtml", new De_Gaverbeek.ViewModels.ContactViewModel())
+

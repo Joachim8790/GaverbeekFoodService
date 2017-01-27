@@ -1,0 +1,43 @@
+﻿@model De_Gaverbeek.Models.tblPosts
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_LayoutOther.cshtml";
+}
+
+<div class="page">
+    <br />
+    <div class="ui horizontal divider customdivider">
+      Details
+    </div>
+    <div class="ui container">
+
+        <div>
+
+            <div class="ui secondary raised segment">
+                <div class="ui items">
+                    <div class="item">
+                        <div id="divAfbeelding">
+                            <img alt="" class="postimage" src="data:image;base64,@System.Convert.ToBase64String(Model.PostImage)" width="80" height="80" />
+                        </div>
+                        <div class="content postcontent">
+                            
+                            <div class="meta">
+                                <span>@Html.DisplayFor(model => model.PostDatum)</span>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <p>
+                @Html.ActionLink("Bewerk", "Edit", new { id = Model.PostID }) |
+                @Html.ActionLink("Terug naar overzicht", "Index")
+            </p>
+
+            </div>
+        </div>
+    </div>
+           
