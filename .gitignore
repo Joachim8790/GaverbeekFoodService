@@ -177,14 +177,14 @@ BundleArtifacts/
 !*.[Cc]ache/
 
 # Others
-ClientBin/
-[Ss]tyle[Cc]op.*
-~$*
-*~
-*.dbmdl
-*.dbproj.schemaview
-*.pfx
-*.publishsettings
+#ClientBin/
+#[Ss]tyle[Cc]op.*
+#~$*
+#*~
+#*.dbmdl
+#*.dbproj.schemaview
+#*.pfx
+#*.publishsettings
 
 
 # RIA/Silverlight projects
