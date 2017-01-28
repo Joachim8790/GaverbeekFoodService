@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="urn:schemas-microsoft-com:windows:storage:mapping:CS">
+  <EntityContainerMapping StorageEntityContainer="DeGaverbeekDatabaseModelStoreContainer" CdmEntityContainer="DeGaverbeekDatabaseEntities">
+    <EntitySetMapping Name="tblPosts">
+      <EntityTypeMapping TypeName="DeGaverbeekDatabaseModel.tblPosts">
+        <MappingFragment StoreEntitySet="tblPosts">
+          <ScalarProperty Name="PostID" ColumnName="PostID" />
+          <ScalarProperty Name="PostDatum" ColumnName="PostDatum" />
+          <ScalarProperty Name="PostImage" ColumnName="PostImage" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>
