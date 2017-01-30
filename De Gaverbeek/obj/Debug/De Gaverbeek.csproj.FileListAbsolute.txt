@@ -88,3 +88,4 @@ C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin
 C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
 C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.dll
 C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.pdb
+C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.csproj.ResolveComReference.cache

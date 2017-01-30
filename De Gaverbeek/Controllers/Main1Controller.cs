@@ -10,12 +10,16 @@ using De_Gaverbeek.Models;
 using System.IO;
 using Patagames.Pdf.Net;
 using System.Collections;
+using System.Drawing;
+
+using Microsoft.Office.Interop.PowerPoint;
+using Microsoft.Office.Core;
 
 namespace De_Gaverbeek.Controllers
 {
     public class Main1Controller : Controller
     {
-        private DeGaverbeekDatabaseEntities db = new DeGaverbeekDatabaseEntities();
+        private DeGaverbeekDatabaseEntities1 db = new DeGaverbeekDatabaseEntities1();
 
         // GET: Main1
         public ActionResult Index()
@@ -28,92 +32,134 @@ namespace De_Gaverbeek.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Index")]
-        //public ActionResult IndexPost()
-        //{
-        //    tblPosts post = new tblPosts();
-        //    if (ModelState.IsValid)
-        //    {
-               
-        //        post.PostDatum = DateTime.Now;
+        public ActionResult IndexPost()
+        {
+            tblPosts post = new tblPosts();
+            if (ModelState.IsValid)
+            {
+
+                post.PostDatum = DateTime.Now;
 
 
-        //        HttpPostedFileBase file = Request.Files["txtAfbeelding"];
-        //        if (file.FileName.ToLower().EndsWith(".pptx"))
-        //        {
-        //            System.Diagnostics.Debug.WriteLine("pptx");
-        //            //if (file != null && file.ContentLength > 0)
-        //            //{
+                HttpPostedFileBase file = Request.Files["txtAfbeelding"];
+                if (file.FileName.ToLower().EndsWith(".pptx"))
+                {
+                    System.Diagnostics.Debug.WriteLine("pptx");
+                    //if (file != null && file.ContentLength > 0)
+                    //{
+                    //    using (var fileStream = File.Create(""))
+                    //    {
+                    //        myOtherObject.InputStream.Seek(0, SeekOrigin.Begin);
+                    //        myOtherObject.InputStream.CopyTo(fileStream);
+                    //    }
 
-        //            //    MemoryStream target = new MemoryStream();
-        //            //    file.InputStream.CopyTo(target);
-        //            //    byte[] image = target.ToArray();
-        //            //    tblPosts.PostImage = image;
-        //            //    db.tblPosts.Add(tblPosts);
-        //            //    db.SaveChanges();
-        //            //    return RedirectToAction("Index");
-        //            //}
-        //            //else
-        //            //{
-        //            //    return View(tblPosts);
-        //            //}
-        //            // verder werkensdfgsdfgsdggsdf
-        //        }
-        //        else
-        //        {
-        //            if (file.FileName.ToLower().EndsWith(".pdf"))
-        //            {
-        //                System.Diagnostics.Debug.WriteLine("pdf");
-        //                try
-        //                {
-        //                    MemoryStream target = new MemoryStream();
-        //                    file.InputStream.CopyTo(target);
-        //                    byte[] pdfbytes = target.ToArray();
-        //                    var document = PdfDocument.Load(pdfbytes);
-                            
-                            
-                            
-        //                }
-        //                catch()
-        //                //if (file != null && file.ContentLength > 0)
-        //                //{
+                    //    Application pptxApplication = new Application();
+                    //    Presentation pptxPresentation = 
 
-        //                //    MemoryStream target = new MemoryStream();
-        //                //    file.InputStream.CopyTo(target);
-        //                //    byte[] image = target.ToArray();
-        //                //    tblPosts.PostImage = image;
-        //                //    db.tblPosts.Add(tblPosts);
-        //                //    db.SaveChanges();
-        //                //    return RedirectToAction("Index");
-        //                //}
-        //                //else
-        //                //{
-        //                //    return View(tblPosts);
-        //                //}
-        //            }
-        //            else
-        //            {
-        //                if (file != null && file.ContentLength > 0)
-        //                {
-        //                    System.Diagnostics.Debug.WriteLine("image");
-        //                    MemoryStream target = new MemoryStream();
-        //                    file.InputStream.CopyTo(target);
-        //                    byte[] image = target.ToArray();
-        //                    post.PostImage = image;
-        //                    db.tblPosts.Add(post);
-        //                    db.SaveChanges();
-        //                    return RedirectToAction("Index");
-        //                }
-        //                else
-        //                {
-        //                    return View(post);
-        //                }
-        //            }
-        //        }
-                
-        //    }
+                    //    //    MemoryStream target = new MemoryStream();
+                    //    //    file.InputStream.CopyTo(target);
+                    //    //    byte[] image = target.ToArray();
+                    //    //    tblPosts.PostImage = image;
+                    //    //    db.tblPosts.Add(tblPosts);
+                    //    //    db.SaveChanges();
+                    //    //    return RedirectToAction("Index");
+                    //}
+                    //else
+                    //{
+                    //    return View(post);
+                    //}
+                    return RedirectToAction("Index");
 
-        //    return View(post);
-        //}
+                }
+                else
+                {
+                    if (file.FileName.ToLower().EndsWith(".pdf"))
+                    {
+                        System.Diagnostics.Debug.WriteLine("pdf");
+                        //try
+                        //{
+                        PdfCommon.Initialize();
+                            using (var doc = PdfDocument.Load(file.InputStream))
+                            {
+
+                                foreach (var page in doc.Pages)
+                                {
+                                System.Diagnostics.Debug.WriteLine("test");
+                                    int width = (int)page.Width;
+                                    int height = (int)page.Height;
+
+                                    using (var bmp = new PdfBitmap(width, height, true))
+                                    {
+                                        bmp.FillRect(0, 0, width, height, System.Drawing.Color.White);
+                                        page.Render(bmp, 0, 0, width, height, Patagames.Pdf.Enums.PageRotate.Normal, Patagames.Pdf.Enums.RenderFlags.FPDF_ANNOT);
+                                        using (var stream = new MemoryStream())
+                                        {
+                                            bmp.Image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                                            byte[] image = stream.ToArray();
+                                            post.PostImage = image;
+                                            db.tblPosts.Add(post);
+                                            db.SaveChanges();
+
+
+                                    }
+
+                                    }
+                                }
+
+                            return RedirectToAction("Index");
+                        }
+                            //MemoryStream target = new MemoryStream();
+                            //file.InputStream.CopyTo(target);
+                            //byte[] pdfbytes = target.ToArray();
+                            //var document = PdfDocument.Load(pdfbytes);
+
+
+
+                        //}
+                        //catch (Exception ex)
+                        //{
+
+                        //}
+                        //if (file != null && file.ContentLength > 0)
+                        //{
+
+                        //    MemoryStream target = new MemoryStream();
+                        //    file.InputStream.CopyTo(target);
+                        //    byte[] image = target.ToArray();
+                        //    tblPosts.PostImage = image;
+                        //    db.tblPosts.Add(tblPosts);
+                        //    db.SaveChanges();
+                        //    return RedirectToAction("Index");
+                        //}
+                        //else
+                        //{
+                        //    return View(tblPosts);
+                        //}
+                    }
+                    else
+                    {
+                            if (file != null && file.ContentLength > 0)
+                            {
+                                System.Diagnostics.Debug.WriteLine("image");
+                                MemoryStream target = new MemoryStream();
+                                file.InputStream.CopyTo(target);
+                                byte[] image = target.ToArray();
+                                post.PostImage = image;
+                                db.tblPosts.Add(post);
+                                db.SaveChanges();
+                                return RedirectToAction("Index");
+                            }
+                            else
+                            {
+                                return View(post);
+                            }
+                        }
+                    }
+
+                }
+
+                return View(post);
+            }
         // GET: Main1/Details/5
         public ActionResult Details(int? id)
         {

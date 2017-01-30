@@ -20,7 +20,7 @@ h1, h2, h3, h4, h5 {
     white-space: normal;
 }
 .page {
-    height:100vh;/*vh is the same as % of screen*/
+    height:100%;/*vh is the same as % of screen*/
     margin:0;
     padding:0;
     margin-top:81px;
@@ -208,10 +208,20 @@ label.control-label{
     vertical-align:middle;
 }
 .postimage {
-    margin: 10px;
-    width: 150px;
-    height: 150px;
-    border-radius:75px;
+    margin:0;
+    height: 50%;
+    width:50%;
+    margin-right:25%;
+    margin-left:25%;
+    text-align:center;
+
+}
+.imageDisplay {
+    margin:0;
+    height: 98%;
+    width:100%;
+    text-align:center;
+
 }
 #divAfbeelding{
     text-align:center;
@@ -222,4 +232,13 @@ label.control-label{
 .postcontent{
     margin-top:3.5%;
 }
-
+#txtAfbeelding {
+    width:initial;
+    margin-bottom:10px;
+}
+#pageHome {
+    height:100vh;
+}
+.imagetable {
+    margin-left:22.5%;
+}

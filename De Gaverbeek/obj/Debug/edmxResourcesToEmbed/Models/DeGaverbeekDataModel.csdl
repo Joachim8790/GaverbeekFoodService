@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Schema Namespace="DeGaverbeekDatabaseModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2006/04/edm">
+<Schema Namespace="DeGaverbeekDatabaseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
   <EntityType Name="tblPosts">
     <Key>
       <PropertyRef Name="PostID" />
@@ -8,7 +8,7 @@
     <Property Name="PostDatum" Type="DateTime" Precision="3" />
     <Property Name="PostImage" Type="Binary" MaxLength="Max" FixedLength="false" />
   </EntityType>
-  <EntityContainer Name="DeGaverbeekDatabaseEntities">
+  <EntityContainer Name="DeGaverbeekDatabaseEntities1" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="tblPosts" EntityType="Self.tblPosts" />
   </EntityContainer>
 </Schema>
