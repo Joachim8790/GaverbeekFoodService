@@ -12,8 +12,6 @@ using Patagames.Pdf.Net;
 using System.Collections;
 using System.Drawing;
 
-using Microsoft.Office.Interop.PowerPoint;
-using Microsoft.Office.Core;
 
 namespace De_Gaverbeek.Controllers
 {
