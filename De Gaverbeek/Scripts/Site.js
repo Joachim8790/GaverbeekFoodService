@@ -167,7 +167,25 @@ function initDataTables()
         "searching": false,
         "ordering": false,
         "lengthChange": false,
-        "pageLength": 3
+        "pageLength": 3,
+        "language":{
+            "decimal":        "",
+            "emptyTable":     "Geen gegevens beschikbaar",
+            "info":           "Toont _START_ tot _END_ van de _TOTAL_ posts",
+            "infoPostFix":    "",
+            "thousands":      " ",
+            "loadingRecords": "Laden...",
+            "processing":     "Verwerken...",
+            "search":         "Zoeken:",
+
+            "paginate": {
+                "first":      "Eerste",
+                "last":       "Laatste",
+                "next":       "Volgende",
+                "previous":   "Vorige"
+            },
+    
+        }
     });
     }
 

@@ -126,6 +126,11 @@ iframe{
 .nopadding{
     padding:0;
 }
+@media only screen and (min-width: 1000px) {
+.imagetable {
+    padding:0 5%;
+}
+}
 @media only screen and (max-width: 1000px) {
 
   .logoGroot {top:35%}
@@ -239,6 +244,7 @@ label.control-label{
 #pageHome {
     height:100vh;
 }
-.imagetable {
-    margin-left:22.5%;
+
+.segmenthandler {
+    padding:0;
 }

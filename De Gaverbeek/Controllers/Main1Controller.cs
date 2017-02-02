@@ -11,7 +11,8 @@ using System.IO;
 using Patagames.Pdf.Net;
 using System.Collections;
 using System.Drawing;
-
+using Microsoft.Office.Interop.PowerPoint;
+using Microsoft.Office.Core;
 
 namespace De_Gaverbeek.Controllers
 {
@@ -42,31 +43,55 @@ namespace De_Gaverbeek.Controllers
                 HttpPostedFileBase file = Request.Files["txtAfbeelding"];
                 if (file.FileName.ToLower().EndsWith(".pptx"))
                 {
+
+                    string filepath = Server.MapPath("~/") + "PptxTemp.pptx";
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        System.IO.File.Delete(filepath);
+                    }
+                    
+                    System.Diagnostics.Debug.WriteLine(filepath);
                     System.Diagnostics.Debug.WriteLine("pptx");
-                    //if (file != null && file.ContentLength > 0)
-                    //{
-                    //    using (var fileStream = File.Create(""))
-                    //    {
-                    //        myOtherObject.InputStream.Seek(0, SeekOrigin.Begin);
-                    //        myOtherObject.InputStream.CopyTo(fileStream);
-                    //    }
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        using (var fileStream = System.IO.File.Create(filepath))
+                        {
+                            file.InputStream.Seek(0, SeekOrigin.Begin);
+                            file.InputStream.CopyTo(fileStream);
+                        }
 
-                    //    Application pptxApplication = new Application();
-                    //    Presentation pptxPresentation = 
+                        Application pptxApplication = new Application();
+                        Presentation pptxPresentation = pptxApplication.Presentations.Open(filepath, MsoTriState.msoFalse, MsoTriState.msoFalse, MsoTriState.msoFalse);
+                        if (Directory.Exists(Server.MapPath("~/") + "PptSlide"))
+                        {
+                            Directory.Delete(Server.MapPath("~/") + "PptSlide", true);
+                        }
+                        pptxPresentation.SaveAs(Server.MapPath("~/") + "PptSlide", PpSaveAsFileType.ppSaveAsPNG, MsoTriState.msoFalse);
+                        int counter = pptxPresentation.Slides.Count;
+                        pptxPresentation.Close();
 
-                    //    //    MemoryStream target = new MemoryStream();
-                    //    //    file.InputStream.CopyTo(target);
-                    //    //    byte[] image = target.ToArray();
-                    //    //    tblPosts.PostImage = image;
-                    //    //    db.tblPosts.Add(tblPosts);
-                    //    //    db.SaveChanges();
-                    //    //    return RedirectToAction("Index");
-                    //}
-                    //else
-                    //{
-                    //    return View(post);
-                    //}
-                    return RedirectToAction("Index");
+                        int i = 0;
+                        for (i = 0; i < counter; i++)
+                        {
+                            string path = Server.MapPath("~/") + @"PptSlide\Dia" + (i + 1) + ".png";
+                            System.Diagnostics.Debug.WriteLine(path);
+                            FileStream image = new FileStream(path, FileMode.Open);
+                            MemoryStream target = new MemoryStream();
+                            image.CopyTo(target);
+                            byte[] bytes = target.ToArray();
+                            post.PostImage = bytes;
+                            db.tblPosts.Add(post);
+                            db.SaveChanges();
+                            
+                        }
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        return View(post);
+                    }
+
+
 
                 }
                 else
