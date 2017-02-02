@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -9,10 +6,9 @@ using System.Web.Mvc;
 using De_Gaverbeek.Models;
 using System.IO;
 using Patagames.Pdf.Net;
-using System.Collections;
-using System.Drawing;
-using Microsoft.Office.Interop.PowerPoint;
+
 using Microsoft.Office.Core;
+using Microsoft.Office.Interop.PowerPoint;
 
 namespace De_Gaverbeek.Controllers
 {

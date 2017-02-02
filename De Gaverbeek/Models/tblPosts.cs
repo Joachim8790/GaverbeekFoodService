@@ -10,8 +10,7 @@
 namespace De_Gaverbeek.Models
 {
     using System;
-    using System.Collections.Generic;
-    
+
     public partial class tblPosts
     {
         public int PostID { get; set; }
