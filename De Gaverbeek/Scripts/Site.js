@@ -190,61 +190,8 @@ function initDataTables()
     }
 
 }
-function renderPost() {
-    if ($("#txtTitel").length) {
-        var txtTitel = $("#txtTitel");
-        var txtBeschrijving = $("#txtBeschrijving");
-        var txtAfbeelding = $("#txtAfbeelding");
-        var divTitel = $("#divTitel");
-        var divBeschrijving = $("#divBeschrijving");
-        var divAfbeelding = $("#divAfbeelding");
-
-        console.log("started")
 
 
-
-        txtTitel.change(function () {
-            divTitel.html(txtTitel.val());
-        });
-        txtBeschrijving.change(function () {
-            divBeschrijving.html(txtBeschrijving.val());
-        });
-        var fileInput = document.getElementById('txtAfbeelding');
-        var fileDisplayArea = document.getElementById('divAfbeelding');
-
-
-        fileInput.addEventListener('change', function (e) {
-            var file = fileInput.files[0];
-            var imageType = /image.*/;
-
-            if (file.type.match(imageType)) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    fileDisplayArea.innerHTML = "";
-
-                    var img = new Image();
-                    img.className = "ui postimage";
-                    img.width = 150;
-                    img.height = 150;
-                    img.src = reader.result;
-
-                    fileDisplayArea.appendChild(img);
-                }
-
-                reader.readAsDataURL(file);
-            } else {
-                fileDisplayArea.innerHTML = "File not supported!"
-            }
-        });
-    }
-    else
-    {
-
-    }
-
-
-}
 $(document).ready(function () {
 
     
