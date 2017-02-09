@@ -47,13 +47,10 @@
 }
 
 .demo-1 .bg-img {
-	padding: 200px;
 	-webkit-box-sizing: content-box;
 	-moz-box-sizing: content-box;
 	box-sizing: content-box;
 	position: absolute;
-	top: -200px;
-	left: -200px;
 	width: 100%;
 	height: 100%;
 	-webkit-background-size: cover;
@@ -205,7 +202,7 @@
 	text-align: center;
 	line-height: 50px;
 	bottom: 20%;
-	margin: 0 0 -120px 0;
+	margin: 0;
 }
 
 .demo-1 .sl-slide blockquote {
@@ -347,7 +344,7 @@
 
 .demo-1 .bg-5 h2,
 .demo-1 .bg-5 blockquote{
-	color: #000;
+	color: #fff;
 	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
 
@@ -358,28 +355,53 @@
 
 .demo-1 .bg-img-2 {
 	background-image: url(../Images/voorbeeldimg2.jpg);
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+
 }
 .demo-1 .bg-img-3 {
 	background-image: url(../Images/voorbeeldimg3.jpg);
+        background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 .demo-1 .bg-img-4 {
 	background-image: url(../Images/voorbeeldimg4.jpg);
+        background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 .demo-1 .bg-img-5 {
 	background-image: url(../Images/voorbeeldimg5.jpg);
+        background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 
 .demo-1 .bg-img-2Portable{
 	background-image: url(../Images/voorbeeldimg2Portable.jpg);
+        background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 .demo-1 .bg-img-3Portable {
 	background-image: url(../Images/voorbeeldimg3Portable.jpg);
+        background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 .demo-1 .bg-img-4Portable {
 	background-image: url(../Images/voorbeeldimg4Portable.jpg);
+        background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 .demo-1 .bg-img-5Portable {
 	background-image: url(../Images/voorbeeldimg5Portable.jpg);
+        background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 
 /* Animations for content elements */
@@ -553,7 +575,7 @@
 	.demo-1 .sl-slide h2 {
 		line-height: 22px;
 		font-size: 18px;
-		margin-bottom: -40px;
+		margin-bottom: 60px;
 		letter-spacing: 8px;
 	}
 

@@ -101,11 +101,13 @@ iframe{
 }
 .navbar.navbar-inverse.navbar-fixed-top
 {
-    background-color:rgba(0,0,0,0.9);
+    background-color:rgb(0,0,0);
     padding-top:25px;
     padding-bottom:25px;
     border:solid 1px #000000;
     margin:0;
+
+
 }
 .ui.form .field>label{
     color:#ffffff;
@@ -242,7 +244,7 @@ label.control-label{
     margin-bottom:10px;
 }
 #pageHome {
-    height:100vh;
+    min-height:100vh;
 }
 
 .segmenthandler {
