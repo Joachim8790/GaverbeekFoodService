@@ -447,10 +447,14 @@
     <Content Include="Images\ProductenZuivel.png" />
     <Content Include="Images\ProductenZuur.png" />
     <Content Include="Images\ProductenBeleg.png" />
-    <Content Include="Images\voorbeeldimg1.jpg" />
     <Content Include="Images\voorbeeldimg2.jpg" />
+    <Content Include="Images\voorbeeldimg2Portable.jpg" />
     <Content Include="Images\voorbeeldimg3.jpg" />
+    <Content Include="Images\voorbeeldimg3Portable.jpg" />
     <Content Include="Images\voorbeeldimg4.jpg" />
+    <Content Include="Images\voorbeeldimg4Portable.jpg" />
+    <Content Include="Images\voorbeeldimg5.jpg" />
+    <Content Include="Images\voorbeeldimg5Portable.jpg" />
     <Content Include="LICENSES\1001fonts-infinity-eula.txt" />
     <Content Include="Models\DeGaverbeekDataModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

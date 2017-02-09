@@ -355,9 +355,7 @@
 	color: #ecd82c;
 }
 
-.demo-1 .bg-img-1 {
-	background-image: url(../Images/voorbeeldimg1.jpg);
-}
+
 .demo-1 .bg-img-2 {
 	background-image: url(../Images/voorbeeldimg2.jpg);
 }
@@ -369,6 +367,19 @@
 }
 .demo-1 .bg-img-5 {
 	background-image: url(../Images/voorbeeldimg5.jpg);
+}
+
+.demo-1 .bg-img-2Portable{
+	background-image: url(../Images/voorbeeldimg2Portable.jpg);
+}
+.demo-1 .bg-img-3Portable {
+	background-image: url(../Images/voorbeeldimg3Portable.jpg);
+}
+.demo-1 .bg-img-4Portable {
+	background-image: url(../Images/voorbeeldimg4Portable.jpg);
+}
+.demo-1 .bg-img-5Portable {
+	background-image: url(../Images/voorbeeldimg5Portable.jpg);
 }
 
 /* Animations for content elements */
