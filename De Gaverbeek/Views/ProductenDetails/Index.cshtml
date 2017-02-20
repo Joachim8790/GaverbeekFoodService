@@ -3,20 +3,13 @@
 @{
     string padding = "20px 10%";
     string mobile = "";
-    if (Request.Browser.ScreenPixelsWidth < 600)
+    if (Request.Browser.IsMobileDevice)
     {
         mobile = "one";
     }
     else
     {
-        if (Request.Browser.ScreenPixelsWidth < 1500)
-        {
-            mobile = "two";
-        }
-        else
-        {
-            mobile = "three";
-        }
+        mobile = "two";
     }
 
     ViewBag.Title = "Index";
