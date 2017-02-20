@@ -1,11 +1,90 @@
 ﻿@model De_Gaverbeek.ViewModels.ProductenDetailsViewModel
 
 @{
+    string padding = "20px 10%";
+    string mobile = "";
+    if (Request.Browser.ScreenPixelsWidth < 600)
+    {
+        mobile = "one";
+    }
+    else
+    {
+        if (Request.Browser.ScreenPixelsWidth < 1500)
+        {
+            mobile = "two";
+        }
+        else
+        {
+            mobile = "three";
+        }
+    }
+
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_LayoutOther.cshtml";
     int id = ViewBag.ID;
     Console.WriteLine(id.ToString());
     string[] tabnames = {"Zuur","Zuivel","Wijn","Vis","Suiker","Kruiden","Deegwaren","Conserven","Diepvries","Olie","Bake-off","Beleg","Non-food","Volledig gamma" };
+    string[] htmlcontent = { "Zuur", @"
+            <h2>Zuivel</h2>
+<div class='ui " + @mobile + @" column grid'>
+    <div class='column' style='padding:" + @padding + @";'>
+          <div class='ui fluid card'>
+            <div class='image'>
+                <img src='/Images/inex.png'>
+                </div>
+                <div class='content'>
+                    <a class='header'>Bekijk leverancier</a>
+                </div>
+            </div>
+        </div>
+            <div class='column' style='padding:" + @padding + @";'>
+                <div class='ui fluid card'>
+                    <div class='image'>
+                        <img src='/images/vermeersch.png'>
+                        </div>
+                        <div class='content'>
+                            <a class='header'>Bekijk leverancier</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='ui " + @mobile+ @" column grid'>
+                <div class='column' style='padding:" + @padding + @";'>
+                    <div class='ui fluid card'>
+                        <div class='image'>
+                            <img src='/Images/olympia.png'>
+                            </div>
+                            <div class='content'>
+                                <a class='header'>Bekijk leverancier</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='column' style='padding:" + @padding + @";'>
+                        <div class='ui fluid card'>
+                            <div class='image'>
+                                <img src='/images/alpro.png'>
+                                </div>
+                                <div class='content'>
+                                    <a class='header'>Bekijk leverancier</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+ <div class='ui " + @mobile + @" column grid'>
+        <div class='column' style='padding:" + @padding + @";'>
+            <div class='ui fluid card'>
+                <div class='image'>
+                    <img src='/images/debic.png'>
+                    </div>
+                    <div class='content'>
+                        <a class='header'>Bekijk leverancier</a>
+                    </div>
+                </div>
+            </div>
+</div>
+", "Wijn", "Vis", "Suiker", "Kruiden", "Deegwaren", "Conserven", "Diepvries", "Olie", "Bake-off", "Beleg", "Non-food", "Volledig gamma" };
+
 }
 <div class="page">
     <br />
@@ -21,11 +100,11 @@
                     {
                         if (i + 1 == id)
                         {
-                            <div class="ui tab active" data-tab="@tabnames[i]">@tabnames[i]</div>
+                            <div class="ui tab active" data-tab="@tabnames[i]">@Html.Raw(htmlcontent[i])</div>
                         }
                         else
                         {
-                            <div class="ui tab" data-tab="@tabnames[i]">@tabnames[i]</div>
+                            <div class="ui tab" data-tab="@tabnames[i]">@Html.Raw(htmlcontent[i])</div>
                         }
                     }
                    

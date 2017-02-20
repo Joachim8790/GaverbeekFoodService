@@ -191,11 +191,23 @@ function initDataTables()
 }
 
 function initSliderImages() {
+    img2 = $(".bg-img-2");
+    img3 = $(".bg-img-3");
+    img4 = $(".bg-img-4");
+    img5 = $(".bg-img-5");
+    img2.removeClass("bg-img-2");
+    img3.removeClass("bg-img-3");
+    img4.removeClass("bg-img-4");
+    img5.removeClass("bg-img-5");
+    img2.addClass("bg-img-2");
+    img3.addClass("bg-img-3");
+    img4.addClass("bg-img-4");
+    img5.addClass("bg-img-5");
+    
+   
     if ($(window).width() < 500) {
-        img2 = $(".bg-img-2");
-        img3 = $(".bg-img-3");
-        img4 = $(".bg-img-4");
-        img5 = $(".bg-img-5");
+
+        
         img2.removeClass("bg-img-2");
         img3.removeClass("bg-img-3");
         img4.removeClass("bg-img-4");
@@ -245,6 +257,7 @@ $(window).load(function () {
     console.log(slider.height());
     slider.css("margin-top", margintop);
     slider.css("height", slider.height() - margintop);
+
 
 
 

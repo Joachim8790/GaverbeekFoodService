@@ -9,6 +9,10 @@ namespace De_Gaverbeek.Controllers
         public ActionResult Index(int id)
         {
             ViewBag.ID = id;
+            if (id == null)
+            {
+                id = 1;
+            }
             return View();
         }
     }

@@ -420,9 +420,11 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Images\a22.png" />
+    <Content Include="Images\alpro.png" />
     <Content Include="Images\b05.png" />
     <Content Include="Images\bgOverOns.jpg" />
     <Content Include="Images\c-navigator-horizontal.png" />
+    <Content Include="Images\debic.png" />
     <Content Include="Images\imgADD.png" />
     <Content Include="Images\imgOverOns1.PNG" />
     <Content Include="Images\imgOverOns2.PNG" />
@@ -430,9 +432,11 @@
     <Content Include="Images\imgOverOns4.gif" />
     <Content Include="Images\imgOverOns5.gif" />
     <Content Include="Images\imgOverOns6.gif" />
+    <Content Include="Images\inex.png" />
     <Content Include="Images\loading.gif" />
     <Content Include="Images\logo.PNG" />
     <Content Include="Images\logoSmall.png" />
+    <Content Include="Images\olympia.png" />
     <Content Include="Images\ProductenBakeOff.png" />
     <Content Include="Images\ProductenConserven.png" />
     <Content Include="Images\ProductenDeegwaren.png" />
@@ -4064,7 +4068,9 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="Views\Web.config" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
