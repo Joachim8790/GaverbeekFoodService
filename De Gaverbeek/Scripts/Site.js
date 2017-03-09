@@ -166,6 +166,7 @@ function initDataTables()
         "searching": false,
         "ordering": false,
         "lengthChange": false,
+        "info":false,
         "pageLength": 3,
         "language":{
             "decimal":        "",

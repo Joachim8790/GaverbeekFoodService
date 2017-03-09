@@ -9,9 +9,10 @@
 
 namespace De_Gaverbeek.Models
 {
+    using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-
+    
     public partial class DeGaverbeekDatabaseEntities1 : DbContext
     {
         public DeGaverbeekDatabaseEntities1()
