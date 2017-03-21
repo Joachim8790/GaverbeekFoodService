@@ -238,7 +238,7 @@ iframe{
 }
 #pageNieuwsEnPromoties
 {
-    
+    overflow:hidden;
   
 }
 .label:empty {
