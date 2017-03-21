@@ -421,10 +421,20 @@
     <Content Include="Global.asax" />
     <Content Include="Images\a22.png" />
     <Content Include="Images\alpro.png" />
+    <Content Include="Images\apollo.png" />
+    <Content Include="Images\aveno.png" />
     <Content Include="Images\b05.png" />
+    <Content Include="Images\barilla.png" />
     <Content Include="Images\bgOverOns.jpg" />
     <Content Include="Images\c-navigator-horizontal.png" />
+    <Content Include="Images\dauphine.png" />
     <Content Include="Images\debic.png" />
+    <Content Include="Images\dececco.png" />
+    <Content Include="Images\diversifoods.png" />
+    <Content Include="Images\elisa.png" />
+    <Content Include="Images\gilco.png" />
+    <Content Include="Images\hamal.png" />
+    <Content Include="Images\honig.png" />
     <Content Include="Images\imgADD.png" />
     <Content Include="Images\imgOverOns1.PNG" />
     <Content Include="Images\imgOverOns2.PNG" />
@@ -433,10 +443,16 @@
     <Content Include="Images\imgOverOns5.gif" />
     <Content Include="Images\imgOverOns6.gif" />
     <Content Include="Images\inex.png" />
+    <Content Include="Images\isfi.png" />
+    <Content Include="Images\knorr.png" />
+    <Content Include="Images\lecoubourg.png" />
     <Content Include="Images\loading.gif" />
     <Content Include="Images\logo.PNG" />
     <Content Include="Images\logoSmall.png" />
+    <Content Include="Images\nieuwsenpromotiebg.jpg" />
     <Content Include="Images\olympia.png" />
+    <Content Include="Images\panesco.png" />
+    <Content Include="Images\pastridor.png" />
     <Content Include="Images\ProductenBakeOff.png" />
     <Content Include="Images\ProductenConserven.png" />
     <Content Include="Images\ProductenDeegwaren.png" />
@@ -451,6 +467,15 @@
     <Content Include="Images\ProductenZuivel.png" />
     <Content Include="Images\ProductenZuur.png" />
     <Content Include="Images\ProductenBeleg.png" />
+    <Content Include="Images\pruve.png" />
+    <Content Include="Images\salminvest.png" />
+    <Content Include="Images\stop.png" />
+    <Content Include="Images\vanafish.png" />
+    <Content Include="Images\vandemoortele.png" />
+    <Content Include="Images\vermeersch.png" />
+    <Content Include="Images\verstegen.png" />
+    <Content Include="Images\vh.png" />
+    <Content Include="Images\voorbeeldimg1.jpg" />
     <Content Include="Images\voorbeeldimg2.jpg" />
     <Content Include="Images\voorbeeldimg2Portable.jpg" />
     <Content Include="Images\voorbeeldimg3.jpg" />
@@ -480,6 +505,8 @@
     <Content Include="fonts\Infinity.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="config.json" />
+    <Content Include="Scripts\jquery.waypoints.js" />
+    <Content Include="Scripts\jquery.waypoints.min.js" />
     <Content Include="x64\pdfium.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -4061,7 +4088,9 @@
     <Content Include="semantic\tasks\rtl\watch.js" />
     <Content Include="semantic\tasks\version.js" />
     <Content Include="semantic\tasks\watch.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

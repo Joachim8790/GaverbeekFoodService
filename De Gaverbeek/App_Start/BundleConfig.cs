@@ -25,7 +25,9 @@ namespace De_Gaverbeek
                       "~/Scripts/Site.js", 
                       "~/semantic/dist/semantic.min.js",
                       "~/Scripts/jquery.slitslider.js",
-                      "~/Scripts/jquery.ba-cond.min.js"
+                      "~/Scripts/jquery.ba-cond.min.js",
+                      "~/Scripts/jquery.waypoints.js",
+                      "~/Scripts/jquery.waypoints.min.js"
 
 
                       ));
@@ -48,10 +50,13 @@ namespace De_Gaverbeek
                 "~/Scripts/DataTables/jquery.datatables.min.js",
                 "~/Scripts/DataTables/datatables.bootstrap.min.js",
                 "~/Scripts/DataTables/datatables.responsive.min.js"
+               
                 ));
             bundles.Add(new StyleBundle("~/Content/datatables").Include(
                 "~/Content/DataTables/css/dataTables.bootstrap.min.css",
-                "~/Content/DataTables/css/responsive.bootstrap.min.css"));
+                "~/Content/DataTables/css/responsive.bootstrap.min.css"
+                
+                ));
 
         }
     }

@@ -1,14 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Schema Namespace="DeGaverbeekDatabaseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+<Schema Namespace="DeGaverbeekModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
   <EntityType Name="tblPosts">
     <Key>
       <PropertyRef Name="PostID" />
     </Key>
     <Property Name="PostID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-    <Property Name="PostDatum" Type="DateTime" Precision="3" />
-    <Property Name="PostImage" Type="Binary" MaxLength="Max" FixedLength="false" />
+    <Property Name="PostTitel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="PostText" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="PostDatum" Type="DateTime" Precision="3" Nullable="false" />
+    <Property Name="PostImage" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
   </EntityType>
-  <EntityContainer Name="DeGaverbeekDatabaseEntities1" annotation:LazyLoadingEnabled="true">
+  <EntityContainer Name="DeGaverbeekEntities1" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="tblPosts" EntityType="Self.tblPosts" />
   </EntityContainer>
 </Schema>

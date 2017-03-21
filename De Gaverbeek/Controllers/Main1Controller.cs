@@ -14,7 +14,7 @@ namespace De_Gaverbeek.Controllers
 {
     public class Main1Controller : Controller
     {
-        private DeGaverbeekDatabaseEntities1 db = new DeGaverbeekDatabaseEntities1();
+        private DeGaverbeekEntities1 db = new DeGaverbeekEntities1();
 
         // GET: Main1
         public ActionResult Index()
@@ -26,13 +26,13 @@ namespace De_Gaverbeek.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ActionName("Index")]
-        public ActionResult IndexPost()
+        public ActionResult Create(tblPosts tblPosts)
         {
             tblPosts post = new tblPosts();
             if (ModelState.IsValid)
             {
-
+                post.PostText = tblPosts.PostText;
+                post.PostTitel = tblPosts.PostTitel;
                 post.PostDatum = DateTime.Now;
 
 
@@ -159,6 +159,7 @@ namespace De_Gaverbeek.Controllers
                     {
                             if (file != null && file.ContentLength > 0)
                             {
+  
                                 System.Diagnostics.Debug.WriteLine("image");
                                 MemoryStream target = new MemoryStream();
                                 file.InputStream.CopyTo(target);
@@ -167,6 +168,8 @@ namespace De_Gaverbeek.Controllers
                                 db.tblPosts.Add(post);
                                 db.SaveChanges();
                                 return RedirectToAction("Index");
+
+                                
                             }
                             else
                             {
@@ -195,12 +198,12 @@ namespace De_Gaverbeek.Controllers
         }
 
         // GET: Main1/Create
-        //public ActionResult Create()
-        //{
-        //    return View();
-        //}
+        public ActionResult Create()
+        {
+            return View();
+        }
 
-       
+
 
         // GET: Main1/Edit/5
         //public ActionResult Edit(int? id)

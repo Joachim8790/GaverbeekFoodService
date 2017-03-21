@@ -352,7 +352,13 @@
 	color: #ecd82c;
 }
 
+.demo-1 .bg-img-1 {
+	background-image: url(../Images/voorbeeldimg1.jpg);
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
 
+}
 .demo-1 .bg-img-2 {
 	background-image: url(../Images/voorbeeldimg2.jpg);
     background-position:center;
@@ -379,6 +385,12 @@
     background-repeat:no-repeat;
 }
 
+.demo-1 .bg-img-1Portable{
+	background-image: url(../Images/voorbeeldimg1.jpg);
+        background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+}
 .demo-1 .bg-img-2Portable{
 	background-image: url(../Images/voorbeeldimg2Portable.jpg);
         background-position:center;

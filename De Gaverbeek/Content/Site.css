@@ -133,18 +133,48 @@ iframe{
     padding:0 5%;
 }
 }
+@media only screen and (min-width: 601px) {
+                .ui.raised.segment {
+        width:40%;
+    }
+}
+@media only screen and (max-width: 1400px) {
+
+
+}
+@media only screen and (min-width: 1200px) {
+
+    .dataTables_paginate.paging_simple_numbers{
+    margin-top:0;
+}
+
+}
+@media only screen and (max-width: 1200px) {
+    .dataTables_paginate.paging_simple_numbers{
+    margin-top:30%;
+
+}
+#headerNieuws
+{
+    margin-bottom:6%;
+
+}    
+
+}
 @media only screen and (max-width: 1000px) {
 
   .logoGroot {top:35%}
   .ui.special.cards{
       margin:0 0 10px 0;
   }
+   #pageNieuwsEnPromoties,.bgnieuws {
+       
+    }
   #pageProducten{height:inherit;min-height:100vh;}
 
 }
 @media only screen and (max-width: 800px) {
 
-    #pageNieuwsEnPromoties{ overflow:scroll; }
     .logoGroot {width:40%;left:31%}
     .ui.special.cards img{max-width:180px;}
 
@@ -157,6 +187,12 @@ iframe{
    .header.overons{font-size:1em;}
 
 
+}
+@media only screen and (max-width: 600px) {
+
+            .ui.raised.segment {
+        width:100%;
+    }
 }
 @media only screen and (max-width: 500px) {
 
@@ -200,6 +236,11 @@ iframe{
     min-height:100vh;
     height:inherit;
 }
+#pageNieuwsEnPromoties
+{
+    
+  
+}
 .label:empty {
     display: none;
 }
@@ -216,22 +257,29 @@ label.control-label{
 }
 .postimage {
     margin:0;
-    height: 50%;
-    width:50%;
-    margin-right:25%;
-    margin-left:25%;
+    height: 200px;
+    width:auto;
     text-align:center;
 
 }
 .imageDisplay {
-    margin:0;
-    height: 98%;
-    width:100%;
+
+    max-height: 25vh;
+    max-width: 100%;
     text-align:center;
+    transform:skewY(-5deg);
+    position:relative;
+    top:-10px;
+
 
 }
+
 #divAfbeelding{
     text-align:center;
+    padding:0;
+    transform:skewY(5deg);
+    overflow:hidden;
+
 }
 #divTitel{
     margin-top:10px;
@@ -252,4 +300,27 @@ label.control-label{
 }
 .col-sm-28{
     margin:5%;
+    text-align:-webkit-center;
+}
+.bericht {
+    position:relative;
+}
+#myTable
+{
+    position:relative;
+}
+.bgnieuws
+{
+    
+    position:absolute;
+    width:100%;
+    height:100vh;
+    z-index:-9999;
+    background-image:url(../Images/nieuwsenpromotiebg.jpg);
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+    
+    filter: blur(50px);
+  -webkit-filter: blur(50px);
 }

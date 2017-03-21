@@ -14,7 +14,7 @@
         <div class="ui horizontal divider customdivider">
             Nieuws toevoegen
         </div>
-        <div class="container-fluid">
+        <div class="container">
         <div class="ui secondary raised segment">
             @Html.AntiForgeryToken()
 
@@ -37,7 +37,7 @@
                         </div>
 
                         <div class="field form-group">
-                            <input type="file" class="ui input" name="txtAfbeelding" id="txtAfbeelding" />
+                            <input type="file" class="ui input" name="txtAfbeelding" id="txtAfbeelding" accept="application/vnd.openxmlformats-officedocument.presentationml.presentation,image/*,application/pdf" />
                         </div>
                         <div class="field form-group">
 
@@ -45,32 +45,6 @@
                         </div>
                         <div>
                             @Html.ActionLink("Terug naar het overzicht", "Index")
-                        </div>
-                    </div>
-                    <div class="col-lg-14 col-md-14" style="padding:0;">
-                        <h3 style="text-align:left;font-size:2em;">Preview promotiebericht:</h3>
-                        <br />
-                        <div class="ui segments">
-                            <div class="ui raised segment">
-                                    <div class="ui items">
-                                        <div class="item">
-                                            <div id="divAfbeelding">
-                                                <img class="ui postimage" src="~/Images/imgADD.png">
-                                            </div>
-                                            <div class="content postcontent">
-
-                                                    <div class="header" id="divTitel">Arrowhead Valley Camp</div>
-                                                    <div class="meta">
-                                                        <span>@DateTime.Today.ToShortDateString()</span>
-                                                    </div>
-                                                    <div class="description" id="divBeschrijving">
-                                                        <p>Lorem Ipsum is slechts een proeftekst uit het drukkerij- en zetterijwezen. Lorem Ipsum is de standaard proeftekst in deze bedrijfstak sinds de 16e eeuw, toen een onbekende drukker</p>
-                                                    </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                            </div>
                         </div>
                     </div>
                 </div>

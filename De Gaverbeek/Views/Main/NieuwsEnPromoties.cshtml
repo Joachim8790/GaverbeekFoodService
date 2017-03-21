@@ -2,12 +2,15 @@
 
 <div class="page" id="pageNieuwsEnPromoties">
         <br />
-    <div class="container-fluid">
-       
-            <div class="ui horizontal divider customdivider">
-                Nieuws en Promoties
-            </div>
-        <div class="ui container">
+    <div class="bgnieuws"></div>
+    <div class="container-fluid nieuws">
+       <div class="ui raised segment" id="headerNieuws" style="width:100%;">
+           <div class="ui horizontal divider customdivider" style="margin-top:0;">
+    Nieuws en Promoties
+    </div>
+       </div>
+            
+        <div class="ui container-fluid">
             <table class="imagetable" id="myTable">
                 <thead>
                     <tr>
@@ -20,17 +23,25 @@
     {
         <tr>
             <td>
-
-                <div class="ui raised segment" style="padding:0;">
-                    <div class="ui items">
-                        <div class="item">
+                <div class="bericht">
+                    <div class="ui raised segment" style="padding:20px 10px;margin-left:auto;margin-right:auto;transform:skewY(5deg);">
+                        <div style="transform:skewY(-5deg)">
                             <div id="divAfbeelding">
-                                <img alt="" class="imageDisplay" src="data:image;base64,@System.Convert.ToBase64String(item.PostImage)" width="80" height="80" />
+                                <img alt="" class="imageDisplay" src="data:image;base64,@System.Convert.ToBase64String(item.PostImage)" />
                             </div>
-                            
-                        </div>
+
+                            <h4 class="ui header" style="margin-top:5px">
+                                <i class="quote left icon"></i>
+                                <div class="content">
+                                    @item.PostTitel
+                                </div>
+                            </h4>
+                            <p>@item.PostText</p>
+
+
                     </div>
                 </div>
+            </div>
             </td>
         </tr>
 

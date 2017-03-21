@@ -1,4 +1,6 @@
-﻿
+﻿var bool;
+var waypoint;
+var table;
 function pageNavigation() {
     var snelheid = 1000;
     $("#liHome").on("click", function () {
@@ -162,7 +164,8 @@ function initTabs()
 function initDataTables()
 {
     if($("#myTable").length){
-    $("#myTable").DataTable({
+        table = $("#myTable");
+    table.DataTable({
         "searching": false,
         "ordering": false,
         "lengthChange": false,
@@ -187,6 +190,7 @@ function initDataTables()
     
         }
     });
+
     }
 
 }
@@ -222,21 +226,116 @@ function initSliderImages() {
 
         
 }
+function animatePosts() {
+    if ($(window).width() > 800) {
+        var rows = $(".bericht");
+        var firstrow = $(rows[0]);
+        var middlerow = $(rows[1]);
+        var lastrow = $(rows[2]);
+        var height = middlerow.outerHeight();
+        var firstrowheight = firstrow.outerHeight();
+        var lastrowheight = lastrow.outerHeight();
 
+        var page1 = $("#pageNieuwsEnPromoties");
+        var footer = $($("#myTable_wrapper div.row")[2]);
+        footer.attr("style", "position:relative;");
+        var containerfluid = $(".container-fluid .nieuws");
+        var colsm28 = $(".col-sm-28");
+        colsm28.attr("style", "max-height:" + height * 1.4 + "px");
+
+        console.log(firstrow);
+        console.log(lastrow);
+        console.log(height);
+        console.log(page1);
+        console.log(footer);
+        console.log(containerfluid);
+        console.log(rows.size()); 
+        firstrow.animate({
+            left: "-45%"
+        }
+        , 1000, false);
+        firstrow.animate({
+            top: (firstrowheight*0.93)
+        }
+        , 1000, false);
+
+        lastrow.animate({
+            left: "45%"
+        }
+        , 1000, false);
+
+        lastrow.animate({
+            bottom: (height*0.93)
+        }
+        , 1000, false);
+        console.log(bool);
+
+        page1.animate({
+            height: "100vh"
+        }
+    , 1000, false);
+
+        table.animate({
+            bottom: (height*0.87)
+
+        }
+            , 1000, false);
+
+    //    if (rows.size() == 3) {
+    //        console.log("3 rows");
+    //        footer.animate({
+    //            bottom: "60vh"
+
+    //        }
+    //        , 1000, false);
+
+    //    }
+    //    else {
+    //        if (rows.size() == 2) {
+    //            console.log("2 rows");
+    //            footer.animate({
+    //                bottom: "30vh"
+
+    //            }
+    //       , 1000, false);
+    //        }
+    //        else {
+    //            if (rows.size() == 1) {
+    //                console.log("1 row");
+    //                footer.animate({
+    //                    bottom: "0"
+
+    //                }
+    //       , 1000, false);
+    //            }
+    //        }
+    //    }
+        containerfluid.animate({
+            height: "80vh"
+
+        }
+    , 1000, false);
+    }
+    
+}
+function noop(){};
 $(document).ready(function () {
 
-    
+    bool = 1;
+    var nieuwspagina = $("#pageNieuwsEnPromoties");
+    waypoint = new Waypoint({
+        element: nieuwspagina,
+        handler: animatePosts,
+        offset: "50%"
+    })
     pageNavigation();
     initSlider();
     initTabs();
     initDataTables();
 
-
     $(window).bind("load", initSliderImages);
     $(window).bind("resize", initSliderImages);
     $(window).bind("orientationchange", initSliderImages);
-
-
     $(window).bind("load", initMap);
     $(window).bind("resize", initMap);
     $(window).bind("orientationchange", initMap);
@@ -246,18 +345,20 @@ $(document).ready(function () {
     $(window).bind("load", mobileErrormsg);
     $(window).bind("resize", mobileErrormsg);
     $(window).bind("orientationchange", mobileErrormsg);
-    
-   
+     
 });
 $(window).load(function () {
     $("#loader").attr("style", "display:none;");
     var margintop = $(".navbar-fixed-top").outerHeight();
-    console.log(margintop);
-
     var slider = $("#slider");
-    console.log(slider.height());
     slider.css("margin-top", margintop);
     slider.css("height", slider.height() - margintop);
+
+    $('.col-sm-16').on('click', null, function() {
+
+        setTimeout(animatePosts, 500);
+
+    });
 
 
 

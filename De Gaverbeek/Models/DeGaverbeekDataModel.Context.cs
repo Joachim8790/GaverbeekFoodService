@@ -13,10 +13,10 @@ namespace De_Gaverbeek.Models
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class DeGaverbeekDatabaseEntities1 : DbContext
+    public partial class DeGaverbeekEntities1 : DbContext
     {
-        public DeGaverbeekDatabaseEntities1()
-            : base("name=DeGaverbeekDatabaseEntities1")
+        public DeGaverbeekEntities1()
+            : base("name=DeGaverbeekEntities1")
         {
         }
     

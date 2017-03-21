@@ -19,13 +19,17 @@
             <div class="ui container">
                 @Html.AntiForgeryToken()
                 <div class="field form-group">
-                    <input type="file" class="ui input" name="txtAfbeelding" id="txtAfbeelding" accept="application/vnd.openxmlformats-officedocument.presentationml.presentation,image/*,application/pdf" />
-                    <input type="submit" value="Aanmaken" class="ui button" />
+                    @Html.ActionLink("Nieuw", "Create", "Main1")
                 </div>
                 <table class="ui secondary raised segment celled table" id="datatable">
                     <tr>
-                       
-                        <th class="four wide column">
+                        <th class="two wide column">
+                            @Html.DisplayNameFor(model => model.PostTitel)
+                        </th>
+                        <th class="two wide column">
+                            @Html.DisplayNameFor(model => model.PostText)
+                        </th>
+                        <th class="two wide column">
                             @Html.DisplayNameFor(model => model.PostDatum)
                         </th>
                         
@@ -39,6 +43,12 @@
                     {
 
                         <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.PostTitel)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.PostText)
+                            </td>
                            
                             <td>
                                 @Html.DisplayFor(modelItem => item.PostDatum)

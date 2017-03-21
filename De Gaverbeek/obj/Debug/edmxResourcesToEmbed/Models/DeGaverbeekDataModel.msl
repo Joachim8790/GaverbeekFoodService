@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-  <EntityContainerMapping StorageEntityContainer="DeGaverbeekDatabaseModelStoreContainer" CdmEntityContainer="DeGaverbeekDatabaseEntities1">
+  <EntityContainerMapping StorageEntityContainer="DeGaverbeekModelStoreContainer" CdmEntityContainer="DeGaverbeekEntities1">
     <EntitySetMapping Name="tblPosts">
-      <EntityTypeMapping TypeName="DeGaverbeekDatabaseModel.tblPosts">
+      <EntityTypeMapping TypeName="DeGaverbeekModel.tblPosts">
         <MappingFragment StoreEntitySet="tblPosts">
           <ScalarProperty Name="PostID" ColumnName="PostID" />
+          <ScalarProperty Name="PostTitel" ColumnName="PostTitel" />
+          <ScalarProperty Name="PostText" ColumnName="PostText" />
           <ScalarProperty Name="PostDatum" ColumnName="PostDatum" />
           <ScalarProperty Name="PostImage" ColumnName="PostImage" />
         </MappingFragment>
