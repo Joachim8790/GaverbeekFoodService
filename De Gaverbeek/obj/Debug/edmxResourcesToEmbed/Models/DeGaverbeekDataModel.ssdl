@@ -1,8 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Schema Namespace="DeGaverbeekModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+<Schema Namespace="databasedegaverbeekModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'databasedegaverbeek.dbo.tblPosts' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
   <EntityType Name="tblPosts">
     <Key>
       <PropertyRef Name="PostID" />
+      <PropertyRef Name="PostTitel" />
+      <PropertyRef Name="PostText" />
+      <PropertyRef Name="PostDatum" />
+      <PropertyRef Name="PostImage" />
     </Key>
     <Property Name="PostID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="PostTitel" Type="nvarchar" MaxLength="250" Nullable="false" />
@@ -10,7 +16,15 @@
     <Property Name="PostDatum" Type="datetime" Nullable="false" />
     <Property Name="PostImage" Type="image" Nullable="false" />
   </EntityType>
-  <EntityContainer Name="DeGaverbeekModelStoreContainer">
-    <EntitySet Name="tblPosts" EntityType="Self.tblPosts" Schema="dbo" store:Type="Tables" />
+  <EntityContainer Name="databasedegaverbeekModelStoreContainer">
+    <EntitySet Name="tblPosts" EntityType="Self.tblPosts" store:Type="Tables" store:Schema="dbo">
+      <DefiningQuery>SELECT 
+    [tblPosts].[PostID] AS [PostID], 
+    [tblPosts].[PostTitel] AS [PostTitel], 
+    [tblPosts].[PostText] AS [PostText], 
+    [tblPosts].[PostDatum] AS [PostDatum], 
+    [tblPosts].[PostImage] AS [PostImage]
+    FROM [dbo].[tblPosts] AS [tblPosts]</DefiningQuery>
+    </EntitySet>
   </EntityContainer>
 </Schema>
