@@ -241,6 +241,9 @@ iframe{
     overflow:hidden;
   
 }
+#pageProducten {
+    background:white;
+}
 .label:empty {
     display: none;
 }
