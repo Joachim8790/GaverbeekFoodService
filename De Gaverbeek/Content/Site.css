@@ -327,9 +327,11 @@ label.control-label{
     background-size:cover;
     background-repeat:no-repeat;
     
-   filter: blur(50px);
-   -webkit-filter: blur(50px);
-   -ms-filter: blur(50px);
-    filter: url("data:image/svg+xml;utf9,<svg%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'><filter%20id='blur'><feGaussianBlur%20stdDeviation='50'%20/></filter></svg>#blur");
-    filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius='50'); 
+  filter: blur(50px); 
+-webkit-filter: blur(50px); 
+-moz-filter: blur(50px);
+-o-filter: blur(50px); 
+-ms-filter: blur(50px);
+filter: url(blur.svg#blur);
+filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius='50');
 }
