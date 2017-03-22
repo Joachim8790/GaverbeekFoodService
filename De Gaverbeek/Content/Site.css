@@ -306,6 +306,7 @@ label.control-label{
 .col-sm-28{
     margin:5%;
     text-align:-webkit-center;
+    text-align:-ms-center;
 }
 .bericht {
     position:relative;
@@ -328,4 +329,5 @@ label.control-label{
     
     filter: blur(50px);
   -webkit-filter: blur(50px);
+   -ms-filter:blur(50px);
 }
