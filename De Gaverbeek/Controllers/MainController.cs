@@ -11,7 +11,7 @@ namespace De_Gaverbeek.Controllers
     public class MainController : Controller
     {
 
-        private databasedegaverbeekEntities db = new databasedegaverbeekEntities();
+        private databasedegaverbeekEntities1 db = new databasedegaverbeekEntities1();
         // GET: Main
         public ActionResult Index()
         {

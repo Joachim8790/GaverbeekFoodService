@@ -3,10 +3,6 @@
   <EntityType Name="tblPosts">
     <Key>
       <PropertyRef Name="PostID" />
-      <PropertyRef Name="PostTitel" />
-      <PropertyRef Name="PostText" />
-      <PropertyRef Name="PostDatum" />
-      <PropertyRef Name="PostImage" />
     </Key>
     <Property Name="PostID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Name="PostTitel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
@@ -14,7 +10,7 @@
     <Property Name="PostDatum" Type="DateTime" Nullable="false" Precision="3" />
     <Property Name="PostImage" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
   </EntityType>
-  <EntityContainer Name="databasedegaverbeekEntities" annotation:LazyLoadingEnabled="true">
+  <EntityContainer Name="databasedegaverbeekEntities1" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="tblPosts" EntityType="Self.tblPosts" />
   </EntityContainer>
 </Schema>

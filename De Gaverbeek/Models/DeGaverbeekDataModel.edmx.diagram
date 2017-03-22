@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="2426595efdb84e52b61b34df26d75974" Name="Diagram1">
+      <Diagram DiagramId="4dac8fc055ae4afe8d05b630a47fc8d3" Name="Diagram1">
         <EntityTypeShape EntityType="databasedegaverbeekModel.tblPosts" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
       </Diagram>
     </edmx:Diagrams>

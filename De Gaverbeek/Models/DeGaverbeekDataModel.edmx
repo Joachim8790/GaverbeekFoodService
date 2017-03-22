@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="databasedegaverbeekModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="databasedegaverbeekModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="tblPosts">
           <Key>
             <PropertyRef Name="PostID" />
@@ -18,17 +18,14 @@
         <EntityContainer Name="databasedegaverbeekModelStoreContainer">
           <EntitySet Name="tblPosts" EntityType="Self.tblPosts" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="databasedegaverbeekModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="tblPosts">
           <Key>
             <PropertyRef Name="PostID" />
-            <PropertyRef Name="PostTitel" />
-            <PropertyRef Name="PostText" />
-            <PropertyRef Name="PostDatum" />
-            <PropertyRef Name="PostImage" />
           </Key>
           <Property Name="PostID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="PostTitel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
@@ -36,7 +33,7 @@
           <Property Name="PostDatum" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="PostImage" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
         </EntityType>
-        <EntityContainer Name="databasedegaverbeekEntities" annotation:LazyLoadingEnabled="true">
+        <EntityContainer Name="databasedegaverbeekEntities1" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="tblPosts" EntityType="Self.tblPosts" />
         </EntityContainer>
       </Schema>
@@ -44,7 +41,7 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="databasedegaverbeekModelStoreContainer" CdmEntityContainer="databasedegaverbeekEntities">
+        <EntityContainerMapping StorageEntityContainer="databasedegaverbeekModelStoreContainer" CdmEntityContainer="databasedegaverbeekEntities1">
           <EntitySetMapping Name="tblPosts">
             <EntityTypeMapping TypeName="databasedegaverbeekModel.tblPosts">
               <MappingFragment StoreEntitySet="tblPosts">
