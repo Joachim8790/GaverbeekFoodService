@@ -4,7 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - My ASP.NET Application</title>
-    
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @Styles.Render("~/Content/datatables")
@@ -36,7 +37,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year De Gaverbeek - Development Joachim Verschelde</p>
+            <p style="text-align:center;">&copy; @DateTime.Now.Year De Gaverbeek - Development Joachim Verschelde</p>
         </footer>
     </div>
 
