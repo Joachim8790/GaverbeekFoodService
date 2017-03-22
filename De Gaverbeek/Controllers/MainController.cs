@@ -43,7 +43,7 @@ namespace De_Gaverbeek.Controllers
                     client.UseDefaultCredentials = false;
                     client.Credentials = loginInfo;
                     msg.From = new MailAddress("contactformulierdegaverbeek@gmail.com");
-                    msg.To.Add(new MailAddress("stefaan@degaverbeek.be"));
+                    msg.To.Add(new MailAddress("joachim.verschelde@student.vives.be"));
                     msg.Subject = vm.Onderwerp;
                     msg.Body = "<h2>Nieuw bericht van " + vm.Naam + "</h2><br/> <b>Emailadres correspondent:</b> " + vm.Emailadres + "<br/><b>  Onderwerp: </b>" + vm.Onderwerp + "<br/><b> Verstuurd bericht: </b>" + vm.Bericht;
                     msg.IsBodyHtml = true;
