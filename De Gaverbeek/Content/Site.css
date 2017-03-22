@@ -329,7 +329,7 @@ label.control-label{
     
  
 
-filter: blur(3px);
--webkit-filter: blur(3px);
+filter: blur(20px);
+-webkit-filter: blur(20px);
 
 }
