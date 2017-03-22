@@ -29,8 +29,8 @@ namespace De_Gaverbeek.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
+                //try
+                //{
 
                     var loginInfo = new NetworkCredential("contactformulierdegaverbeek@gmail.com", "Brauwvir1");
                     var msg = new MailMessage();
@@ -43,19 +43,19 @@ namespace De_Gaverbeek.Controllers
                     client.UseDefaultCredentials = false;
                     client.Credentials = loginInfo;
                     msg.From = new MailAddress("contactformulierdegaverbeek@gmail.com");
-                    msg.To.Add(new MailAddress("joachim.verschelde@student.vives.be"));
+                    msg.To.Add(new MailAddress("stefaan@degaverbeek.be"));
                     msg.Subject = vm.Onderwerp;
                     msg.Body = "<h2>Nieuw bericht van " + vm.Naam + "</h2><br/> <b>Emailadres correspondent:</b> " + vm.Emailadres + "<br/><b>  Onderwerp: </b>" + vm.Onderwerp + "<br/><b> Verstuurd bericht: </b>" + vm.Bericht;
                     msg.IsBodyHtml = true;
                     client.Send(msg);
                     ModelState.Clear();
                     return RedirectToAction("Index","Main");
-                }
-                catch (Exception ex)
-                {
+                //}
+                //catch (Exception ex)
+                //{
 
-                    return RedirectToAction("Index", "Main");
-                }
+                //    return RedirectToAction("Index", "Main");
+                //}
             }
             else
             {
