@@ -322,12 +322,16 @@ function noop(){};
 $(document).ready(function () {
 
     bool = 1;
-    var nieuwspagina = $("#pageNieuwsEnPromoties");
-    waypoint = new Waypoint({
-        element: nieuwspagina,
-        handler: animatePosts,
-        offset: "50%"
-    })
+    if ($("#pageNieuwsEnPromoties").length)
+    {
+        var nieuwspagina = $("#pageNieuwsEnPromoties");
+        waypoint = new Waypoint({
+            element: nieuwspagina,
+            handler: animatePosts,
+            offset: "50%"
+        })
+    }
+
     pageNavigation();
     initSlider();
     initTabs();

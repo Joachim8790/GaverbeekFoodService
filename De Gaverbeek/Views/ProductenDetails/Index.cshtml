@@ -43,13 +43,12 @@
                                 <h2>@tabnames[i]</h2>
                                 @{
 
-                                    int photospertab = photos[i].GetLength(0);
-                                    int decrement = photospertab;
-                                    int photoscount = 0;
-                                    System.Diagnostics.Debug.WriteLine("photospertab: "+photospertab + " decrement: " + decrement);
+                                        int photospertab = photos[i].GetLength(0);
+                                        int decrement = photospertab;
+                                        int photoscount = 0;
+                                        System.Diagnostics.Debug.WriteLine("photos:" + photos[i + 8].ToList());
                                     while (decrement - (photospertab % 2) > 0)
                                     {
-                                        System.Diagnostics.Debug.WriteLine("photoscount: "+photoscount);
                                         decrement = decrement - 2;
                                         <div class='ui @mobile column grid'>
                                             <div class='column' style='padding:@paddingLeft;'>
@@ -58,7 +57,7 @@
                                                         <img src=@photos[i][photoscount]>
                                                     </div>
                                                     <div class='content'>
-                                                        <a class='header'>Bekijk leverancier</a>
+                                                        <a  href=@photos[i+8][photoscount] class='header'>Bekijk leverancier</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -68,7 +67,7 @@
                                                         <img src=@photos[i][photoscount + 1]>
                                                     </div>
                                                     <div class='content'>
-                                                        <a class='header'>Bekijk leverancier</a>
+                                                        <a href=@photos[i+8][photoscount] class='header'>Bekijk leverancier</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -94,7 +93,7 @@
                                                         <img src=@photos[i][photoscount]>
                                                     </div>
                                                     <div class='content'>
-                                                        <a class='header'>Bekijk leverancier</a>
+                                                        <a href=@photos[i+8][photoscount] class='header'>Bekijk leverancier</a>
                                                     </div>
                                                 </div>
                                             </div>
