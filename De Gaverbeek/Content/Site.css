@@ -306,6 +306,7 @@ label.control-label{
 .col-sm-28{
     margin:5%;
     text-align:center;
+    text-align: -webkit-center;
 }
 .bericht {
     position:relative;
