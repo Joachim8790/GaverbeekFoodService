@@ -416,6 +416,11 @@
     <Content Include="Content\demo.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\style.css" />
+    <Content Include="Content\themes\basic\assets\fonts\icons.svg" />
+    <Content Include="Content\themes\default\assets\fonts\icons.svg" />
+    <Content Include="Content\themes\default\assets\images\flags.png" />
+    <Content Include="Content\themes\github\assets\fonts\octicons.svg" />
+    <Content Include="Content\themes\material\assets\fonts\icons.svg" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -523,6 +528,19 @@
     <Content Include="Models\DeGaverbeekDataModel.edmx.diagram">
       <DependentUpon>DeGaverbeekDataModel.edmx</DependentUpon>
     </Content>
+    <Content Include="Content\themes\basic\assets\fonts\icons.eot" />
+    <Content Include="Content\themes\basic\assets\fonts\icons.ttf" />
+    <Content Include="Content\themes\basic\assets\fonts\icons.woff" />
+    <Content Include="Content\themes\default\assets\fonts\icons.eot" />
+    <Content Include="Content\themes\default\assets\fonts\icons.ttf" />
+    <Content Include="Content\themes\default\assets\fonts\icons.woff" />
+    <Content Include="Content\themes\default\assets\fonts\icons.woff2" />
+    <Content Include="Content\themes\github\assets\fonts\octicons-local.ttf" />
+    <Content Include="Content\themes\github\assets\fonts\octicons.ttf" />
+    <Content Include="Content\themes\github\assets\fonts\octicons.woff" />
+    <Content Include="Content\themes\material\assets\fonts\icons.eot" />
+    <Content Include="Content\themes\material\assets\fonts\icons.ttf" />
+    <Content Include="Content\themes\material\assets\fonts\icons.woff" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap.js" />
     <Content Include="Scripts\DataTables\autoFill.bootstrap.min.js" />

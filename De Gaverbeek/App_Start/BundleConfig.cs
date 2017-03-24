@@ -23,7 +23,7 @@ namespace De_Gaverbeek
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js",
                       "~/Scripts/Site.js", 
-                      
+                      "~/semantic/dist/semantic.min.js",
                       "~/Scripts/jquery.slitslider.js",
                       "~/Scripts/jquery.ba-cond.min.js",
                       "~/Scripts/jquery.waypoints.js",
@@ -38,7 +38,7 @@ namespace De_Gaverbeek
                       "~/Content/bootstrap.min.css",
                       "~/Content/bootstrap-theme.css",
                       "~/Content/bootstrap-theme.min.css",
-                     
+                      "~/semantic/dist/semantic.min.css",
                       "~/Content/Site.css",
                       "~/Content/style.css",
                       "~/Content/demo.css",
@@ -50,12 +50,17 @@ namespace De_Gaverbeek
                 "~/Scripts/DataTables/jquery.datatables.min.js",
                 "~/Scripts/DataTables/datatables.bootstrap.min.js",
                 "~/Scripts/DataTables/datatables.responsive.min.js"
+                
                
                 ));
             bundles.Add(new StyleBundle("~/Content/datatables").Include(
                 "~/Content/DataTables/css/dataTables.bootstrap.min.css",
-                "~/Content/DataTables/css/responsive.bootstrap.min.css"
-                
+                "~/Content/DataTables/css/responsive.bootstrap.min.css",
+                "~/Content/themes/default/assets/fonts/icons.woff",
+                "~/Content/themes/default/assets/fonts/icons.woff2",
+                "~/Content/themes/default/assets/fonts/icons.ttf",
+                "~/Content/themes/default/assets/fonts/icons.svg",
+                "~/Content/themes/default/assets/fonts/icons.eot"
                 ));
 
         }
