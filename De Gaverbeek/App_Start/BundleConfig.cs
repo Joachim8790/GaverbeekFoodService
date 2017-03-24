@@ -23,7 +23,7 @@ namespace De_Gaverbeek
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js",
                       "~/Scripts/Site.js", 
-                      "~/semantic/dist/semantic.min.js",
+                      
                       "~/Scripts/jquery.slitslider.js",
                       "~/Scripts/jquery.ba-cond.min.js",
                       "~/Scripts/jquery.waypoints.js",
@@ -38,7 +38,7 @@ namespace De_Gaverbeek
                       "~/Content/bootstrap.min.css",
                       "~/Content/bootstrap-theme.css",
                       "~/Content/bootstrap-theme.min.css",
-                      "~/semantic/dist/semantic.min.css",
+                     
                       "~/Content/Site.css",
                       "~/Content/style.css",
                       "~/Content/demo.css",
