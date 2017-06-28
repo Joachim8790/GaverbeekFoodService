@@ -31,7 +31,7 @@ namespace De_Gaverbeek.Controllers
             tblPosts post = new tblPosts();
             if (ModelState.IsValid)
             {
-                post.PostText = tblPosts.PostText;
+                
                 post.PostTitel = tblPosts.PostTitel;
                 post.PostDatum = DateTime.Now;
 
