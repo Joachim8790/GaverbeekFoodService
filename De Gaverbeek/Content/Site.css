@@ -40,7 +40,7 @@ h1, h2, h3, h4, h5 {
     padding:0;
     margin-left: 10px;
 }
-#liHome,#liNieuwsEnPromoties,#liProducten,#liContact,.actionlink
+#liHome,#liFolder,#liNieuwsEnPromoties,#liProducten,#liContact,.actionlink
 {
     padding:30px 15px;
 }
@@ -134,9 +134,7 @@ iframe{
 }
 }
 @media only screen and (min-width: 601px) {
-                .ui.raised.segment {
-        width:40%;
-    }
+
 }
 @media only screen and (max-width: 1400px) {
 
@@ -156,9 +154,11 @@ iframe{
     text-align: center;
 
 }
-#headerNieuws
+#headerNieuws.ui.raised.segment
 {
-    margin-bottom:6%;
+    margin-top:2%;
+    width:100%;
+
 
 }    
 
@@ -267,24 +267,31 @@ label.control-label{
     text-align:center;
 
 }
-.imageDisplay {
+.imageDisplay {/*-----------------------------------------------------------------------------------------------------------------------------*/
 
-    max-height: 25vh;
-    max-width: 100%;
+   
+    max-height:100%;
     text-align:center;
-    transform:skewY(-5deg);
+    width:auto;
+    max-width:100%;
     position:relative;
     top:-10px;
 
 
 }
 
-#divAfbeelding{
+#divAfbeelding{/*-----------------------------------------------------------------------------------------------------------------------------*/
     text-align:center;
     padding:0;
-    transform:skewY(5deg);
-    overflow:hidden;
-
+ height: 90%;
+}
+#posts {
+    white-space:nowrap;
+     height: 60%;
+}
+#post-container{
+    height:100vh;padding: 5% 20%;
+   
 }
 #divTitel{
     margin-top:10px;

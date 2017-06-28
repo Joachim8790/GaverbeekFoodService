@@ -454,6 +454,7 @@
     <Content Include="Images\loading.gif" />
     <Content Include="Images\logo.PNG" />
     <Content Include="Images\logoSmall.png" />
+    <Content Include="Images\maintenance.jpg" />
     <Content Include="Images\nieuwsenpromotiebg.jpg" />
     <Content Include="Images\olympia.png" />
     <Content Include="Images\panesco.png" />
@@ -475,6 +476,7 @@
     <Content Include="Images\pruve.png" />
     <Content Include="Images\salminvest.png" />
     <Content Include="Images\stop.png" />
+    <Content Include="Images\underconstruction.png" />
     <Content Include="Images\vanafish.png" />
     <Content Include="Images\vandemoortele.png" />
     <Content Include="Images\vermeersch.png" />
@@ -8150,6 +8152,7 @@
     <Content Include="Views\Main1\Index.cshtml" />
     <Content Include="Views\Main1\Create.cshtml" />
     <Content Include="Views\Main1\Edit.cshtml" />
+    <Content Include="Views\Main\Folder.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

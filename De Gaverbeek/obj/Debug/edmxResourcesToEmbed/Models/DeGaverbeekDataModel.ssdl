@@ -6,7 +6,6 @@
     </Key>
     <Property Name="PostID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="PostTitel" Type="nvarchar" MaxLength="250" Nullable="false" />
-    <Property Name="PostText" Type="nvarchar(max)" Nullable="false" />
     <Property Name="PostDatum" Type="datetime" Nullable="false" />
     <Property Name="PostImage" Type="image" Nullable="false" />
   </EntityType>

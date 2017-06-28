@@ -6,7 +6,6 @@
         <MappingFragment StoreEntitySet="tblPosts">
           <ScalarProperty Name="PostID" ColumnName="PostID" />
           <ScalarProperty Name="PostTitel" ColumnName="PostTitel" />
-          <ScalarProperty Name="PostText" ColumnName="PostText" />
           <ScalarProperty Name="PostDatum" ColumnName="PostDatum" />
           <ScalarProperty Name="PostImage" ColumnName="PostImage" />
         </MappingFragment>
