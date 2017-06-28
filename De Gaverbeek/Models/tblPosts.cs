@@ -16,7 +16,6 @@ namespace De_Gaverbeek.Models
     {
         public int PostID { get; set; }
         public string PostTitel { get; set; }
-        public string PostText { get; set; }
         public System.DateTime PostDatum { get; set; }
         public byte[] PostImage { get; set; }
     }
