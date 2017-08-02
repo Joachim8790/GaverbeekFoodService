@@ -6,7 +6,6 @@
     </Key>
     <Property Name="PostID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Name="PostTitel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
-    <Property Name="PostText" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
     <Property Name="PostDatum" Type="DateTime" Nullable="false" Precision="3" />
     <Property Name="PostImage" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
   </EntityType>

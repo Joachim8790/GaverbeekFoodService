@@ -1,6 +1,7 @@
 ﻿var bool;
 var waypoint;
 var table;
+var postindex = 0;
 function pageNavigation() {
     var snelheid = 1000;
     $("#liHome").on("click", function () {
@@ -235,19 +236,198 @@ function initSliderImages() {
         
 }
 
+function initPosts()
+{
+    var screenwidth = $(window).width();
+    var postcontainer = $("#post-container");   
+    var horizontalsegments = $("#posts");
+    var posts = $("div.ui.raised.segment.post");
+    var nrPosts = posts.length;
+    var postwidth;
+    var navigationbullets = $(".navigationbullets");
+
+    var bullets = "";
+
+
+    if ($(window).width() < 800) {
+        var nrBullets = Math.floor(nrPosts);
+
+        
+        for (var i = 0; i < nrBullets; i++) {
+
+            bullets+= ("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
+
+        }
+        navigationbullets.html(bullets);
+        var MARGIN = 0.95;
+        var postcontainerwidth = screenwidth * MARGIN;
+        postcontainer.attr("style", "width:" + postcontainerwidth + "px");
+        posts.attr("style", "width:" + postcontainerwidth+"px");
+        postwidth = postcontainerwidth;
+        horizontalsegments.attr("style", "width:" + postwidth*nrPosts + "px")
+       
+    }
+    else
+    {
+        var nrBullets = Math.floor(nrPosts / 2);
+        if ($(window).width() <= 1400) {
+
+            for (var i = 0; i <= nrBullets; i++) {
+                bullets+=("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
+
+            }
+            navigationbullets.html(bullets);
+            var MARGIN = 0.80;
+            var postcontainerwidth = screenwidth * MARGIN;
+            postcontainer.attr("style", "width:" + postcontainerwidth + "px");
+            posts.attr("style", "width:" + postcontainerwidth / 2 + "px");
+            postwidth = postcontainerwidth / 2;
+            horizontalsegments.attr("style", "width:" + postwidth * nrPosts + "px")
+        }
+        else
+        {
+
+            var nrBullets = Math.floor(nrPosts / 3);
+            for (var i = 0; i <= nrBullets; i++) {
+                bullets+=("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
+                   
+            }
+            navigationbullets.html(bullets);
+            var MARGIN = 0.60;
+            var postcontainerwidth = screenwidth * MARGIN;
+            postcontainer.attr("style", "width:" + postcontainerwidth + "px");
+            posts.attr("style", "width:" + postcontainerwidth / 3 + "px");
+            postwidth = postcontainerwidth / 3;
+            horizontalsegments.attr("style", "width:" + postwidth * nrPosts + "px")
+        }
+    }
+
+    var arrowleft = $(".arrow-left");
+    var arrowright = $(".arrow-right");
+    arrowleft.unbind("click");
+
+
+    navigationbullets.children().eq(0).css("background-color", "#858585");
+
+    arrowleft.attr("style", "display:none;");
+    console.log(postwidth);
+    arrowleft.unbind("click");
+    arrowleft.click(function () {
+        console.log("left");
+        if (postindex != 0) {
+
+            if (postindex == 1) {
+                arrowleft.attr("style", "display:none;");
+                arrowright.attr("style", "display:visible");
+                postindex--;
+                navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
+                navigationbullets.children().eq(postindex).css("background-color", "#858585");
+
+
+                horizontalsegments.animate({
+
+                    marginLeft: '+=' + postwidth + ''
+
+                }, 500);
+            }
+            else
+            { 
+                arrowright.attr("style", "display:visible;");
+                postindex--;
+                navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
+                navigationbullets.children().eq(postindex).css("background-color", "#858585");
+
+
+
+                horizontalsegments.animate({
+                   
+                    marginLeft: '+='+postwidth+''
+
+                },500);
+            }
+        }
+        else
+        {
+            navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
+            navigationbullets.children().eq(postindex).css("background-color", "#858585");
+                arrowright.attr("style", "display:visible;");
+                arrowleft.attr("style", "display:none;");
+            
+            
+        }
+    });
+    arrowright.unbind("click");
+    arrowright.click(function () {
+        console.log("right");
+
+        if (postindex != nrBullets-1) {
+
+            if (postindex == nrBullets-2) {
+               
+                arrowleft.attr("style", "display:visible;");
+                postindex++;
+                navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
+                navigationbullets.children().eq(postindex).css("background-color", "#858585");
+
+
+
+                horizontalsegments.animate({
+
+                    marginLeft: '-=' + postwidth + ''
+
+                }, 500);
+            }
+            else
+            {
+                arrowleft.attr("style", "display:visible;");
+                horizontalsegments.animate({
+
+                    marginLeft: '-=' + postwidth + ''
+
+                }, 500);
+                postindex++;
+                navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
+                navigationbullets.children().eq(postindex).css("background-color", "#858585");
+            }
+            
+        }
+        else {
+           
+                postindex++
+                horizontalsegments.animate({
+
+                    marginLeft: '-=' + postwidth + ''
+
+                }, 500);
+                navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
+                navigationbullets.children().eq(postindex).css("background-color", "#858585");
+           
+            arrowleft.attr("style", "display:visible;");
+            arrowright.attr("style", "display:none;");
+        }
+    });
     
+    console.log(nrPosts);
+    console.log(horizontalsegments);
+
+}
 
 
 $(document).ready(function () {
 
-
+    
     
 
     pageNavigation();
     initSlider();
     initTabs();
     initDataTables();
+    initPosts();
 
+
+    $(window).bind("load", initPosts);
+    $(window).bind("resize", initPosts);
+    $(window).bind("orientationchange", initPosts);
     $(window).bind("load", initSliderImages);
     $(window).bind("resize", initSliderImages);
     $(window).bind("orientationchange", initSliderImages);

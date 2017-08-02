@@ -11,13 +11,15 @@
        </div>
             
         <div class="ui container-fluid" id="post-container" >
+            <div class="arrow-left"></div>
+            <div class="arrow-right"></div>
             <div class="ui horizontal segments" id="posts">
-
+                
                 @foreach (var item in ViewBag.sortedPosts)
                 {
 
                    
-                        <div class="ui raised segment">
+                        <div class="ui raised segment post">
                             
                                 <div id="divAfbeelding">
                                     <img alt="" class="imageDisplay" src="data:image;base64,@System.Convert.ToBase64String(item.PostImage)" />
@@ -38,18 +40,16 @@
 
 
                 </div>
-           
-<div class="ui horizontal segments">
-    @foreach (var item in ViewBag.sortedPosts)
-    {
-        <div class="ui raised segment">
-            
-        
-        
-        </div>
-     }
+            <div id="wrapper" style="text-align:center">
+                <div class="ui raised segment navigationbullets" style="text-align:center;display:inline-block;">
 
-        </div>
+
+
+                </div>
+
+            </div>
+            </div>
+
 
 </div>
   </div>

@@ -89,3 +89,94 @@ C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaver
 C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.pdb
 C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.csproj.ResolveComReference.cache
 C:\Users\joach\Source\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.csprojResolveAssemblyReference.cache
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\ApplicationInsights.config
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\x64\pdfium.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\x86\pdfium.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\csc.exe
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\Microsoft.CodeAnalysis.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\Microsoft.CodeAnalysis.VisualBasic.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\Microsoft.CSharp.Core.targets
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\Microsoft.VisualBasic.Core.targets
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\System.Collections.Immutable.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\System.Reflection.Metadata.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\vbc.exe
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\VBCSCompiler.exe
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\roslyn\VBCSCompiler.exe.config
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\De Gaverbeek.dll.config
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\De Gaverbeek.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\De Gaverbeek.pdb
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Antlr3.Runtime.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\EntityFramework.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\EntityFramework.SqlServer.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.Agent.Intercept.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.DependencyCollector.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.PerfCounterCollector.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.ServerTelemetryChannel.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.Web.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.WindowsServer.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.ApplicationInsights.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AspNet.Identity.Core.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AspNet.Identity.Owin.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Host.SystemWeb.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Cookies.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Facebook.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Google.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.OAuth.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Twitter.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Web.Infrastructure.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Newtonsoft.Json.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Owin.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Patagames.Pdf.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Patagames.Pdf.WinForms.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Patagames.Pdf.Wpf.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.Helpers.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.Mvc.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.Optimization.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.Razor.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.WebPages.Deployment.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.WebPages.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.WebPages.Razor.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\WebGrease.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.DependencyCollector.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.ServerTelemetryChannel.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.Web.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AI.WindowsServer.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.ApplicationInsights.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Patagames.Pdf.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Patagames.Pdf.WinForms.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Patagames.Pdf.Wpf.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.Helpers.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.Mvc.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.Optimization.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.Razor.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.WebPages.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.WebPages.Deployment.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\System.Web.WebPages.Razor.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Antlr3.Runtime.pdb
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Newtonsoft.Json.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\EntityFramework.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\EntityFramework.SqlServer.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AspNet.Identity.Core.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AspNet.Identity.Owin.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Host.SystemWeb.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Facebook.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Cookies.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.OAuth.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Google.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Twitter.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+D:\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.csprojResolveAssemblyReference.cache
+D:\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.csproj.ResolveComReference.cache
+D:\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.dll
+D:\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.pdb
