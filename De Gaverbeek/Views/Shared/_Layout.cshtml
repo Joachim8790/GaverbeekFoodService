@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De Gaverbeek FoodService</title>
     <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
+    @*<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">*@
 
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
@@ -40,18 +41,18 @@
                     <li><a id="liContact">Contact</a></li>
                 </ul>
                 <ul style="padding-left:15px;" class="nav navbar-nav navbar-right">
-                    <a style="margin-right:50px;" href="https://www.facebook.com/degaverbeek/" target="_blank"><i style="display:block;" class="circular inverted blue link facebook f icon"></i></a>
+                    
                     </ul>
 </div>
             
         </div>
     </div>
+    
     <div class="container-fluid body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p style="text-align:center;">&copy; @DateTime.Now.Year De Gaverbeek - Development Joachim Verschelde</p>
-        </footer>
+
+        
+
     </div>
 
     @Scripts.Render("~/bundles/jquery")

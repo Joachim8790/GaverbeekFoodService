@@ -176,7 +176,6 @@ D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.OAuth.xml
 D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Google.xml
 D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.Twitter.xml
 D:\Repos\GaverbeekFoodService\De Gaverbeek\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
-D:\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.csprojResolveAssemblyReference.cache
 D:\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.csproj.ResolveComReference.cache
 D:\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.dll
 D:\Repos\GaverbeekFoodService\De Gaverbeek\obj\Debug\De Gaverbeek.pdb
