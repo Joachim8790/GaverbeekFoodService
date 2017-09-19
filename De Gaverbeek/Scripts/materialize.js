@@ -3305,7 +3305,22 @@ if (Vel) {
   /**
    * Bubble the click and show effect if .waves-effect elem was found
    */
- 
+  function showEffect(e) {
+    var element = getWavesEffectElement(e);
+
+    if (element !== null) {
+      Effect.show(e, element);
+
+      if ('ontouchstart' in window) {
+        element.addEventListener('touchend', Effect.hide, false);
+        element.addEventListener('touchcancel', Effect.hide, false);
+      }
+
+      element.addEventListener('mouseup', Effect.hide, false);
+      element.addEventListener('mouseleave', Effect.hide, false);
+      element.addEventListener('dragend', Effect.hide, false);
+    }
+  }
 
   Waves.displayEffect = function (options) {
     options = options || {};
@@ -3317,7 +3332,11 @@ if (Vel) {
     //Wrap input inside <i> tag
     Effect.wrapInput($$('.waves-effect'));
 
-  
+    if ('ontouchstart' in window) {
+      document.body.addEventListener('touchstart', showEffect, false);
+    }
+
+    document.body.addEventListener('mousedown', showEffect, false);
   };
 
   /**
@@ -4567,7 +4586,30 @@ if (Vel) {
       thumb.addClass('active').css('left', offsetLeft);
     });
 
-  
+    $(document).on('mousedown touchstart', range_type, function (e) {
+      var thumb = $(this).siblings('.thumb');
+
+      // If thumb indicator does not exist yet, create it
+      if (thumb.length <= 0) {
+        thumb = $('<span class="thumb"><span class="value"></span></span>');
+        $(this).after(thumb);
+      }
+
+      // Set indicator value
+      thumb.find('.value').html($(this).val());
+
+      range_mousedown = true;
+      $(this).addClass('active');
+
+      if (!thumb.hasClass('active')) {
+        showRangeBubble(thumb);
+      }
+
+      if (e.type !== 'input') {
+        var offsetLeft = calcRangeOffset($(this));
+        thumb.addClass('active').css('left', offsetLeft);
+      }
+    });
 
     $(document).on('mouseup touchend', range_wrapper, function () {
       range_mousedown = false;
@@ -5403,7 +5445,29 @@ if (Vel) {
 ;(function ($) {
   $(document).ready(function () {
 
-  
+    $(document).on('click.card', '.card', function (e) {
+      if ($(this).find('> .card-reveal').length) {
+        var $card = $(e.target).closest('.card');
+        if ($card.data('initialOverflow') === undefined) {
+          $card.data('initialOverflow', $card.css('overflow') === undefined ? '' : $card.css('overflow'));
+        }
+        if ($(e.target).is($('.card-reveal .card-title')) || $(e.target).is($('.card-reveal .card-title i'))) {
+          // Make Reveal animate down and display none
+          $(this).find('.card-reveal').velocity({ translateY: 0 }, {
+            duration: 225,
+            queue: false,
+            easing: 'easeInOutQuad',
+            complete: function () {
+              $(this).css({ display: 'none' });
+              $card.css('overflow', $card.data('initialOverflow'));
+            }
+          });
+        } else if ($(e.target).is($('.card .activator')) || $(e.target).is($('.card .activator i'))) {
+          $card.css('overflow', 'hidden');
+          $(this).find('.card-reveal').css({ display: 'block' }).velocity("stop", false).velocity({ translateY: '-100%' }, { duration: 300, queue: false, easing: 'easeInOutQuad' });
+        }
+      }
+    });
   });
 })(jQuery);
 ;(function ($) {
@@ -5416,7 +5480,13 @@ if (Vel) {
 
   $(document).ready(function () {
     // Handle removal of static chips.
-
+    $(document).on('click', '.chip .close', function (e) {
+      var $chips = $(this).closest('.chips');
+      if ($chips.attr('data-initialized')) {
+        return;
+      }
+      $(this).closest('.chip').remove();
+    });
   });
 
   $.fn.material_chip = function (options) {
@@ -5783,2736 +5853,2736 @@ if (Vel) {
     });
   };
 })(jQuery);;(function ($) {
-    $(document).ready(function () {
+  $(document).ready(function () {
 
-        // jQuery reverse
-        $.fn.reverse = [].reverse;
+    // jQuery reverse
+    $.fn.reverse = [].reverse;
 
-        // Hover behaviour: make sure this doesn't work on .click-to-toggle FABs!
-        $(document).on('mouseenter.fixedActionBtn', '.fixed-action-btn:not(.click-to-toggle):not(.toolbar)', function (e) {
-            var $this = $(this);
-            openFABMenu($this);
+    // Hover behaviour: make sure this doesn't work on .click-to-toggle FABs!
+    $(document).on('mouseenter.fixedActionBtn', '.fixed-action-btn:not(.click-to-toggle):not(.toolbar)', function (e) {
+      var $this = $(this);
+      openFABMenu($this);
+    });
+    $(document).on('mouseleave.fixedActionBtn', '.fixed-action-btn:not(.click-to-toggle):not(.toolbar)', function (e) {
+      var $this = $(this);
+      closeFABMenu($this);
+    });
+
+    // Toggle-on-click behaviour.
+    $(document).on('click.fabClickToggle', '.fixed-action-btn.click-to-toggle > a', function (e) {
+      var $this = $(this);
+      var $menu = $this.parent();
+      if ($menu.hasClass('active')) {
+        closeFABMenu($menu);
+      } else {
+        openFABMenu($menu);
+      }
+    });
+
+    // Toolbar transition behaviour.
+    $(document).on('click.fabToolbar', '.fixed-action-btn.toolbar > a', function (e) {
+      var $this = $(this);
+      var $menu = $this.parent();
+      FABtoToolbar($menu);
+    });
+  });
+
+  $.fn.extend({
+    openFAB: function () {
+      openFABMenu($(this));
+    },
+    closeFAB: function () {
+      closeFABMenu($(this));
+    },
+    openToolbar: function () {
+      FABtoToolbar($(this));
+    },
+    closeToolbar: function () {
+      toolbarToFAB($(this));
+    }
+  });
+
+  var openFABMenu = function (btn) {
+    var $this = btn;
+    if ($this.hasClass('active') === false) {
+
+      // Get direction option
+      var horizontal = $this.hasClass('horizontal');
+      var offsetY, offsetX;
+
+      if (horizontal === true) {
+        offsetX = 40;
+      } else {
+        offsetY = 40;
+      }
+
+      $this.addClass('active');
+      $this.find('ul .btn-floating').velocity({ scaleY: ".4", scaleX: ".4", translateY: offsetY + 'px', translateX: offsetX + 'px' }, { duration: 0 });
+
+      var time = 0;
+      $this.find('ul .btn-floating').reverse().each(function () {
+        $(this).velocity({ opacity: "1", scaleX: "1", scaleY: "1", translateY: "0", translateX: '0' }, { duration: 80, delay: time });
+        time += 40;
+      });
+    }
+  };
+
+  var closeFABMenu = function (btn) {
+    var $this = btn;
+    // Get direction option
+    var horizontal = $this.hasClass('horizontal');
+    var offsetY, offsetX;
+
+    if (horizontal === true) {
+      offsetX = 40;
+    } else {
+      offsetY = 40;
+    }
+
+    $this.removeClass('active');
+    var time = 0;
+    $this.find('ul .btn-floating').velocity("stop", true);
+    $this.find('ul .btn-floating').velocity({ opacity: "0", scaleX: ".4", scaleY: ".4", translateY: offsetY + 'px', translateX: offsetX + 'px' }, { duration: 80 });
+  };
+
+  /**
+   * Transform FAB into toolbar
+   * @param  {Object}  object jQuery object
+   */
+  var FABtoToolbar = function (btn) {
+    if (btn.attr('data-open') === "true") {
+      return;
+    }
+
+    var offsetX, offsetY, scaleFactor;
+    var windowWidth = window.innerWidth;
+    var windowHeight = window.innerHeight;
+    var btnRect = btn[0].getBoundingClientRect();
+    var anchor = btn.find('> a').first();
+    var menu = btn.find('> ul').first();
+    var backdrop = $('<div class="fab-backdrop"></div>');
+    var fabColor = anchor.css('background-color');
+    anchor.append(backdrop);
+
+    offsetX = btnRect.left - windowWidth / 2 + btnRect.width / 2;
+    offsetY = windowHeight - btnRect.bottom;
+    scaleFactor = windowWidth / backdrop.width();
+    btn.attr('data-origin-bottom', btnRect.bottom);
+    btn.attr('data-origin-left', btnRect.left);
+    btn.attr('data-origin-width', btnRect.width);
+
+    // Set initial state
+    btn.addClass('active');
+    btn.attr('data-open', true);
+    btn.css({
+      'text-align': 'center',
+      width: '100%',
+      bottom: 0,
+      left: 0,
+      transform: 'translateX(' + offsetX + 'px)',
+      transition: 'none'
+    });
+    anchor.css({
+      transform: 'translateY(' + -offsetY + 'px)',
+      transition: 'none'
+    });
+    backdrop.css({
+      'background-color': fabColor
+    });
+
+    setTimeout(function () {
+      btn.css({
+        transform: '',
+        transition: 'transform .2s cubic-bezier(0.550, 0.085, 0.680, 0.530), background-color 0s linear .2s'
+      });
+      anchor.css({
+        overflow: 'visible',
+        transform: '',
+        transition: 'transform .2s'
+      });
+
+      setTimeout(function () {
+        btn.css({
+          overflow: 'hidden',
+          'background-color': fabColor
         });
-        $(document).on('mouseleave.fixedActionBtn', '.fixed-action-btn:not(.click-to-toggle):not(.toolbar)', function (e) {
-            var $this = $(this);
-            closeFABMenu($this);
+        backdrop.css({
+          transform: 'scale(' + scaleFactor + ')',
+          transition: 'transform .2s cubic-bezier(0.550, 0.055, 0.675, 0.190)'
+        });
+        menu.find('> li > a').css({
+          opacity: 1
         });
 
-        //  // Toggle-on-click behaviour.
-        //  $(document).on('click.fabClickToggle', '.fixed-action-btn.click-to-toggle > a', function (e) {
-        //    var $this = $(this);
-        //    var $menu = $this.parent();
-        //    if ($menu.hasClass('active')) {
-        //      closeFABMenu($menu);
-        //    } else {
-        //      openFABMenu($menu);
-        //    }
-        //  });
-
-        //  // Toolbar transition behaviour.
-        //  $(document).on('click.fabToolbar', '.fixed-action-btn.toolbar > a', function (e) {
-        //    var $this = $(this);
-        //    var $menu = $this.parent();
-        //    FABtoToolbar($menu);
-        //  });
+        // Scroll to close.
+        $(window).on('scroll.fabToolbarClose', function () {
+          toolbarToFAB(btn);
+          $(window).off('scroll.fabToolbarClose');
+          $(document).off('click.fabToolbarClose');
         });
 
-        $.fn.extend({
-            openFAB: function () {
-                openFABMenu($(this));
-            },
-            closeFAB: function () {
-                closeFABMenu($(this));
-            },
-            openToolbar: function () {
-                FABtoToolbar($(this));
-            },
-            closeToolbar: function () {
-                toolbarToFAB($(this));
-            }
+        $(document).on('click.fabToolbarClose', function (e) {
+          if (!$(e.target).closest(menu).length) {
+            toolbarToFAB(btn);
+            $(window).off('scroll.fabToolbarClose');
+            $(document).off('click.fabToolbarClose');
+          }
         });
+      }, 100);
+    }, 0);
+  };
 
-        var openFABMenu = function (btn) {
-            var $this = btn;
-            if ($this.hasClass('active') === false) {
+  /**
+   * Transform toolbar back into FAB
+   * @param  {Object}  object jQuery object
+   */
+  var toolbarToFAB = function (btn) {
+    if (btn.attr('data-open') !== "true") {
+      return;
+    }
 
-                // Get direction option
-                var horizontal = $this.hasClass('horizontal');
-                var offsetY, offsetX;
+    var offsetX, offsetY, scaleFactor;
+    var windowWidth = window.innerWidth;
+    var windowHeight = window.innerHeight;
+    var btnWidth = btn.attr('data-origin-width');
+    var btnBottom = btn.attr('data-origin-bottom');
+    var btnLeft = btn.attr('data-origin-left');
+    var anchor = btn.find('> .btn-floating').first();
+    var menu = btn.find('> ul').first();
+    var backdrop = btn.find('.fab-backdrop');
+    var fabColor = anchor.css('background-color');
 
-                if (horizontal === true) {
-                    offsetX = 40;
-                } else {
-                    offsetY = 40;
-                }
+    offsetX = btnLeft - windowWidth / 2 + btnWidth / 2;
+    offsetY = windowHeight - btnBottom;
+    scaleFactor = windowWidth / backdrop.width();
 
-                $this.addClass('active');
-                $this.find('ul .btn-floating').velocity({ scaleY: ".4", scaleX: ".4", translateY: offsetY + 'px', translateX: offsetX + 'px' }, { duration: 0 });
+    // Hide backdrop
+    btn.removeClass('active');
+    btn.attr('data-open', false);
+    btn.css({
+      'background-color': 'transparent',
+      transition: 'none'
+    });
+    anchor.css({
+      transition: 'none'
+    });
+    backdrop.css({
+      transform: 'scale(0)',
+      'background-color': fabColor
+    });
+    menu.find('> li > a').css({
+      opacity: ''
+    });
 
-                var time = 0;
-                $this.find('ul .btn-floating').reverse().each(function () {
-                    $(this).velocity({ opacity: "1", scaleX: "1", scaleY: "1", translateY: "0", translateX: '0' }, { duration: 80, delay: time });
-                    time += 40;
-                });
-            }
-        };
+    setTimeout(function () {
+      backdrop.remove();
 
-        var closeFABMenu = function (btn) {
-            var $this = btn;
-            // Get direction option
-            var horizontal = $this.hasClass('horizontal');
-            var offsetY, offsetX;
+      // Set initial state.
+      btn.css({
+        'text-align': '',
+        width: '',
+        bottom: '',
+        left: '',
+        overflow: '',
+        'background-color': '',
+        transform: 'translate3d(' + -offsetX + 'px,0,0)'
+      });
+      anchor.css({
+        overflow: '',
+        transform: 'translate3d(0,' + offsetY + 'px,0)'
+      });
 
-            if (horizontal === true) {
-                offsetX = 40;
+      setTimeout(function () {
+        btn.css({
+          transform: 'translate3d(0,0,0)',
+          transition: 'transform .2s'
+        });
+        anchor.css({
+          transform: 'translate3d(0,0,0)',
+          transition: 'transform .2s cubic-bezier(0.550, 0.055, 0.675, 0.190)'
+        });
+      }, 20);
+    }, 200);
+  };
+})(jQuery);
+;(function ($) {
+  // Image transition function
+  Materialize.fadeInImage = function (selectorOrEl) {
+    var element;
+    if (typeof selectorOrEl === 'string') {
+      element = $(selectorOrEl);
+    } else if (typeof selectorOrEl === 'object') {
+      element = selectorOrEl;
+    } else {
+      return;
+    }
+    element.css({ opacity: 0 });
+    $(element).velocity({ opacity: 1 }, {
+      duration: 650,
+      queue: false,
+      easing: 'easeOutSine'
+    });
+    $(element).velocity({ opacity: 1 }, {
+      duration: 1300,
+      queue: false,
+      easing: 'swing',
+      step: function (now, fx) {
+        fx.start = 100;
+        var grayscale_setting = now / 100;
+        var brightness_setting = 150 - (100 - now) / 1.75;
+
+        if (brightness_setting < 100) {
+          brightness_setting = 100;
+        }
+        if (now >= 0) {
+          $(this).css({
+            "-webkit-filter": "grayscale(" + grayscale_setting + ")" + "brightness(" + brightness_setting + "%)",
+            "filter": "grayscale(" + grayscale_setting + ")" + "brightness(" + brightness_setting + "%)"
+          });
+        }
+      }
+    });
+  };
+
+  // Horizontal staggered list
+  Materialize.showStaggeredList = function (selectorOrEl) {
+    var element;
+    if (typeof selectorOrEl === 'string') {
+      element = $(selectorOrEl);
+    } else if (typeof selectorOrEl === 'object') {
+      element = selectorOrEl;
+    } else {
+      return;
+    }
+    var time = 0;
+    element.find('li').velocity({ translateX: "-100px" }, { duration: 0 });
+
+    element.find('li').each(function () {
+      $(this).velocity({ opacity: "1", translateX: "0" }, { duration: 800, delay: time, easing: [60, 10] });
+      time += 120;
+    });
+  };
+
+  $(document).ready(function () {
+    // Hardcoded .staggered-list scrollFire
+    // var staggeredListOptions = [];
+    // $('ul.staggered-list').each(function (i) {
+
+    //   var label = 'scrollFire-' + i;
+    //   $(this).addClass(label);
+    //   staggeredListOptions.push(
+    //     {selector: 'ul.staggered-list.' + label,
+    //      offset: 200,
+    //      callback: 'showStaggeredList("ul.staggered-list.' + label + '")'});
+    // });
+    // scrollFire(staggeredListOptions);
+
+    // HammerJS, Swipe navigation
+
+    // Touch Event
+    var swipeLeft = false;
+    var swipeRight = false;
+
+    // Dismissible Collections
+    $('.dismissable').each(function () {
+      $(this).hammer({
+        prevent_default: false
+      }).on('pan', function (e) {
+        if (e.gesture.pointerType === "touch") {
+          var $this = $(this);
+          var direction = e.gesture.direction;
+          var x = e.gesture.deltaX;
+          var velocityX = e.gesture.velocityX;
+
+          $this.velocity({ translateX: x
+          }, { duration: 50, queue: false, easing: 'easeOutQuad' });
+
+          // Swipe Left
+          if (direction === 4 && (x > $this.innerWidth() / 2 || velocityX < -0.75)) {
+            swipeLeft = true;
+          }
+
+          // Swipe Right
+          if (direction === 2 && (x < -1 * $this.innerWidth() / 2 || velocityX > 0.75)) {
+            swipeRight = true;
+          }
+        }
+      }).on('panend', function (e) {
+        // Reset if collection is moved back into original position
+        if (Math.abs(e.gesture.deltaX) < $(this).innerWidth() / 2) {
+          swipeRight = false;
+          swipeLeft = false;
+        }
+
+        if (e.gesture.pointerType === "touch") {
+          var $this = $(this);
+          if (swipeLeft || swipeRight) {
+            var fullWidth;
+            if (swipeLeft) {
+              fullWidth = $this.innerWidth();
             } else {
-                offsetY = 40;
+              fullWidth = -1 * $this.innerWidth();
             }
 
-            $this.removeClass('active');
-            var time = 0;
-            $this.find('ul .btn-floating').velocity("stop", true);
-            $this.find('ul .btn-floating').velocity({ opacity: "0", scaleX: ".4", scaleY: ".4", translateY: offsetY + 'px', translateX: offsetX + 'px' }, { duration: 80 });
-        };
-
-        /**
-         * Transform FAB into toolbar
-         * @param  {Object}  object jQuery object
-         */
-        var FABtoToolbar = function (btn) {
-            if (btn.attr('data-open') === "true") {
-                return;
-            }
-
-            var offsetX, offsetY, scaleFactor;
-            var windowWidth = window.innerWidth;
-            var windowHeight = window.innerHeight;
-            var btnRect = btn[0].getBoundingClientRect();
-            var anchor = btn.find('> a').first();
-            var menu = btn.find('> ul').first();
-            var backdrop = $('<div class="fab-backdrop"></div>');
-            var fabColor = anchor.css('background-color');
-            anchor.append(backdrop);
-
-            offsetX = btnRect.left - windowWidth / 2 + btnRect.width / 2;
-            offsetY = windowHeight - btnRect.bottom;
-            scaleFactor = windowWidth / backdrop.width();
-            btn.attr('data-origin-bottom', btnRect.bottom);
-            btn.attr('data-origin-left', btnRect.left);
-            btn.attr('data-origin-width', btnRect.width);
-
-            // Set initial state
-            btn.addClass('active');
-            btn.attr('data-open', true);
-            btn.css({
-                'text-align': 'center',
-                width: '100%',
-                bottom: 0,
-                left: 0,
-                transform: 'translateX(' + offsetX + 'px)',
-                transition: 'none'
-            });
-            anchor.css({
-                transform: 'translateY(' + -offsetY + 'px)',
-                transition: 'none'
-            });
-            backdrop.css({
-                'background-color': fabColor
-            });
-
-            setTimeout(function () {
-                btn.css({
-                    transform: '',
-                    transition: 'transform .2s cubic-bezier(0.550, 0.085, 0.680, 0.530), background-color 0s linear .2s'
+            $this.velocity({ translateX: fullWidth
+            }, { duration: 100, queue: false, easing: 'easeOutQuad', complete: function () {
+                $this.css('border', 'none');
+                $this.velocity({ height: 0, padding: 0
+                }, { duration: 200, queue: false, easing: 'easeOutQuad', complete: function () {
+                    $this.remove();
+                  }
                 });
-                anchor.css({
-                    overflow: 'visible',
-                    transform: '',
-                    transition: 'transform .2s'
-                });
+              }
+            });
+          } else {
+            $this.velocity({ translateX: 0
+            }, { duration: 100, queue: false, easing: 'easeOutQuad' });
+          }
+          swipeLeft = false;
+          swipeRight = false;
+        }
+      });
+    });
 
-                setTimeout(function () {
-                    btn.css({
-                        overflow: 'hidden',
-                        'background-color': fabColor
-                    });
-                    backdrop.css({
-                        transform: 'scale(' + scaleFactor + ')',
-                        transition: 'transform .2s cubic-bezier(0.550, 0.055, 0.675, 0.190)'
-                    });
-                    menu.find('> li > a').css({
-                        opacity: 1
-                    });
+    // time = 0
+    // // Vertical Staggered list
+    // $('ul.staggered-list.vertical li').velocity(
+    //     { translateY: "100px"},
+    //     { duration: 0 });
 
-                    // Scroll to close.
-                    $(window).on('scroll.fabToolbarClose', function () {
-                        toolbarToFAB(btn);
-                        $(window).off('scroll.fabToolbarClose');
-                        $(document).off('click.fabToolbarClose');
-                    });
+    // $('ul.staggered-list.vertical li').each(function() {
+    //   $(this).velocity(
+    //     { opacity: "1", translateY: "0"},
+    //     { duration: 800, delay: time, easing: [60, 25] });
+    //   time += 120;
+    // });
 
-                    $(document).on('click.fabToolbarClose', function (e) {
-                        if (!$(e.target).closest(menu).length) {
-                            toolbarToFAB(btn);
-                            $(window).off('scroll.fabToolbarClose');
-                            $(document).off('click.fabToolbarClose');
-                        }
-                    });
-                }, 100);
-            }, 0);
-        };
+    // // Fade in and Scale
+    // $('.fade-in.scale').velocity(
+    //     { scaleX: .4, scaleY: .4, translateX: -600},
+    //     { duration: 0});
+    // $('.fade-in').each(function() {
+    //   $(this).velocity(
+    //     { opacity: "1", scaleX: 1, scaleY: 1, translateX: 0},
+    //     { duration: 800, easing: [60, 10] });
+    // });
+  });
+})(jQuery);
+;(function ($) {
 
-        /**
-         * Transform toolbar back into FAB
-         * @param  {Object}  object jQuery object
-         */
-        var toolbarToFAB = function (btn) {
-            if (btn.attr('data-open') !== "true") {
-                return;
+  var scrollFireEventsHandled = false;
+
+  // Input: Array of JSON objects {selector, offset, callback}
+  Materialize.scrollFire = function (options) {
+    var onScroll = function () {
+      var windowScroll = window.pageYOffset + window.innerHeight;
+
+      for (var i = 0; i < options.length; i++) {
+        // Get options from each line
+        var value = options[i];
+        var selector = value.selector,
+            offset = value.offset,
+            callback = value.callback;
+
+        var currentElement = document.querySelector(selector);
+        if (currentElement !== null) {
+          var elementOffset = currentElement.getBoundingClientRect().top + window.pageYOffset;
+
+          if (windowScroll > elementOffset + offset) {
+            if (value.done !== true) {
+              if (typeof callback === 'function') {
+                callback.call(this, currentElement);
+              } else if (typeof callback === 'string') {
+                var callbackFunc = new Function(callback);
+                callbackFunc(currentElement);
+              }
+              value.done = true;
             }
+          }
+        }
+      }
+    };
 
-            var offsetX, offsetY, scaleFactor;
-            var windowWidth = window.innerWidth;
-            var windowHeight = window.innerHeight;
-            var btnWidth = btn.attr('data-origin-width');
-            var btnBottom = btn.attr('data-origin-bottom');
-            var btnLeft = btn.attr('data-origin-left');
-            var anchor = btn.find('> .btn-floating').first();
-            var menu = btn.find('> ul').first();
-            var backdrop = btn.find('.fab-backdrop');
-            var fabColor = anchor.css('background-color');
+    var throttledScroll = Materialize.throttle(function () {
+      onScroll();
+    }, options.throttle || 100);
 
-            offsetX = btnLeft - windowWidth / 2 + btnWidth / 2;
-            offsetY = windowHeight - btnBottom;
-            scaleFactor = windowWidth / backdrop.width();
+    if (!scrollFireEventsHandled) {
+      window.addEventListener("scroll", throttledScroll);
+      window.addEventListener("resize", throttledScroll);
+      scrollFireEventsHandled = true;
+    }
 
-            // Hide backdrop
-            btn.removeClass('active');
-            btn.attr('data-open', false);
-            btn.css({
-                'background-color': 'transparent',
-                transition: 'none'
-            });
-            anchor.css({
-                transition: 'none'
-            });
-            backdrop.css({
-                transform: 'scale(0)',
-                'background-color': fabColor
-            });
-            menu.find('> li > a').css({
-                opacity: ''
-            });
-
-            setTimeout(function () {
-                backdrop.remove();
-
-                // Set initial state.
-                btn.css({
-                    'text-align': '',
-                    width: '',
-                    bottom: '',
-                    left: '',
-                    overflow: '',
-                    'background-color': '',
-                    transform: 'translate3d(' + -offsetX + 'px,0,0)'
-                });
-                anchor.css({
-                    overflow: '',
-                    transform: 'translate3d(0,' + offsetY + 'px,0)'
-                });
-
-                setTimeout(function () {
-                    btn.css({
-                        transform: 'translate3d(0,0,0)',
-                        transition: 'transform .2s'
-                    });
-                    anchor.css({
-                        transform: 'translate3d(0,0,0)',
-                        transition: 'transform .2s cubic-bezier(0.550, 0.055, 0.675, 0.190)'
-                    });
-                }, 20);
-            }, 200);
-        };
-    })(jQuery);
-    ;(function ($) {
-        // Image transition function
-        Materialize.fadeInImage = function (selectorOrEl) {
-            var element;
-            if (typeof selectorOrEl === 'string') {
-                element = $(selectorOrEl);
-            } else if (typeof selectorOrEl === 'object') {
-                element = selectorOrEl;
-            } else {
-                return;
-            }
-            element.css({ opacity: 0 });
-            $(element).velocity({ opacity: 1 }, {
-                duration: 650,
-                queue: false,
-                easing: 'easeOutSine'
-            });
-            $(element).velocity({ opacity: 1 }, {
-                duration: 1300,
-                queue: false,
-                easing: 'swing',
-                step: function (now, fx) {
-                    fx.start = 100;
-                    var grayscale_setting = now / 100;
-                    var brightness_setting = 150 - (100 - now) / 1.75;
-
-                    if (brightness_setting < 100) {
-                        brightness_setting = 100;
-                    }
-                    if (now >= 0) {
-                        $(this).css({
-                            "-webkit-filter": "grayscale(" + grayscale_setting + ")" + "brightness(" + brightness_setting + "%)",
-                            "filter": "grayscale(" + grayscale_setting + ")" + "brightness(" + brightness_setting + "%)"
-                        });
-                    }
-                }
-            });
-        };
-
-        // Horizontal staggered list
-        Materialize.showStaggeredList = function (selectorOrEl) {
-            var element;
-            if (typeof selectorOrEl === 'string') {
-                element = $(selectorOrEl);
-            } else if (typeof selectorOrEl === 'object') {
-                element = selectorOrEl;
-            } else {
-                return;
-            }
-            var time = 0;
-            element.find('li').velocity({ translateX: "-100px" }, { duration: 0 });
-
-            element.find('li').each(function () {
-                $(this).velocity({ opacity: "1", translateX: "0" }, { duration: 800, delay: time, easing: [60, 10] });
-                time += 120;
-            });
-        };
-
-        $(document).ready(function () {
-            // Hardcoded .staggered-list scrollFire
-            // var staggeredListOptions = [];
-            // $('ul.staggered-list').each(function (i) {
-
-            //   var label = 'scrollFire-' + i;
-            //   $(this).addClass(label);
-            //   staggeredListOptions.push(
-            //     {selector: 'ul.staggered-list.' + label,
-            //      offset: 200,
-            //      callback: 'showStaggeredList("ul.staggered-list.' + label + '")'});
-            // });
-            // scrollFire(staggeredListOptions);
-
-            // HammerJS, Swipe navigation
-
-            // Touch Event
-            var swipeLeft = false;
-            var swipeRight = false;
-
-            // Dismissible Collections
-            $('.dismissable').each(function () {
-                $(this).hammer({
-                    prevent_default: false
-                }).on('pan', function (e) {
-                    if (e.gesture.pointerType === "touch") {
-                        var $this = $(this);
-                        var direction = e.gesture.direction;
-                        var x = e.gesture.deltaX;
-                        var velocityX = e.gesture.velocityX;
-
-                        $this.velocity({ translateX: x
-                        }, { duration: 50, queue: false, easing: 'easeOutQuad' });
-
-                        // Swipe Left
-                        if (direction === 4 && (x > $this.innerWidth() / 2 || velocityX < -0.75)) {
-                            swipeLeft = true;
-                        }
-
-                        // Swipe Right
-                        if (direction === 2 && (x < -1 * $this.innerWidth() / 2 || velocityX > 0.75)) {
-                            swipeRight = true;
-                        }
-                    }
-                }).on('panend', function (e) {
-                    // Reset if collection is moved back into original position
-                    if (Math.abs(e.gesture.deltaX) < $(this).innerWidth() / 2) {
-                        swipeRight = false;
-                        swipeLeft = false;
-                    }
-
-                    if (e.gesture.pointerType === "touch") {
-                        var $this = $(this);
-                        if (swipeLeft || swipeRight) {
-                            var fullWidth;
-                            if (swipeLeft) {
-                                fullWidth = $this.innerWidth();
-                            } else {
-                                fullWidth = -1 * $this.innerWidth();
-                            }
-
-                            $this.velocity({ translateX: fullWidth
-                            }, { duration: 100, queue: false, easing: 'easeOutQuad', complete: function () {
-                                $this.css('border', 'none');
-                                $this.velocity({ height: 0, padding: 0
-                                }, { duration: 200, queue: false, easing: 'easeOutQuad', complete: function () {
-                                    $this.remove();
-                                }
-                                });
-                            }
-                            });
-                        } else {
-                            $this.velocity({ translateX: 0
-                            }, { duration: 100, queue: false, easing: 'easeOutQuad' });
-                        }
-                        swipeLeft = false;
-                        swipeRight = false;
-                    }
-                });
-            });
-
-            // time = 0
-            // // Vertical Staggered list
-            // $('ul.staggered-list.vertical li').velocity(
-            //     { translateY: "100px"},
-            //     { duration: 0 });
-
-            // $('ul.staggered-list.vertical li').each(function() {
-            //   $(this).velocity(
-            //     { opacity: "1", translateY: "0"},
-            //     { duration: 800, delay: time, easing: [60, 25] });
-            //   time += 120;
-            // });
-
-            // // Fade in and Scale
-            // $('.fade-in.scale').velocity(
-            //     { scaleX: .4, scaleY: .4, translateX: -600},
-            //     { duration: 0});
-            // $('.fade-in').each(function() {
-            //   $(this).velocity(
-            //     { opacity: "1", scaleX: 1, scaleY: 1, translateX: 0},
-            //     { duration: 800, easing: [60, 10] });
-            // });
-        });
-    })(jQuery);
-    ;(function ($) {
-
-        var scrollFireEventsHandled = false;
-
-        // Input: Array of JSON objects {selector, offset, callback}
-        Materialize.scrollFire = function (options) {
-            var onScroll = function () {
-                var windowScroll = window.pageYOffset + window.innerHeight;
-
-                for (var i = 0; i < options.length; i++) {
-                    // Get options from each line
-                    var value = options[i];
-                    var selector = value.selector,
-                        offset = value.offset,
-                        callback = value.callback;
-
-                    var currentElement = document.querySelector(selector);
-                    if (currentElement !== null) {
-                        var elementOffset = currentElement.getBoundingClientRect().top + window.pageYOffset;
-
-                        if (windowScroll > elementOffset + offset) {
-                            if (value.done !== true) {
-                                if (typeof callback === 'function') {
-                                    callback.call(this, currentElement);
-                                } else if (typeof callback === 'string') {
-                                    var callbackFunc = new Function(callback);
-                                    callbackFunc(currentElement);
-                                }
-                                value.done = true;
-                            }
-                        }
-                    }
-                }
-            };
-
-            var throttledScroll = Materialize.throttle(function () {
-                onScroll();
-            }, options.throttle || 100);
-
-            if (!scrollFireEventsHandled) {
-                window.addEventListener("scroll", throttledScroll);
-                window.addEventListener("resize", throttledScroll);
-                scrollFireEventsHandled = true;
-            }
-
-            // perform a scan once, after current execution context, and after dom is ready
-            setTimeout(throttledScroll, 0);
-        };
-    })(jQuery);
-    ; /*!
+    // perform a scan once, after current execution context, and after dom is ready
+    setTimeout(throttledScroll, 0);
+  };
+})(jQuery);
+; /*!
   * pickadate.js v3.5.0, 2014/04/13
   * By Amsul, http://amsul.ca
   * Hosted on http://amsul.github.io/pickadate.js
   * Licensed under MIT
   */
 
-    (function (factory) {
+(function (factory) {
 
-        Materialize.Picker = factory(jQuery);
-    })(function ($) {
+  Materialize.Picker = factory(jQuery);
+})(function ($) {
 
-        var $window = $(window);
-        var $document = $(document);
-        var $html = $(document.documentElement);
+  var $window = $(window);
+  var $document = $(document);
+  var $html = $(document.documentElement);
 
-        /**
-         * The picker constructor that creates a blank picker.
-         */
-        function PickerConstructor(ELEMENT, NAME, COMPONENT, OPTIONS) {
+  /**
+   * The picker constructor that creates a blank picker.
+   */
+  function PickerConstructor(ELEMENT, NAME, COMPONENT, OPTIONS) {
 
-            // If there’s no element, return the picker constructor.
-            if (!ELEMENT) return PickerConstructor;
+    // If there’s no element, return the picker constructor.
+    if (!ELEMENT) return PickerConstructor;
 
-            var IS_DEFAULT_THEME = false,
+    var IS_DEFAULT_THEME = false,
 
 
-            // The state of the picker.
-            STATE = {
-                id: ELEMENT.id || 'P' + Math.abs(~~(Math.random() * new Date()))
-            },
+    // The state of the picker.
+    STATE = {
+      id: ELEMENT.id || 'P' + Math.abs(~~(Math.random() * new Date()))
+    },
 
 
-            // Merge the defaults and options passed.
-            SETTINGS = COMPONENT ? $.extend(true, {}, COMPONENT.defaults, OPTIONS) : OPTIONS || {},
+    // Merge the defaults and options passed.
+    SETTINGS = COMPONENT ? $.extend(true, {}, COMPONENT.defaults, OPTIONS) : OPTIONS || {},
 
 
-            // Merge the default classes with the settings classes.
-            CLASSES = $.extend({}, PickerConstructor.klasses(), SETTINGS.klass),
+    // Merge the default classes with the settings classes.
+    CLASSES = $.extend({}, PickerConstructor.klasses(), SETTINGS.klass),
 
 
-            // The element node wrapper into a jQuery object.
-            $ELEMENT = $(ELEMENT),
+    // The element node wrapper into a jQuery object.
+    $ELEMENT = $(ELEMENT),
 
 
-            // Pseudo picker constructor.
-            PickerInstance = function () {
-                return this.start();
-            },
+    // Pseudo picker constructor.
+    PickerInstance = function () {
+      return this.start();
+    },
 
 
-            // The picker prototype.
-            P = PickerInstance.prototype = {
+    // The picker prototype.
+    P = PickerInstance.prototype = {
 
-                constructor: PickerInstance,
+      constructor: PickerInstance,
 
-                $node: $ELEMENT,
+      $node: $ELEMENT,
 
-                /**
-                 * Initialize everything
-                 */
-                start: function () {
+      /**
+       * Initialize everything
+       */
+      start: function () {
 
-                    // If it’s already started, do nothing.
-                    if (STATE && STATE.start) return P;
+        // If it’s already started, do nothing.
+        if (STATE && STATE.start) return P;
 
-                    // Update the picker states.
-                    STATE.methods = {};
-                    STATE.start = true;
-                    STATE.open = false;
-                    STATE.type = ELEMENT.type;
+        // Update the picker states.
+        STATE.methods = {};
+        STATE.start = true;
+        STATE.open = false;
+        STATE.type = ELEMENT.type;
 
-                    // Confirm focus state, convert into text input to remove UA stylings,
-                    // and set as readonly to prevent keyboard popup.
-                    ELEMENT.autofocus = ELEMENT == getActiveElement();
-                    ELEMENT.readOnly = !SETTINGS.editable;
-                    ELEMENT.id = ELEMENT.id || STATE.id;
-                    if (ELEMENT.type != 'text') {
-                        ELEMENT.type = 'text';
-                    }
-
-                    // Create a new picker component with the settings.
-                    P.component = new COMPONENT(P, SETTINGS);
-
-                    // Create the picker root with a holder and then prepare it.
-                    P.$root = $(PickerConstructor._.node('div', createWrappedComponent(), CLASSES.picker, 'id="' + ELEMENT.id + '_root" tabindex="0"'));
-                    prepareElementRoot();
-
-                    // If there’s a format for the hidden input element, create the element.
-                    if (SETTINGS.formatSubmit) {
-                        prepareElementHidden();
-                    }
-
-                    // Prepare the input element.
-                    prepareElement();
-
-                    // Insert the root as specified in the settings.
-                    if (SETTINGS.container) $(SETTINGS.container).append(P.$root);else $ELEMENT.before(P.$root);
-
-                    // Bind the default component and settings events.
-                    P.on({
-                        start: P.component.onStart,
-                        render: P.component.onRender,
-                        stop: P.component.onStop,
-                        open: P.component.onOpen,
-                        close: P.component.onClose,
-                        set: P.component.onSet
-                    }).on({
-                        start: SETTINGS.onStart,
-                        render: SETTINGS.onRender,
-                        stop: SETTINGS.onStop,
-                        open: SETTINGS.onOpen,
-                        close: SETTINGS.onClose,
-                        set: SETTINGS.onSet
-                    });
-
-                    // Once we’re all set, check the theme in use.
-                    IS_DEFAULT_THEME = isUsingDefaultTheme(P.$root.children()[0]);
-
-                    // If the element has autofocus, open the picker.
-                    if (ELEMENT.autofocus) {
-                        P.open();
-                    }
-
-                    // Trigger queued the “start” and “render” events.
-                    return P.trigger('start').trigger('render');
-                }, //start
-
-
-                /**
-                 * Render a new picker
-                 */
-                render: function (entireComponent) {
-
-                    // Insert a new component holder in the root or box.
-                    if (entireComponent) P.$root.html(createWrappedComponent());else P.$root.find('.' + CLASSES.box).html(P.component.nodes(STATE.open));
-
-                    // Trigger the queued “render” events.
-                    return P.trigger('render');
-                }, //render
-
-
-                /**
-                 * Destroy everything
-                 */
-                stop: function () {
-
-                    // If it’s already stopped, do nothing.
-                    if (!STATE.start) return P;
-
-                    // Then close the picker.
-                    P.close();
-
-                    // Remove the hidden field.
-                    if (P._hidden) {
-                        P._hidden.parentNode.removeChild(P._hidden);
-                    }
-
-                    // Remove the root.
-                    P.$root.remove();
-
-                    // Remove the input class, remove the stored data, and unbind
-                    // the events (after a tick for IE - see `P.close`).
-                    $ELEMENT.removeClass(CLASSES.input).removeData(NAME);
-                    setTimeout(function () {
-                        $ELEMENT.off('.' + STATE.id);
-                    }, 0);
-
-                    // Restore the element state
-                    ELEMENT.type = STATE.type;
-                    ELEMENT.readOnly = false;
-
-                    // Trigger the queued “stop” events.
-                    P.trigger('stop');
-
-                    // Reset the picker states.
-                    STATE.methods = {};
-                    STATE.start = false;
-
-                    return P;
-                }, //stop
-
-
-                /**
-                 * Open up the picker
-                 */
-                open: function (dontGiveFocus) {
-
-                    // If it’s already open, do nothing.
-                    if (STATE.open) return P;
-
-                    // Add the “active” class.
-                    $ELEMENT.addClass(CLASSES.active);
-                    aria(ELEMENT, 'expanded', true);
-
-                    // * A Firefox bug, when `html` has `overflow:hidden`, results in
-                    //   killing transitions :(. So add the “opened” state on the next tick.
-                    //   Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=625289
-                    setTimeout(function () {
-
-                        // Add the “opened” class to the picker root.
-                        P.$root.addClass(CLASSES.opened);
-                        aria(P.$root[0], 'hidden', false);
-                    }, 0);
-
-                    // If we have to give focus, bind the element and doc events.
-                    if (dontGiveFocus !== false) {
-
-                        // Set it as open.
-                        STATE.open = true;
-
-                        // Prevent the page from scrolling.
-                        if (IS_DEFAULT_THEME) {
-                            $html.css('overflow', 'hidden').css('padding-right', '+=' + getScrollbarWidth());
-                        }
-
-                        // Pass focus to the root element’s jQuery object.
-                        // * Workaround for iOS8 to bring the picker’s root into view.
-                        P.$root.eq(0).focus();
-
-                        // Bind the document events.
-                        $document.on('click.' + STATE.id + ' focusin.' + STATE.id, function (event) {
-
-                            var target = event.target;
-
-                            // If the target of the event is not the element, close the picker picker.
-                            // * Don’t worry about clicks or focusins on the root because those don’t bubble up.
-                            //   Also, for Firefox, a click on an `option` element bubbles up directly
-                            //   to the doc. So make sure the target wasn't the doc.
-                            // * In Firefox stopPropagation() doesn’t prevent right-click events from bubbling,
-                            //   which causes the picker to unexpectedly close when right-clicking it. So make
-                            //   sure the event wasn’t a right-click.
-                            if (target != ELEMENT && target != document && event.which != 3) {
-
-                                // If the target was the holder that covers the screen,
-                                // keep the element focused to maintain tabindex.
-                                P.close(target === P.$root.children()[0]);
-                            }
-                        }).on('keydown.' + STATE.id, function (event) {
-
-                            var
-                            // Get the keycode.
-                            keycode = event.keyCode,
-
-
-                            // Translate that to a selection change.
-                            keycodeToMove = P.component.key[keycode],
-
-
-                            // Grab the target.
-                            target = event.target;
-
-                            // On escape, close the picker and give focus.
-                            if (keycode == 27) {
-                                P.close(true);
-                            }
-
-                                // Check if there is a key movement or “enter” keypress on the element.
-                            else if (target == P.$root[0] && (keycodeToMove || keycode == 13)) {
-
-                                // Prevent the default action to stop page movement.
-                                event.preventDefault();
-
-                                // Trigger the key movement action.
-                                if (keycodeToMove) {
-                                    PickerConstructor._.trigger(P.component.key.go, P, [PickerConstructor._.trigger(keycodeToMove)]);
-                                }
-
-                                    // On “enter”, if the highlighted item isn’t disabled, set the value and close.
-                                else if (!P.$root.find('.' + CLASSES.highlighted).hasClass(CLASSES.disabled)) {
-                                    P.set('select', P.component.item.highlight);
-                                    if (SETTINGS.closeOnSelect) {
-                                        P.close(true);
-                                    }
-                                }
-                            }
-
-                                // If the target is within the root and “enter” is pressed,
-                                // prevent the default action and trigger a click on the target instead.
-                            else if ($.contains(P.$root[0], target) && keycode == 13) {
-                                event.preventDefault();
-                                target.click();
-                            }
-                        });
-                    }
-
-                    // Trigger the queued “open” events.
-                    return P.trigger('open');
-                }, //open
-
-
-                /**
-                 * Close the picker
-                 */
-                close: function (giveFocus) {
-
-                    // If we need to give focus, do it before changing states.
-                    if (giveFocus) {
-                        // ....ah yes! It would’ve been incomplete without a crazy workaround for IE :|
-                        // The focus is triggered *after* the close has completed - causing it
-                        // to open again. So unbind and rebind the event at the next tick.
-                        P.$root.off('focus.toOpen').eq(0).focus();
-                        setTimeout(function () {
-                            P.$root.on('focus.toOpen', handleFocusToOpenEvent);
-                        }, 0);
-                    }
-
-                    // Remove the “active” class.
-                    $ELEMENT.removeClass(CLASSES.active);
-                    aria(ELEMENT, 'expanded', false);
-
-                    // * A Firefox bug, when `html` has `overflow:hidden`, results in
-                    //   killing transitions :(. So remove the “opened” state on the next tick.
-                    //   Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=625289
-                    setTimeout(function () {
-
-                        // Remove the “opened” and “focused” class from the picker root.
-                        P.$root.removeClass(CLASSES.opened + ' ' + CLASSES.focused);
-                        aria(P.$root[0], 'hidden', true);
-                    }, 0);
-
-                    // If it’s already closed, do nothing more.
-                    if (!STATE.open) return P;
-
-                    // Set it as closed.
-                    STATE.open = false;
-
-                    // Allow the page to scroll.
-                    if (IS_DEFAULT_THEME) {
-                        $html.css('overflow', '').css('padding-right', '-=' + getScrollbarWidth());
-                    }
-
-                    // Unbind the document events.
-                    $document.off('.' + STATE.id);
-
-                    // Trigger the queued “close” events.
-                    return P.trigger('close');
-                }, //close
-
-
-                /**
-                 * Clear the values
-                 */
-                clear: function (options) {
-                    return P.set('clear', null, options);
-                }, //clear
-
-
-                /**
-                 * Set something
-                 */
-                set: function (thing, value, options) {
-
-                    var thingItem,
-                        thingValue,
-                        thingIsObject = $.isPlainObject(thing),
-                        thingObject = thingIsObject ? thing : {};
-
-                    // Make sure we have usable options.
-                    options = thingIsObject && $.isPlainObject(value) ? value : options || {};
-
-                    if (thing) {
-
-                        // If the thing isn’t an object, make it one.
-                        if (!thingIsObject) {
-                            thingObject[thing] = value;
-                        }
-
-                        // Go through the things of items to set.
-                        for (thingItem in thingObject) {
-
-                            // Grab the value of the thing.
-                            thingValue = thingObject[thingItem];
-
-                            // First, if the item exists and there’s a value, set it.
-                            if (thingItem in P.component.item) {
-                                if (thingValue === undefined) thingValue = null;
-                                P.component.set(thingItem, thingValue, options);
-                            }
-
-                            // Then, check to update the element value and broadcast a change.
-                            if (thingItem == 'select' || thingItem == 'clear') {
-                                $ELEMENT.val(thingItem == 'clear' ? '' : P.get(thingItem, SETTINGS.format)).trigger('change');
-                            }
-                        }
-
-                        // Render a new picker.
-                        P.render();
-                    }
-
-                    // When the method isn’t muted, trigger queued “set” events and pass the `thingObject`.
-                    return options.muted ? P : P.trigger('set', thingObject);
-                }, //set
-
-
-                /**
-                 * Get something
-                 */
-                get: function (thing, format) {
-
-                    // Make sure there’s something to get.
-                    thing = thing || 'value';
-
-                    // If a picker state exists, return that.
-                    if (STATE[thing] != null) {
-                        return STATE[thing];
-                    }
-
-                    // Return the submission value, if that.
-                    if (thing == 'valueSubmit') {
-                        if (P._hidden) {
-                            return P._hidden.value;
-                        }
-                        thing = 'value';
-                    }
-
-                    // Return the value, if that.
-                    if (thing == 'value') {
-                        return ELEMENT.value;
-                    }
-
-                    // Check if a component item exists, return that.
-                    if (thing in P.component.item) {
-                        if (typeof format == 'string') {
-                            var thingValue = P.component.get(thing);
-                            return thingValue ? PickerConstructor._.trigger(P.component.formats.toString, P.component, [format, thingValue]) : '';
-                        }
-                        return P.component.get(thing);
-                    }
-                }, //get
-
-
-                /**
-                 * Bind events on the things.
-                 */
-                on: function (thing, method, internal) {
-
-                    var thingName,
-                        thingMethod,
-                        thingIsObject = $.isPlainObject(thing),
-                        thingObject = thingIsObject ? thing : {};
-
-                    if (thing) {
-
-                        // If the thing isn’t an object, make it one.
-                        if (!thingIsObject) {
-                            thingObject[thing] = method;
-                        }
-
-                        // Go through the things to bind to.
-                        for (thingName in thingObject) {
-
-                            // Grab the method of the thing.
-                            thingMethod = thingObject[thingName];
-
-                            // If it was an internal binding, prefix it.
-                            if (internal) {
-                                thingName = '_' + thingName;
-                            }
-
-                            // Make sure the thing methods collection exists.
-                            STATE.methods[thingName] = STATE.methods[thingName] || [];
-
-                            // Add the method to the relative method collection.
-                            STATE.methods[thingName].push(thingMethod);
-                        }
-                    }
-
-                    return P;
-                }, //on
-
-
-                /**
-                 * Unbind events on the things.
-                 */
-                off: function () {
-                    var i,
-                        thingName,
-                        names = arguments;
-                    for (i = 0, namesCount = names.length; i < namesCount; i += 1) {
-                        thingName = names[i];
-                        if (thingName in STATE.methods) {
-                            delete STATE.methods[thingName];
-                        }
-                    }
-                    return P;
-                },
-
-                /**
-                 * Fire off method events.
-                 */
-                trigger: function (name, data) {
-                    var _trigger = function (name) {
-                        var methodList = STATE.methods[name];
-                        if (methodList) {
-                            methodList.map(function (method) {
-                                PickerConstructor._.trigger(method, P, [data]);
-                            });
-                        }
-                    };
-                    _trigger('_' + name);
-                    _trigger(name);
-                    return P;
-                } //trigger
-                //PickerInstance.prototype
-
-
-                /**
-                 * Wrap the picker holder components together.
-                 */
-            };function createWrappedComponent() {
-
-                // Create a picker wrapper holder
-                return PickerConstructor._.node('div',
-
-                // Create a picker wrapper node
-                PickerConstructor._.node('div',
-
-                // Create a picker frame
-                PickerConstructor._.node('div',
-
-                // Create a picker box node
-                PickerConstructor._.node('div',
-
-                // Create the components nodes.
-                P.component.nodes(STATE.open),
-
-                // The picker box class
-                CLASSES.box),
-
-                // Picker wrap class
-                CLASSES.wrap),
-
-                // Picker frame class
-                CLASSES.frame),
-
-                // Picker holder class
-                CLASSES.holder); //endreturn
-            } //createWrappedComponent
-
-
-            /**
-             * Prepare the input element with all bindings.
-             */
-            function prepareElement() {
-
-                $ELEMENT.
-
-                // Store the picker data by component name.
-                data(NAME, P).
-
-                // Add the “input” class name.
-                addClass(CLASSES.input).
-
-                // Remove the tabindex.
-                attr('tabindex', -1).
-
-                // If there’s a `data-value`, update the value of the element.
-                val($ELEMENT.data('value') ? P.get('select', SETTINGS.format) : ELEMENT.value);
-
-                // Only bind keydown events if the element isn’t editable.
-                if (!SETTINGS.editable) {
-
-                    $ELEMENT.
-
-                    // On focus/click, focus onto the root to open it up.
-                    on('focus.' + STATE.id + ' click.' + STATE.id, function (event) {
-                        event.preventDefault();
-                        P.$root.eq(0).focus();
-                    }).
-
-                    // Handle keyboard event based on the picker being opened or not.
-                    on('keydown.' + STATE.id, handleKeydownEvent);
-                }
-
-                // Update the aria attributes.
-                aria(ELEMENT, {
-                    haspopup: true,
-                    expanded: false,
-                    readonly: false,
-                    owns: ELEMENT.id + '_root'
-                });
-            }
-
-            /**
-             * Prepare the root picker element with all bindings.
-             */
-            function prepareElementRoot() {
-
-                P.$root.on({
-
-                    // For iOS8.
-                    keydown: handleKeydownEvent,
-
-                    // When something within the root is focused, stop from bubbling
-                    // to the doc and remove the “focused” state from the root.
-                    focusin: function (event) {
-                        P.$root.removeClass(CLASSES.focused);
-                        event.stopPropagation();
-                    },
-
-                    // When something within the root holder is clicked, stop it
-                    // from bubbling to the doc.
-                    'mousedown click': function (event) {
-
-                        var target = event.target;
-
-                        // Make sure the target isn’t the root holder so it can bubble up.
-                        if (target != P.$root.children()[0]) {
-
-                            event.stopPropagation();
-
-                            // * For mousedown events, cancel the default action in order to
-                            //   prevent cases where focus is shifted onto external elements
-                            //   when using things like jQuery mobile or MagnificPopup (ref: #249 & #120).
-                            //   Also, for Firefox, don’t prevent action on the `option` element.
-                            if (event.type == 'mousedown' && !$(target).is('input, select, textarea, button, option')) {
-
-                                event.preventDefault();
-
-                                // Re-focus onto the root so that users can click away
-                                // from elements focused within the picker.
-                                P.$root.eq(0).focus();
-                            }
-                        }
-                    }
-                }).
-
-                // Add/remove the “target” class on focus and blur.
-                on({
-                    focus: function () {
-                        $ELEMENT.addClass(CLASSES.target);
-                    },
-                    blur: function () {
-                        $ELEMENT.removeClass(CLASSES.target);
-                    }
-                }).
-
-                // Open the picker and adjust the root “focused” state
-                on('focus.toOpen', handleFocusToOpenEvent).
-
-                // If there’s a click on an actionable element, carry out the actions.
-                on('click', '[data-pick], [data-nav], [data-clear], [data-close]', function () {
-
-                    var $target = $(this),
-                        targetData = $target.data(),
-                        targetDisabled = $target.hasClass(CLASSES.navDisabled) || $target.hasClass(CLASSES.disabled),
-
-
-                    // * For IE, non-focusable elements can be active elements as well
-                    //   (http://stackoverflow.com/a/2684561).
-                    activeElement = getActiveElement();
-                    activeElement = activeElement && (activeElement.type || activeElement.href) && activeElement;
-
-                    // If it’s disabled or nothing inside is actively focused, re-focus the element.
-                    if (targetDisabled || activeElement && !$.contains(P.$root[0], activeElement)) {
-                        P.$root.eq(0).focus();
-                    }
-
-                    // If something is superficially changed, update the `highlight` based on the `nav`.
-                    if (!targetDisabled && targetData.nav) {
-                        P.set('highlight', P.component.item.highlight, { nav: targetData.nav });
-                    }
-
-                        // If something is picked, set `select` then close with focus.
-                    else if (!targetDisabled && 'pick' in targetData) {
-                        P.set('select', targetData.pick);
-                        if (SETTINGS.closeOnSelect) {
-                            P.close(true);
-                        }
-                    }
-
-                        // If a “clear” button is pressed, empty the values and close with focus.
-                    else if (targetData.clear) {
-                        P.clear();
-                        if (SETTINGS.closeOnSelect) {
-                            P.close(true);
-                        }
-                    } else if (targetData.close) {
-                        P.close(true);
-                    }
-                }); //P.$root
-
-                aria(P.$root[0], 'hidden', true);
-            }
-
-            /**
-             * Prepare the hidden input element along with all bindings.
-             */
-            function prepareElementHidden() {
-
-                var name;
-
-                if (SETTINGS.hiddenName === true) {
-                    name = ELEMENT.name;
-                    ELEMENT.name = '';
-                } else {
-                    name = [typeof SETTINGS.hiddenPrefix == 'string' ? SETTINGS.hiddenPrefix : '', typeof SETTINGS.hiddenSuffix == 'string' ? SETTINGS.hiddenSuffix : '_submit'];
-                    name = name[0] + ELEMENT.name + name[1];
-                }
-
-                P._hidden = $('<input ' + 'type=hidden ' +
-
-                // Create the name using the original input’s with a prefix and suffix.
-                'name="' + name + '"' + (
-
-                // If the element has a value, set the hidden value as well.
-                $ELEMENT.data('value') || ELEMENT.value ? ' value="' + P.get('select', SETTINGS.formatSubmit) + '"' : '') + '>')[0];
-
-                $ELEMENT.
-
-                // If the value changes, update the hidden input with the correct format.
-                on('change.' + STATE.id, function () {
-                    P._hidden.value = ELEMENT.value ? P.get('select', SETTINGS.formatSubmit) : '';
-                });
-
-                // Insert the hidden input as specified in the settings.
-                if (SETTINGS.container) $(SETTINGS.container).append(P._hidden);else $ELEMENT.before(P._hidden);
-            }
-
-            // For iOS8.
-            function handleKeydownEvent(event) {
-
-                var keycode = event.keyCode,
-
-
-                // Check if one of the delete keys was pressed.
-                isKeycodeDelete = /^(8|46)$/.test(keycode);
-
-                // For some reason IE clears the input value on “escape”.
-                if (keycode == 27) {
-                    P.close();
-                    return false;
-                }
-
-                // Check if `space` or `delete` was pressed or the picker is closed with a key movement.
-                if (keycode == 32 || isKeycodeDelete || !STATE.open && P.component.key[keycode]) {
-
-                    // Prevent it from moving the page and bubbling to doc.
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    // If `delete` was pressed, clear the values and close the picker.
-                    // Otherwise open the picker.
-                    if (isKeycodeDelete) {
-                        P.clear().close();
-                    } else {
-                        P.open();
-                    }
-                }
-            }
-
-            // Separated for IE
-            function handleFocusToOpenEvent(event) {
-
-                // Stop the event from propagating to the doc.
-                event.stopPropagation();
-
-                // If it’s a focus event, add the “focused” class to the root.
-                if (event.type == 'focus') {
-                    P.$root.addClass(CLASSES.focused);
-                }
-
-                // And then finally open the picker.
-                P.open();
-            }
-
-            // Return a new picker instance.
-            return new PickerInstance();
-        } //PickerConstructor
-
-
-        /**
-         * The default classes and prefix to use for the HTML classes.
-         */
-        PickerConstructor.klasses = function (prefix) {
-            prefix = prefix || 'picker';
-            return {
-
-                picker: prefix,
-                opened: prefix + '--opened',
-                focused: prefix + '--focused',
-
-                input: prefix + '__input',
-                active: prefix + '__input--active',
-                target: prefix + '__input--target',
-
-                holder: prefix + '__holder',
-
-                frame: prefix + '__frame',
-                wrap: prefix + '__wrap',
-
-                box: prefix + '__box'
-            };
-        }; //PickerConstructor.klasses
-
-
-        /**
-         * Check if the default theme is being used.
-         */
-        function isUsingDefaultTheme(element) {
-
-            var theme,
-                prop = 'position';
-
-            // For IE.
-            if (element.currentStyle) {
-                theme = element.currentStyle[prop];
-            }
-
-                // For normal browsers.
-            else if (window.getComputedStyle) {
-                theme = getComputedStyle(element)[prop];
-            }
-
-            return theme == 'fixed';
+        // Confirm focus state, convert into text input to remove UA stylings,
+        // and set as readonly to prevent keyboard popup.
+        ELEMENT.autofocus = ELEMENT == getActiveElement();
+        ELEMENT.readOnly = !SETTINGS.editable;
+        ELEMENT.id = ELEMENT.id || STATE.id;
+        if (ELEMENT.type != 'text') {
+          ELEMENT.type = 'text';
         }
 
-        /**
-         * Get the width of the browser’s scrollbar.
-         * Taken from: https://github.com/VodkaBears/Remodal/blob/master/src/jquery.remodal.js
-         */
-        function getScrollbarWidth() {
+        // Create a new picker component with the settings.
+        P.component = new COMPONENT(P, SETTINGS);
 
-            if ($html.height() <= $window.height()) {
-                return 0;
-            }
+        // Create the picker root with a holder and then prepare it.
+        P.$root = $(PickerConstructor._.node('div', createWrappedComponent(), CLASSES.picker, 'id="' + ELEMENT.id + '_root" tabindex="0"'));
+        prepareElementRoot();
 
-            var $outer = $('<div style="visibility:hidden;width:100px" />').appendTo('body');
-
-            // Get the width without scrollbars.
-            var widthWithoutScroll = $outer[0].offsetWidth;
-
-            // Force adding scrollbars.
-            $outer.css('overflow', 'scroll');
-
-            // Add the inner div.
-            var $inner = $('<div style="width:100%" />').appendTo($outer);
-
-            // Get the width with scrollbars.
-            var widthWithScroll = $inner[0].offsetWidth;
-
-            // Remove the divs.
-            $outer.remove();
-
-            // Return the difference between the widths.
-            return widthWithoutScroll - widthWithScroll;
+        // If there’s a format for the hidden input element, create the element.
+        if (SETTINGS.formatSubmit) {
+          prepareElementHidden();
         }
 
-        /**
-         * PickerConstructor helper methods.
-         */
-        PickerConstructor._ = {
+        // Prepare the input element.
+        prepareElement();
 
-            /**
-             * Create a group of nodes. Expects:
-             * `
-                {
-                    min:    {Integer},
-                    max:    {Integer},
-                    i:      {Integer},
-                    node:   {String},
-                    item:   {Function}
+        // Insert the root as specified in the settings.
+        if (SETTINGS.container) $(SETTINGS.container).append(P.$root);else $ELEMENT.before(P.$root);
+
+        // Bind the default component and settings events.
+        P.on({
+          start: P.component.onStart,
+          render: P.component.onRender,
+          stop: P.component.onStop,
+          open: P.component.onOpen,
+          close: P.component.onClose,
+          set: P.component.onSet
+        }).on({
+          start: SETTINGS.onStart,
+          render: SETTINGS.onRender,
+          stop: SETTINGS.onStop,
+          open: SETTINGS.onOpen,
+          close: SETTINGS.onClose,
+          set: SETTINGS.onSet
+        });
+
+        // Once we’re all set, check the theme in use.
+        IS_DEFAULT_THEME = isUsingDefaultTheme(P.$root.children()[0]);
+
+        // If the element has autofocus, open the picker.
+        if (ELEMENT.autofocus) {
+          P.open();
+        }
+
+        // Trigger queued the “start” and “render” events.
+        return P.trigger('start').trigger('render');
+      }, //start
+
+
+      /**
+       * Render a new picker
+       */
+      render: function (entireComponent) {
+
+        // Insert a new component holder in the root or box.
+        if (entireComponent) P.$root.html(createWrappedComponent());else P.$root.find('.' + CLASSES.box).html(P.component.nodes(STATE.open));
+
+        // Trigger the queued “render” events.
+        return P.trigger('render');
+      }, //render
+
+
+      /**
+       * Destroy everything
+       */
+      stop: function () {
+
+        // If it’s already stopped, do nothing.
+        if (!STATE.start) return P;
+
+        // Then close the picker.
+        P.close();
+
+        // Remove the hidden field.
+        if (P._hidden) {
+          P._hidden.parentNode.removeChild(P._hidden);
+        }
+
+        // Remove the root.
+        P.$root.remove();
+
+        // Remove the input class, remove the stored data, and unbind
+        // the events (after a tick for IE - see `P.close`).
+        $ELEMENT.removeClass(CLASSES.input).removeData(NAME);
+        setTimeout(function () {
+          $ELEMENT.off('.' + STATE.id);
+        }, 0);
+
+        // Restore the element state
+        ELEMENT.type = STATE.type;
+        ELEMENT.readOnly = false;
+
+        // Trigger the queued “stop” events.
+        P.trigger('stop');
+
+        // Reset the picker states.
+        STATE.methods = {};
+        STATE.start = false;
+
+        return P;
+      }, //stop
+
+
+      /**
+       * Open up the picker
+       */
+      open: function (dontGiveFocus) {
+
+        // If it’s already open, do nothing.
+        if (STATE.open) return P;
+
+        // Add the “active” class.
+        $ELEMENT.addClass(CLASSES.active);
+        aria(ELEMENT, 'expanded', true);
+
+        // * A Firefox bug, when `html` has `overflow:hidden`, results in
+        //   killing transitions :(. So add the “opened” state on the next tick.
+        //   Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=625289
+        setTimeout(function () {
+
+          // Add the “opened” class to the picker root.
+          P.$root.addClass(CLASSES.opened);
+          aria(P.$root[0], 'hidden', false);
+        }, 0);
+
+        // If we have to give focus, bind the element and doc events.
+        if (dontGiveFocus !== false) {
+
+          // Set it as open.
+          STATE.open = true;
+
+          // Prevent the page from scrolling.
+          if (IS_DEFAULT_THEME) {
+            $html.css('overflow', 'hidden').css('padding-right', '+=' + getScrollbarWidth());
+          }
+
+          // Pass focus to the root element’s jQuery object.
+          // * Workaround for iOS8 to bring the picker’s root into view.
+          P.$root.eq(0).focus();
+
+          // Bind the document events.
+          $document.on('click.' + STATE.id + ' focusin.' + STATE.id, function (event) {
+
+            var target = event.target;
+
+            // If the target of the event is not the element, close the picker picker.
+            // * Don’t worry about clicks or focusins on the root because those don’t bubble up.
+            //   Also, for Firefox, a click on an `option` element bubbles up directly
+            //   to the doc. So make sure the target wasn't the doc.
+            // * In Firefox stopPropagation() doesn’t prevent right-click events from bubbling,
+            //   which causes the picker to unexpectedly close when right-clicking it. So make
+            //   sure the event wasn’t a right-click.
+            if (target != ELEMENT && target != document && event.which != 3) {
+
+              // If the target was the holder that covers the screen,
+              // keep the element focused to maintain tabindex.
+              P.close(target === P.$root.children()[0]);
+            }
+          }).on('keydown.' + STATE.id, function (event) {
+
+            var
+            // Get the keycode.
+            keycode = event.keyCode,
+
+
+            // Translate that to a selection change.
+            keycodeToMove = P.component.key[keycode],
+
+
+            // Grab the target.
+            target = event.target;
+
+            // On escape, close the picker and give focus.
+            if (keycode == 27) {
+              P.close(true);
+            }
+
+            // Check if there is a key movement or “enter” keypress on the element.
+            else if (target == P.$root[0] && (keycodeToMove || keycode == 13)) {
+
+                // Prevent the default action to stop page movement.
+                event.preventDefault();
+
+                // Trigger the key movement action.
+                if (keycodeToMove) {
+                  PickerConstructor._.trigger(P.component.key.go, P, [PickerConstructor._.trigger(keycodeToMove)]);
                 }
-             * `
-             */
-            group: function (groupObject) {
 
-                var
-                // Scope for the looped object
-                loopObjectScope,
-
-
-                // Create the nodes list
-                nodesList = '',
-
-
-                // The counter starts from the `min`
-                counter = PickerConstructor._.trigger(groupObject.min, groupObject);
-
-                // Loop from the `min` to `max`, incrementing by `i`
-                for (; counter <= PickerConstructor._.trigger(groupObject.max, groupObject, [counter]); counter += groupObject.i) {
-
-                    // Trigger the `item` function within scope of the object
-                    loopObjectScope = PickerConstructor._.trigger(groupObject.item, groupObject, [counter]);
-
-                    // Splice the subgroup and create nodes out of the sub nodes
-                    nodesList += PickerConstructor._.node(groupObject.node, loopObjectScope[0], // the node
-                    loopObjectScope[1], // the classes
-                    loopObjectScope[2] // the attributes
-                    );
-                }
-
-                // Return the list of nodes
-                return nodesList;
-            }, //group
-
-
-            /**
-             * Create a dom node string
-             */
-            node: function (wrapper, item, klass, attribute) {
-
-                // If the item is false-y, just return an empty string
-                if (!item) return '';
-
-                // If the item is an array, do a join
-                item = $.isArray(item) ? item.join('') : item;
-
-                // Check for the class
-                klass = klass ? ' class="' + klass + '"' : '';
-
-                // Check for any attributes
-                attribute = attribute ? ' ' + attribute : '';
-
-                // Return the wrapped item
-                return '<' + wrapper + klass + attribute + '>' + item + '</' + wrapper + '>';
-            }, //node
-
-
-            /**
-             * Lead numbers below 10 with a zero.
-             */
-            lead: function (number) {
-                return (number < 10 ? '0' : '') + number;
-            },
-
-            /**
-             * Trigger a function otherwise return the value.
-             */
-            trigger: function (callback, scope, args) {
-                return typeof callback == 'function' ? callback.apply(scope, args || []) : callback;
-            },
-
-            /**
-             * If the second character is a digit, length is 2 otherwise 1.
-             */
-            digits: function (string) {
-                return (/\d/.test(string[1]) ? 2 : 1
-                );
-            },
-
-            /**
-             * Tell if something is a date object.
-             */
-            isDate: function (value) {
-                return {}.toString.call(value).indexOf('Date') > -1 && this.isInteger(value.getDate());
-            },
-
-            /**
-             * Tell if something is an integer.
-             */
-            isInteger: function (value) {
-                return {}.toString.call(value).indexOf('Number') > -1 && value % 1 === 0;
-            },
-
-            /**
-             * Create ARIA attribute strings.
-             */
-            ariaAttr: ariaAttr //PickerConstructor._
-
-
-            /**
-             * Extend the picker with a component and defaults.
-             */
-        };PickerConstructor.extend = function (name, Component) {
-
-            // Extend jQuery.
-            $.fn[name] = function (options, action) {
-
-                // Grab the component data.
-                var componentData = this.data(name);
-
-                // If the picker is requested, return the data object.
-                if (options == 'picker') {
-                    return componentData;
-                }
-
-                // If the component data exists and `options` is a string, carry out the action.
-                if (componentData && typeof options == 'string') {
-                    return PickerConstructor._.trigger(componentData[options], componentData, [action]);
-                }
-
-                // Otherwise go through each matched element and if the component
-                // doesn’t exist, create a new picker using `this` element
-                // and merging the defaults and options with a deep copy.
-                return this.each(function () {
-                    var $this = $(this);
-                    if (!$this.data(name)) {
-                        new PickerConstructor(this, name, Component, options);
+                // On “enter”, if the highlighted item isn’t disabled, set the value and close.
+                else if (!P.$root.find('.' + CLASSES.highlighted).hasClass(CLASSES.disabled)) {
+                    P.set('select', P.component.item.highlight);
+                    if (SETTINGS.closeOnSelect) {
+                      P.close(true);
                     }
-                });
-            };
+                  }
+              }
 
-            // Set the defaults.
-            $.fn[name].defaults = Component.defaults;
-        }; //PickerConstructor.extend
-
-
-        function aria(element, attribute, value) {
-            if ($.isPlainObject(attribute)) {
-                for (var key in attribute) {
-                    ariaSet(element, key, attribute[key]);
+              // If the target is within the root and “enter” is pressed,
+              // prevent the default action and trigger a click on the target instead.
+              else if ($.contains(P.$root[0], target) && keycode == 13) {
+                  event.preventDefault();
+                  target.click();
                 }
-            } else {
-                ariaSet(element, attribute, value);
-            }
-        }
-        function ariaSet(element, attribute, value) {
-            element.setAttribute((attribute == 'role' ? '' : 'aria-') + attribute, value);
-        }
-        function ariaAttr(attribute, data) {
-            if (!$.isPlainObject(attribute)) {
-                attribute = { attribute: data };
-            }
-            data = '';
-            for (var key in attribute) {
-                var attr = (key == 'role' ? '' : 'aria-') + key,
-                    attrVal = attribute[key];
-                data += attrVal == null ? '' : attr + '="' + attribute[key] + '"';
-            }
-            return data;
+          });
         }
 
-        // IE8 bug throws an error for activeElements within iframes.
-        function getActiveElement() {
-            try {
-                return document.activeElement;
-            } catch (err) {}
+        // Trigger the queued “open” events.
+        return P.trigger('open');
+      }, //open
+
+
+      /**
+       * Close the picker
+       */
+      close: function (giveFocus) {
+
+        // If we need to give focus, do it before changing states.
+        if (giveFocus) {
+          // ....ah yes! It would’ve been incomplete without a crazy workaround for IE :|
+          // The focus is triggered *after* the close has completed - causing it
+          // to open again. So unbind and rebind the event at the next tick.
+          P.$root.off('focus.toOpen').eq(0).focus();
+          setTimeout(function () {
+            P.$root.on('focus.toOpen', handleFocusToOpenEvent);
+          }, 0);
         }
 
-        // Expose the picker constructor.
-        return PickerConstructor;
-    });
-    ; /*!
+        // Remove the “active” class.
+        $ELEMENT.removeClass(CLASSES.active);
+        aria(ELEMENT, 'expanded', false);
+
+        // * A Firefox bug, when `html` has `overflow:hidden`, results in
+        //   killing transitions :(. So remove the “opened” state on the next tick.
+        //   Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=625289
+        setTimeout(function () {
+
+          // Remove the “opened” and “focused” class from the picker root.
+          P.$root.removeClass(CLASSES.opened + ' ' + CLASSES.focused);
+          aria(P.$root[0], 'hidden', true);
+        }, 0);
+
+        // If it’s already closed, do nothing more.
+        if (!STATE.open) return P;
+
+        // Set it as closed.
+        STATE.open = false;
+
+        // Allow the page to scroll.
+        if (IS_DEFAULT_THEME) {
+          $html.css('overflow', '').css('padding-right', '-=' + getScrollbarWidth());
+        }
+
+        // Unbind the document events.
+        $document.off('.' + STATE.id);
+
+        // Trigger the queued “close” events.
+        return P.trigger('close');
+      }, //close
+
+
+      /**
+       * Clear the values
+       */
+      clear: function (options) {
+        return P.set('clear', null, options);
+      }, //clear
+
+
+      /**
+       * Set something
+       */
+      set: function (thing, value, options) {
+
+        var thingItem,
+            thingValue,
+            thingIsObject = $.isPlainObject(thing),
+            thingObject = thingIsObject ? thing : {};
+
+        // Make sure we have usable options.
+        options = thingIsObject && $.isPlainObject(value) ? value : options || {};
+
+        if (thing) {
+
+          // If the thing isn’t an object, make it one.
+          if (!thingIsObject) {
+            thingObject[thing] = value;
+          }
+
+          // Go through the things of items to set.
+          for (thingItem in thingObject) {
+
+            // Grab the value of the thing.
+            thingValue = thingObject[thingItem];
+
+            // First, if the item exists and there’s a value, set it.
+            if (thingItem in P.component.item) {
+              if (thingValue === undefined) thingValue = null;
+              P.component.set(thingItem, thingValue, options);
+            }
+
+            // Then, check to update the element value and broadcast a change.
+            if (thingItem == 'select' || thingItem == 'clear') {
+              $ELEMENT.val(thingItem == 'clear' ? '' : P.get(thingItem, SETTINGS.format)).trigger('change');
+            }
+          }
+
+          // Render a new picker.
+          P.render();
+        }
+
+        // When the method isn’t muted, trigger queued “set” events and pass the `thingObject`.
+        return options.muted ? P : P.trigger('set', thingObject);
+      }, //set
+
+
+      /**
+       * Get something
+       */
+      get: function (thing, format) {
+
+        // Make sure there’s something to get.
+        thing = thing || 'value';
+
+        // If a picker state exists, return that.
+        if (STATE[thing] != null) {
+          return STATE[thing];
+        }
+
+        // Return the submission value, if that.
+        if (thing == 'valueSubmit') {
+          if (P._hidden) {
+            return P._hidden.value;
+          }
+          thing = 'value';
+        }
+
+        // Return the value, if that.
+        if (thing == 'value') {
+          return ELEMENT.value;
+        }
+
+        // Check if a component item exists, return that.
+        if (thing in P.component.item) {
+          if (typeof format == 'string') {
+            var thingValue = P.component.get(thing);
+            return thingValue ? PickerConstructor._.trigger(P.component.formats.toString, P.component, [format, thingValue]) : '';
+          }
+          return P.component.get(thing);
+        }
+      }, //get
+
+
+      /**
+       * Bind events on the things.
+       */
+      on: function (thing, method, internal) {
+
+        var thingName,
+            thingMethod,
+            thingIsObject = $.isPlainObject(thing),
+            thingObject = thingIsObject ? thing : {};
+
+        if (thing) {
+
+          // If the thing isn’t an object, make it one.
+          if (!thingIsObject) {
+            thingObject[thing] = method;
+          }
+
+          // Go through the things to bind to.
+          for (thingName in thingObject) {
+
+            // Grab the method of the thing.
+            thingMethod = thingObject[thingName];
+
+            // If it was an internal binding, prefix it.
+            if (internal) {
+              thingName = '_' + thingName;
+            }
+
+            // Make sure the thing methods collection exists.
+            STATE.methods[thingName] = STATE.methods[thingName] || [];
+
+            // Add the method to the relative method collection.
+            STATE.methods[thingName].push(thingMethod);
+          }
+        }
+
+        return P;
+      }, //on
+
+
+      /**
+       * Unbind events on the things.
+       */
+      off: function () {
+        var i,
+            thingName,
+            names = arguments;
+        for (i = 0, namesCount = names.length; i < namesCount; i += 1) {
+          thingName = names[i];
+          if (thingName in STATE.methods) {
+            delete STATE.methods[thingName];
+          }
+        }
+        return P;
+      },
+
+      /**
+       * Fire off method events.
+       */
+      trigger: function (name, data) {
+        var _trigger = function (name) {
+          var methodList = STATE.methods[name];
+          if (methodList) {
+            methodList.map(function (method) {
+              PickerConstructor._.trigger(method, P, [data]);
+            });
+          }
+        };
+        _trigger('_' + name);
+        _trigger(name);
+        return P;
+      } //trigger
+      //PickerInstance.prototype
+
+
+      /**
+       * Wrap the picker holder components together.
+       */
+    };function createWrappedComponent() {
+
+      // Create a picker wrapper holder
+      return PickerConstructor._.node('div',
+
+      // Create a picker wrapper node
+      PickerConstructor._.node('div',
+
+      // Create a picker frame
+      PickerConstructor._.node('div',
+
+      // Create a picker box node
+      PickerConstructor._.node('div',
+
+      // Create the components nodes.
+      P.component.nodes(STATE.open),
+
+      // The picker box class
+      CLASSES.box),
+
+      // Picker wrap class
+      CLASSES.wrap),
+
+      // Picker frame class
+      CLASSES.frame),
+
+      // Picker holder class
+      CLASSES.holder); //endreturn
+    } //createWrappedComponent
+
+
+    /**
+     * Prepare the input element with all bindings.
+     */
+    function prepareElement() {
+
+      $ELEMENT.
+
+      // Store the picker data by component name.
+      data(NAME, P).
+
+      // Add the “input” class name.
+      addClass(CLASSES.input).
+
+      // Remove the tabindex.
+      attr('tabindex', -1).
+
+      // If there’s a `data-value`, update the value of the element.
+      val($ELEMENT.data('value') ? P.get('select', SETTINGS.format) : ELEMENT.value);
+
+      // Only bind keydown events if the element isn’t editable.
+      if (!SETTINGS.editable) {
+
+        $ELEMENT.
+
+        // On focus/click, focus onto the root to open it up.
+        on('focus.' + STATE.id + ' click.' + STATE.id, function (event) {
+          event.preventDefault();
+          P.$root.eq(0).focus();
+        }).
+
+        // Handle keyboard event based on the picker being opened or not.
+        on('keydown.' + STATE.id, handleKeydownEvent);
+      }
+
+      // Update the aria attributes.
+      aria(ELEMENT, {
+        haspopup: true,
+        expanded: false,
+        readonly: false,
+        owns: ELEMENT.id + '_root'
+      });
+    }
+
+    /**
+     * Prepare the root picker element with all bindings.
+     */
+    function prepareElementRoot() {
+
+      P.$root.on({
+
+        // For iOS8.
+        keydown: handleKeydownEvent,
+
+        // When something within the root is focused, stop from bubbling
+        // to the doc and remove the “focused” state from the root.
+        focusin: function (event) {
+          P.$root.removeClass(CLASSES.focused);
+          event.stopPropagation();
+        },
+
+        // When something within the root holder is clicked, stop it
+        // from bubbling to the doc.
+        'mousedown click': function (event) {
+
+          var target = event.target;
+
+          // Make sure the target isn’t the root holder so it can bubble up.
+          if (target != P.$root.children()[0]) {
+
+            event.stopPropagation();
+
+            // * For mousedown events, cancel the default action in order to
+            //   prevent cases where focus is shifted onto external elements
+            //   when using things like jQuery mobile or MagnificPopup (ref: #249 & #120).
+            //   Also, for Firefox, don’t prevent action on the `option` element.
+            if (event.type == 'mousedown' && !$(target).is('input, select, textarea, button, option')) {
+
+              event.preventDefault();
+
+              // Re-focus onto the root so that users can click away
+              // from elements focused within the picker.
+              P.$root.eq(0).focus();
+            }
+          }
+        }
+      }).
+
+      // Add/remove the “target” class on focus and blur.
+      on({
+        focus: function () {
+          $ELEMENT.addClass(CLASSES.target);
+        },
+        blur: function () {
+          $ELEMENT.removeClass(CLASSES.target);
+        }
+      }).
+
+      // Open the picker and adjust the root “focused” state
+      on('focus.toOpen', handleFocusToOpenEvent).
+
+      // If there’s a click on an actionable element, carry out the actions.
+      on('click', '[data-pick], [data-nav], [data-clear], [data-close]', function () {
+
+        var $target = $(this),
+            targetData = $target.data(),
+            targetDisabled = $target.hasClass(CLASSES.navDisabled) || $target.hasClass(CLASSES.disabled),
+
+
+        // * For IE, non-focusable elements can be active elements as well
+        //   (http://stackoverflow.com/a/2684561).
+        activeElement = getActiveElement();
+        activeElement = activeElement && (activeElement.type || activeElement.href) && activeElement;
+
+        // If it’s disabled or nothing inside is actively focused, re-focus the element.
+        if (targetDisabled || activeElement && !$.contains(P.$root[0], activeElement)) {
+          P.$root.eq(0).focus();
+        }
+
+        // If something is superficially changed, update the `highlight` based on the `nav`.
+        if (!targetDisabled && targetData.nav) {
+          P.set('highlight', P.component.item.highlight, { nav: targetData.nav });
+        }
+
+        // If something is picked, set `select` then close with focus.
+        else if (!targetDisabled && 'pick' in targetData) {
+            P.set('select', targetData.pick);
+            if (SETTINGS.closeOnSelect) {
+              P.close(true);
+            }
+          }
+
+          // If a “clear” button is pressed, empty the values and close with focus.
+          else if (targetData.clear) {
+              P.clear();
+              if (SETTINGS.closeOnSelect) {
+                P.close(true);
+              }
+            } else if (targetData.close) {
+              P.close(true);
+            }
+      }); //P.$root
+
+      aria(P.$root[0], 'hidden', true);
+    }
+
+    /**
+     * Prepare the hidden input element along with all bindings.
+     */
+    function prepareElementHidden() {
+
+      var name;
+
+      if (SETTINGS.hiddenName === true) {
+        name = ELEMENT.name;
+        ELEMENT.name = '';
+      } else {
+        name = [typeof SETTINGS.hiddenPrefix == 'string' ? SETTINGS.hiddenPrefix : '', typeof SETTINGS.hiddenSuffix == 'string' ? SETTINGS.hiddenSuffix : '_submit'];
+        name = name[0] + ELEMENT.name + name[1];
+      }
+
+      P._hidden = $('<input ' + 'type=hidden ' +
+
+      // Create the name using the original input’s with a prefix and suffix.
+      'name="' + name + '"' + (
+
+      // If the element has a value, set the hidden value as well.
+      $ELEMENT.data('value') || ELEMENT.value ? ' value="' + P.get('select', SETTINGS.formatSubmit) + '"' : '') + '>')[0];
+
+      $ELEMENT.
+
+      // If the value changes, update the hidden input with the correct format.
+      on('change.' + STATE.id, function () {
+        P._hidden.value = ELEMENT.value ? P.get('select', SETTINGS.formatSubmit) : '';
+      });
+
+      // Insert the hidden input as specified in the settings.
+      if (SETTINGS.container) $(SETTINGS.container).append(P._hidden);else $ELEMENT.before(P._hidden);
+    }
+
+    // For iOS8.
+    function handleKeydownEvent(event) {
+
+      var keycode = event.keyCode,
+
+
+      // Check if one of the delete keys was pressed.
+      isKeycodeDelete = /^(8|46)$/.test(keycode);
+
+      // For some reason IE clears the input value on “escape”.
+      if (keycode == 27) {
+        P.close();
+        return false;
+      }
+
+      // Check if `space` or `delete` was pressed or the picker is closed with a key movement.
+      if (keycode == 32 || isKeycodeDelete || !STATE.open && P.component.key[keycode]) {
+
+        // Prevent it from moving the page and bubbling to doc.
+        event.preventDefault();
+        event.stopPropagation();
+
+        // If `delete` was pressed, clear the values and close the picker.
+        // Otherwise open the picker.
+        if (isKeycodeDelete) {
+          P.clear().close();
+        } else {
+          P.open();
+        }
+      }
+    }
+
+    // Separated for IE
+    function handleFocusToOpenEvent(event) {
+
+      // Stop the event from propagating to the doc.
+      event.stopPropagation();
+
+      // If it’s a focus event, add the “focused” class to the root.
+      if (event.type == 'focus') {
+        P.$root.addClass(CLASSES.focused);
+      }
+
+      // And then finally open the picker.
+      P.open();
+    }
+
+    // Return a new picker instance.
+    return new PickerInstance();
+  } //PickerConstructor
+
+
+  /**
+   * The default classes and prefix to use for the HTML classes.
+   */
+  PickerConstructor.klasses = function (prefix) {
+    prefix = prefix || 'picker';
+    return {
+
+      picker: prefix,
+      opened: prefix + '--opened',
+      focused: prefix + '--focused',
+
+      input: prefix + '__input',
+      active: prefix + '__input--active',
+      target: prefix + '__input--target',
+
+      holder: prefix + '__holder',
+
+      frame: prefix + '__frame',
+      wrap: prefix + '__wrap',
+
+      box: prefix + '__box'
+    };
+  }; //PickerConstructor.klasses
+
+
+  /**
+   * Check if the default theme is being used.
+   */
+  function isUsingDefaultTheme(element) {
+
+    var theme,
+        prop = 'position';
+
+    // For IE.
+    if (element.currentStyle) {
+      theme = element.currentStyle[prop];
+    }
+
+    // For normal browsers.
+    else if (window.getComputedStyle) {
+        theme = getComputedStyle(element)[prop];
+      }
+
+    return theme == 'fixed';
+  }
+
+  /**
+   * Get the width of the browser’s scrollbar.
+   * Taken from: https://github.com/VodkaBears/Remodal/blob/master/src/jquery.remodal.js
+   */
+  function getScrollbarWidth() {
+
+    if ($html.height() <= $window.height()) {
+      return 0;
+    }
+
+    var $outer = $('<div style="visibility:hidden;width:100px" />').appendTo('body');
+
+    // Get the width without scrollbars.
+    var widthWithoutScroll = $outer[0].offsetWidth;
+
+    // Force adding scrollbars.
+    $outer.css('overflow', 'scroll');
+
+    // Add the inner div.
+    var $inner = $('<div style="width:100%" />').appendTo($outer);
+
+    // Get the width with scrollbars.
+    var widthWithScroll = $inner[0].offsetWidth;
+
+    // Remove the divs.
+    $outer.remove();
+
+    // Return the difference between the widths.
+    return widthWithoutScroll - widthWithScroll;
+  }
+
+  /**
+   * PickerConstructor helper methods.
+   */
+  PickerConstructor._ = {
+
+    /**
+     * Create a group of nodes. Expects:
+     * `
+        {
+            min:    {Integer},
+            max:    {Integer},
+            i:      {Integer},
+            node:   {String},
+            item:   {Function}
+        }
+     * `
+     */
+    group: function (groupObject) {
+
+      var
+      // Scope for the looped object
+      loopObjectScope,
+
+
+      // Create the nodes list
+      nodesList = '',
+
+
+      // The counter starts from the `min`
+      counter = PickerConstructor._.trigger(groupObject.min, groupObject);
+
+      // Loop from the `min` to `max`, incrementing by `i`
+      for (; counter <= PickerConstructor._.trigger(groupObject.max, groupObject, [counter]); counter += groupObject.i) {
+
+        // Trigger the `item` function within scope of the object
+        loopObjectScope = PickerConstructor._.trigger(groupObject.item, groupObject, [counter]);
+
+        // Splice the subgroup and create nodes out of the sub nodes
+        nodesList += PickerConstructor._.node(groupObject.node, loopObjectScope[0], // the node
+        loopObjectScope[1], // the classes
+        loopObjectScope[2] // the attributes
+        );
+      }
+
+      // Return the list of nodes
+      return nodesList;
+    }, //group
+
+
+    /**
+     * Create a dom node string
+     */
+    node: function (wrapper, item, klass, attribute) {
+
+      // If the item is false-y, just return an empty string
+      if (!item) return '';
+
+      // If the item is an array, do a join
+      item = $.isArray(item) ? item.join('') : item;
+
+      // Check for the class
+      klass = klass ? ' class="' + klass + '"' : '';
+
+      // Check for any attributes
+      attribute = attribute ? ' ' + attribute : '';
+
+      // Return the wrapped item
+      return '<' + wrapper + klass + attribute + '>' + item + '</' + wrapper + '>';
+    }, //node
+
+
+    /**
+     * Lead numbers below 10 with a zero.
+     */
+    lead: function (number) {
+      return (number < 10 ? '0' : '') + number;
+    },
+
+    /**
+     * Trigger a function otherwise return the value.
+     */
+    trigger: function (callback, scope, args) {
+      return typeof callback == 'function' ? callback.apply(scope, args || []) : callback;
+    },
+
+    /**
+     * If the second character is a digit, length is 2 otherwise 1.
+     */
+    digits: function (string) {
+      return (/\d/.test(string[1]) ? 2 : 1
+      );
+    },
+
+    /**
+     * Tell if something is a date object.
+     */
+    isDate: function (value) {
+      return {}.toString.call(value).indexOf('Date') > -1 && this.isInteger(value.getDate());
+    },
+
+    /**
+     * Tell if something is an integer.
+     */
+    isInteger: function (value) {
+      return {}.toString.call(value).indexOf('Number') > -1 && value % 1 === 0;
+    },
+
+    /**
+     * Create ARIA attribute strings.
+     */
+    ariaAttr: ariaAttr //PickerConstructor._
+
+
+    /**
+     * Extend the picker with a component and defaults.
+     */
+  };PickerConstructor.extend = function (name, Component) {
+
+    // Extend jQuery.
+    $.fn[name] = function (options, action) {
+
+      // Grab the component data.
+      var componentData = this.data(name);
+
+      // If the picker is requested, return the data object.
+      if (options == 'picker') {
+        return componentData;
+      }
+
+      // If the component data exists and `options` is a string, carry out the action.
+      if (componentData && typeof options == 'string') {
+        return PickerConstructor._.trigger(componentData[options], componentData, [action]);
+      }
+
+      // Otherwise go through each matched element and if the component
+      // doesn’t exist, create a new picker using `this` element
+      // and merging the defaults and options with a deep copy.
+      return this.each(function () {
+        var $this = $(this);
+        if (!$this.data(name)) {
+          new PickerConstructor(this, name, Component, options);
+        }
+      });
+    };
+
+    // Set the defaults.
+    $.fn[name].defaults = Component.defaults;
+  }; //PickerConstructor.extend
+
+
+  function aria(element, attribute, value) {
+    if ($.isPlainObject(attribute)) {
+      for (var key in attribute) {
+        ariaSet(element, key, attribute[key]);
+      }
+    } else {
+      ariaSet(element, attribute, value);
+    }
+  }
+  function ariaSet(element, attribute, value) {
+    element.setAttribute((attribute == 'role' ? '' : 'aria-') + attribute, value);
+  }
+  function ariaAttr(attribute, data) {
+    if (!$.isPlainObject(attribute)) {
+      attribute = { attribute: data };
+    }
+    data = '';
+    for (var key in attribute) {
+      var attr = (key == 'role' ? '' : 'aria-') + key,
+          attrVal = attribute[key];
+      data += attrVal == null ? '' : attr + '="' + attribute[key] + '"';
+    }
+    return data;
+  }
+
+  // IE8 bug throws an error for activeElements within iframes.
+  function getActiveElement() {
+    try {
+      return document.activeElement;
+    } catch (err) {}
+  }
+
+  // Expose the picker constructor.
+  return PickerConstructor;
+});
+; /*!
   * Date picker for pickadate.js v3.5.0
   * http://amsul.github.io/pickadate.js/date.htm
   */
 
-    (function (factory) {
-        factory(Materialize.Picker, jQuery);
-    })(function (Picker, $) {
+(function (factory) {
+  factory(Materialize.Picker, jQuery);
+})(function (Picker, $) {
 
-        /**
-         * Globals and constants
-         */
-        var DAYS_IN_WEEK = 7,
-            WEEKS_IN_CALENDAR = 6,
-            _ = Picker._;
+  /**
+   * Globals and constants
+   */
+  var DAYS_IN_WEEK = 7,
+      WEEKS_IN_CALENDAR = 6,
+      _ = Picker._;
 
-        /**
-         * The date picker constructor
-         */
-        function DatePicker(picker, settings) {
+  /**
+   * The date picker constructor
+   */
+  function DatePicker(picker, settings) {
 
-            var calendar = this,
-                element = picker.$node[0],
-                elementValue = element.value,
-                elementDataValue = picker.$node.data('value'),
-                valueString = elementDataValue || elementValue,
-                formatString = elementDataValue ? settings.formatSubmit : settings.format,
-                isRTL = function () {
+    var calendar = this,
+        element = picker.$node[0],
+        elementValue = element.value,
+        elementDataValue = picker.$node.data('value'),
+        valueString = elementDataValue || elementValue,
+        formatString = elementDataValue ? settings.formatSubmit : settings.format,
+        isRTL = function () {
 
-                    return element.currentStyle ?
+      return element.currentStyle ?
 
-                    // For IE.
-                    element.currentStyle.direction == 'rtl' :
+      // For IE.
+      element.currentStyle.direction == 'rtl' :
 
-                    // For normal browsers.
-                    getComputedStyle(picker.$root[0]).direction == 'rtl';
-                };
+      // For normal browsers.
+      getComputedStyle(picker.$root[0]).direction == 'rtl';
+    };
 
-            calendar.settings = settings;
-            calendar.$node = picker.$node;
+    calendar.settings = settings;
+    calendar.$node = picker.$node;
 
-            // The queue of methods that will be used to build item objects.
-            calendar.queue = {
-                min: 'measure create',
-                max: 'measure create',
-                now: 'now create',
-                select: 'parse create validate',
-                highlight: 'parse navigate create validate',
-                view: 'parse create validate viewset',
-                disable: 'deactivate',
-                enable: 'activate'
+    // The queue of methods that will be used to build item objects.
+    calendar.queue = {
+      min: 'measure create',
+      max: 'measure create',
+      now: 'now create',
+      select: 'parse create validate',
+      highlight: 'parse navigate create validate',
+      view: 'parse create validate viewset',
+      disable: 'deactivate',
+      enable: 'activate'
 
-                // The component's item object.
-            };calendar.item = {};
+      // The component's item object.
+    };calendar.item = {};
 
-            calendar.item.clear = null;
-            calendar.item.disable = (settings.disable || []).slice(0);
-            calendar.item.enable = -function (collectionDisabled) {
-                return collectionDisabled[0] === true ? collectionDisabled.shift() : -1;
-            }(calendar.item.disable);
+    calendar.item.clear = null;
+    calendar.item.disable = (settings.disable || []).slice(0);
+    calendar.item.enable = -function (collectionDisabled) {
+      return collectionDisabled[0] === true ? collectionDisabled.shift() : -1;
+    }(calendar.item.disable);
 
-            calendar.set('min', settings.min).set('max', settings.max).set('now');
+    calendar.set('min', settings.min).set('max', settings.max).set('now');
 
-            // When there’s a value, set the `select`, which in turn
-            // also sets the `highlight` and `view`.
-            if (valueString) {
-                calendar.set('select', valueString, { format: formatString });
+    // When there’s a value, set the `select`, which in turn
+    // also sets the `highlight` and `view`.
+    if (valueString) {
+      calendar.set('select', valueString, { format: formatString });
+    }
+
+    // If there’s no value, default to highlighting “today”.
+    else {
+        calendar.set('select', null).set('highlight', calendar.item.now);
+      }
+
+    // The keycode to movement mapping.
+    calendar.key = {
+      40: 7, // Down
+      38: -7, // Up
+      39: function () {
+        return isRTL() ? -1 : 1;
+      }, // Right
+      37: function () {
+        return isRTL() ? 1 : -1;
+      }, // Left
+      go: function (timeChange) {
+        var highlightedObject = calendar.item.highlight,
+            targetDate = new Date(highlightedObject.year, highlightedObject.month, highlightedObject.date + timeChange);
+        calendar.set('highlight', targetDate, { interval: timeChange });
+        this.render();
+      }
+
+      // Bind some picker events.
+    };picker.on('render', function () {
+      picker.$root.find('.' + settings.klass.selectMonth).on('change', function () {
+        var value = this.value;
+        if (value) {
+          picker.set('highlight', [picker.get('view').year, value, picker.get('highlight').date]);
+          picker.$root.find('.' + settings.klass.selectMonth).trigger('focus');
+        }
+      });
+      picker.$root.find('.' + settings.klass.selectYear).on('change', function () {
+        var value = this.value;
+        if (value) {
+          picker.set('highlight', [value, picker.get('view').month, picker.get('highlight').date]);
+          picker.$root.find('.' + settings.klass.selectYear).trigger('focus');
+        }
+      });
+    }, 1).on('open', function () {
+      var includeToday = '';
+      if (calendar.disabled(calendar.get('now'))) {
+        includeToday = ':not(.' + settings.klass.buttonToday + ')';
+      }
+      picker.$root.find('button' + includeToday + ', select').attr('disabled', false);
+    }, 1).on('close', function () {
+      picker.$root.find('button, select').attr('disabled', true);
+    }, 1);
+  } //DatePicker
+
+
+  /**
+   * Set a datepicker item object.
+   */
+  DatePicker.prototype.set = function (type, value, options) {
+
+    var calendar = this,
+        calendarItem = calendar.item;
+
+    // If the value is `null` just set it immediately.
+    if (value === null) {
+      if (type == 'clear') type = 'select';
+      calendarItem[type] = value;
+      return calendar;
+    }
+
+    // Otherwise go through the queue of methods, and invoke the functions.
+    // Update this as the time unit, and set the final value as this item.
+    // * In the case of `enable`, keep the queue but set `disable` instead.
+    //   And in the case of `flip`, keep the queue but set `enable` instead.
+    calendarItem[type == 'enable' ? 'disable' : type == 'flip' ? 'enable' : type] = calendar.queue[type].split(' ').map(function (method) {
+      value = calendar[method](type, value, options);
+      return value;
+    }).pop();
+
+    // Check if we need to cascade through more updates.
+    if (type == 'select') {
+      calendar.set('highlight', calendarItem.select, options);
+    } else if (type == 'highlight') {
+      calendar.set('view', calendarItem.highlight, options);
+    } else if (type.match(/^(flip|min|max|disable|enable)$/)) {
+      if (calendarItem.select && calendar.disabled(calendarItem.select)) {
+        calendar.set('select', calendarItem.select, options);
+      }
+      if (calendarItem.highlight && calendar.disabled(calendarItem.highlight)) {
+        calendar.set('highlight', calendarItem.highlight, options);
+      }
+    }
+
+    return calendar;
+  }; //DatePicker.prototype.set
+
+
+  /**
+   * Get a datepicker item object.
+   */
+  DatePicker.prototype.get = function (type) {
+    return this.item[type];
+  }; //DatePicker.prototype.get
+
+
+  /**
+   * Create a picker date object.
+   */
+  DatePicker.prototype.create = function (type, value, options) {
+
+    var isInfiniteValue,
+        calendar = this;
+
+    // If there’s no value, use the type as the value.
+    value = value === undefined ? type : value;
+
+    // If it’s infinity, update the value.
+    if (value == -Infinity || value == Infinity) {
+      isInfiniteValue = value;
+    }
+
+    // If it’s an object, use the native date object.
+    else if ($.isPlainObject(value) && _.isInteger(value.pick)) {
+        value = value.obj;
+      }
+
+      // If it’s an array, convert it into a date and make sure
+      // that it’s a valid date – otherwise default to today.
+      else if ($.isArray(value)) {
+          value = new Date(value[0], value[1], value[2]);
+          value = _.isDate(value) ? value : calendar.create().obj;
+        }
+
+        // If it’s a number or date object, make a normalized date.
+        else if (_.isInteger(value) || _.isDate(value)) {
+            value = calendar.normalize(new Date(value), options);
+          }
+
+          // If it’s a literal true or any other case, set it to now.
+          else /*if ( value === true )*/{
+              value = calendar.now(type, value, options);
             }
 
-                // If there’s no value, default to highlighting “today”.
-            else {
-                calendar.set('select', null).set('highlight', calendar.item.now);
-            }
-
-            // The keycode to movement mapping.
-            calendar.key = {
-                40: 7, // Down
-                38: -7, // Up
-                39: function () {
-                    return isRTL() ? -1 : 1;
-                }, // Right
-                37: function () {
-                    return isRTL() ? 1 : -1;
-                }, // Left
-                go: function (timeChange) {
-                    var highlightedObject = calendar.item.highlight,
-                        targetDate = new Date(highlightedObject.year, highlightedObject.month, highlightedObject.date + timeChange);
-                    calendar.set('highlight', targetDate, { interval: timeChange });
-                    this.render();
-                }
-
-                // Bind some picker events.
-            };picker.on('render', function () {
-                picker.$root.find('.' + settings.klass.selectMonth).on('change', function () {
-                    var value = this.value;
-                    if (value) {
-                        picker.set('highlight', [picker.get('view').year, value, picker.get('highlight').date]);
-                        picker.$root.find('.' + settings.klass.selectMonth).trigger('focus');
-                    }
-                });
-                picker.$root.find('.' + settings.klass.selectYear).on('change', function () {
-                    var value = this.value;
-                    if (value) {
-                        picker.set('highlight', [value, picker.get('view').month, picker.get('highlight').date]);
-                        picker.$root.find('.' + settings.klass.selectYear).trigger('focus');
-                    }
-                });
-            }, 1).on('open', function () {
-                var includeToday = '';
-                if (calendar.disabled(calendar.get('now'))) {
-                    includeToday = ':not(.' + settings.klass.buttonToday + ')';
-                }
-                picker.$root.find('button' + includeToday + ', select').attr('disabled', false);
-            }, 1).on('close', function () {
-                picker.$root.find('button, select').attr('disabled', true);
-            }, 1);
-        } //DatePicker
+    // Return the compiled object.
+    return {
+      year: isInfiniteValue || value.getFullYear(),
+      month: isInfiniteValue || value.getMonth(),
+      date: isInfiniteValue || value.getDate(),
+      day: isInfiniteValue || value.getDay(),
+      obj: isInfiniteValue || value,
+      pick: isInfiniteValue || value.getTime()
+    };
+  }; //DatePicker.prototype.create
 
 
-        /**
-         * Set a datepicker item object.
-         */
-        DatePicker.prototype.set = function (type, value, options) {
+  /**
+   * Create a range limit object using an array, date object,
+   * literal “true”, or integer relative to another time.
+   */
+  DatePicker.prototype.createRange = function (from, to) {
 
-            var calendar = this,
-                calendarItem = calendar.item;
+    var calendar = this,
+        createDate = function (date) {
+      if (date === true || $.isArray(date) || _.isDate(date)) {
+        return calendar.create(date);
+      }
+      return date;
+    };
 
-            // If the value is `null` just set it immediately.
-            if (value === null) {
-                if (type == 'clear') type = 'select';
-                calendarItem[type] = value;
-                return calendar;
-            }
+    // Create objects if possible.
+    if (!_.isInteger(from)) {
+      from = createDate(from);
+    }
+    if (!_.isInteger(to)) {
+      to = createDate(to);
+    }
 
-            // Otherwise go through the queue of methods, and invoke the functions.
-            // Update this as the time unit, and set the final value as this item.
-            // * In the case of `enable`, keep the queue but set `disable` instead.
-            //   And in the case of `flip`, keep the queue but set `enable` instead.
-            calendarItem[type == 'enable' ? 'disable' : type == 'flip' ? 'enable' : type] = calendar.queue[type].split(' ').map(function (method) {
-                value = calendar[method](type, value, options);
-                return value;
-            }).pop();
+    // Create relative dates.
+    if (_.isInteger(from) && $.isPlainObject(to)) {
+      from = [to.year, to.month, to.date + from];
+    } else if (_.isInteger(to) && $.isPlainObject(from)) {
+      to = [from.year, from.month, from.date + to];
+    }
 
-            // Check if we need to cascade through more updates.
-            if (type == 'select') {
-                calendar.set('highlight', calendarItem.select, options);
-            } else if (type == 'highlight') {
-                calendar.set('view', calendarItem.highlight, options);
-            } else if (type.match(/^(flip|min|max|disable|enable)$/)) {
-                if (calendarItem.select && calendar.disabled(calendarItem.select)) {
-                    calendar.set('select', calendarItem.select, options);
-                }
-                if (calendarItem.highlight && calendar.disabled(calendarItem.highlight)) {
-                    calendar.set('highlight', calendarItem.highlight, options);
-                }
-            }
-
-            return calendar;
-        }; //DatePicker.prototype.set
+    return {
+      from: createDate(from),
+      to: createDate(to)
+    };
+  }; //DatePicker.prototype.createRange
 
 
-        /**
-         * Get a datepicker item object.
-         */
-        DatePicker.prototype.get = function (type) {
-            return this.item[type];
-        }; //DatePicker.prototype.get
+  /**
+   * Check if a date unit falls within a date range object.
+   */
+  DatePicker.prototype.withinRange = function (range, dateUnit) {
+    range = this.createRange(range.from, range.to);
+    return dateUnit.pick >= range.from.pick && dateUnit.pick <= range.to.pick;
+  };
 
+  /**
+   * Check if two date range objects overlap.
+   */
+  DatePicker.prototype.overlapRanges = function (one, two) {
 
-        /**
-         * Create a picker date object.
-         */
-        DatePicker.prototype.create = function (type, value, options) {
+    var calendar = this;
 
-            var isInfiniteValue,
-                calendar = this;
+    // Convert the ranges into comparable dates.
+    one = calendar.createRange(one.from, one.to);
+    two = calendar.createRange(two.from, two.to);
 
-            // If there’s no value, use the type as the value.
-            value = value === undefined ? type : value;
+    return calendar.withinRange(one, two.from) || calendar.withinRange(one, two.to) || calendar.withinRange(two, one.from) || calendar.withinRange(two, one.to);
+  };
 
-            // If it’s infinity, update the value.
-            if (value == -Infinity || value == Infinity) {
-                isInfiniteValue = value;
-            }
+  /**
+   * Get the date today.
+   */
+  DatePicker.prototype.now = function (type, value, options) {
+    value = new Date();
+    if (options && options.rel) {
+      value.setDate(value.getDate() + options.rel);
+    }
+    return this.normalize(value, options);
+  };
 
-                // If it’s an object, use the native date object.
-            else if ($.isPlainObject(value) && _.isInteger(value.pick)) {
-                value = value.obj;
-            }
+  /**
+   * Navigate to next/prev month.
+   */
+  DatePicker.prototype.navigate = function (type, value, options) {
 
-                // If it’s an array, convert it into a date and make sure
-                // that it’s a valid date – otherwise default to today.
-            else if ($.isArray(value)) {
-                value = new Date(value[0], value[1], value[2]);
-                value = _.isDate(value) ? value : calendar.create().obj;
-            }
-
-                // If it’s a number or date object, make a normalized date.
-            else if (_.isInteger(value) || _.isDate(value)) {
-                value = calendar.normalize(new Date(value), options);
-            }
-
-                // If it’s a literal true or any other case, set it to now.
-            else /*if ( value === true )*/{
-                value = calendar.now(type, value, options);
-            }
-
-            // Return the compiled object.
-            return {
-                year: isInfiniteValue || value.getFullYear(),
-                month: isInfiniteValue || value.getMonth(),
-                date: isInfiniteValue || value.getDate(),
-                day: isInfiniteValue || value.getDay(),
-                obj: isInfiniteValue || value,
-                pick: isInfiniteValue || value.getTime()
-            };
-        }; //DatePicker.prototype.create
-
-
-        /**
-         * Create a range limit object using an array, date object,
-         * literal “true”, or integer relative to another time.
-         */
-        DatePicker.prototype.createRange = function (from, to) {
-
-            var calendar = this,
-                createDate = function (date) {
-                    if (date === true || $.isArray(date) || _.isDate(date)) {
-                        return calendar.create(date);
-                    }
-                    return date;
-                };
-
-            // Create objects if possible.
-            if (!_.isInteger(from)) {
-                from = createDate(from);
-            }
-            if (!_.isInteger(to)) {
-                to = createDate(to);
-            }
-
-            // Create relative dates.
-            if (_.isInteger(from) && $.isPlainObject(to)) {
-                from = [to.year, to.month, to.date + from];
-            } else if (_.isInteger(to) && $.isPlainObject(from)) {
-                to = [from.year, from.month, from.date + to];
-            }
-
-            return {
-                from: createDate(from),
-                to: createDate(to)
-            };
-        }; //DatePicker.prototype.createRange
-
-
-        /**
-         * Check if a date unit falls within a date range object.
-         */
-        DatePicker.prototype.withinRange = function (range, dateUnit) {
-            range = this.createRange(range.from, range.to);
-            return dateUnit.pick >= range.from.pick && dateUnit.pick <= range.to.pick;
-        };
-
-        /**
-         * Check if two date range objects overlap.
-         */
-        DatePicker.prototype.overlapRanges = function (one, two) {
-
-            var calendar = this;
-
-            // Convert the ranges into comparable dates.
-            one = calendar.createRange(one.from, one.to);
-            two = calendar.createRange(two.from, two.to);
-
-            return calendar.withinRange(one, two.from) || calendar.withinRange(one, two.to) || calendar.withinRange(two, one.from) || calendar.withinRange(two, one.to);
-        };
-
-        /**
-         * Get the date today.
-         */
-        DatePicker.prototype.now = function (type, value, options) {
-            value = new Date();
-            if (options && options.rel) {
-                value.setDate(value.getDate() + options.rel);
-            }
-            return this.normalize(value, options);
-        };
-
-        /**
-         * Navigate to next/prev month.
-         */
-        DatePicker.prototype.navigate = function (type, value, options) {
-
-            var targetDateObject,
-                targetYear,
-                targetMonth,
-                targetDate,
-                isTargetArray = $.isArray(value),
-                isTargetObject = $.isPlainObject(value),
-                viewsetObject = this.item.view; /*,
+    var targetDateObject,
+        targetYear,
+        targetMonth,
+        targetDate,
+        isTargetArray = $.isArray(value),
+        isTargetObject = $.isPlainObject(value),
+        viewsetObject = this.item.view; /*,
                                         safety = 100*/
 
-            if (isTargetArray || isTargetObject) {
+    if (isTargetArray || isTargetObject) {
 
-                if (isTargetObject) {
-                    targetYear = value.year;
-                    targetMonth = value.month;
-                    targetDate = value.date;
-                } else {
-                    targetYear = +value[0];
-                    targetMonth = +value[1];
-                    targetDate = +value[2];
-                }
+      if (isTargetObject) {
+        targetYear = value.year;
+        targetMonth = value.month;
+        targetDate = value.date;
+      } else {
+        targetYear = +value[0];
+        targetMonth = +value[1];
+        targetDate = +value[2];
+      }
 
-                // If we’re navigating months but the view is in a different
-                // month, navigate to the view’s year and month.
-                if (options && options.nav && viewsetObject && viewsetObject.month !== targetMonth) {
-                    targetYear = viewsetObject.year;
-                    targetMonth = viewsetObject.month;
-                }
+      // If we’re navigating months but the view is in a different
+      // month, navigate to the view’s year and month.
+      if (options && options.nav && viewsetObject && viewsetObject.month !== targetMonth) {
+        targetYear = viewsetObject.year;
+        targetMonth = viewsetObject.month;
+      }
 
-                // Figure out the expected target year and month.
-                targetDateObject = new Date(targetYear, targetMonth + (options && options.nav ? options.nav : 0), 1);
-                targetYear = targetDateObject.getFullYear();
-                targetMonth = targetDateObject.getMonth();
+      // Figure out the expected target year and month.
+      targetDateObject = new Date(targetYear, targetMonth + (options && options.nav ? options.nav : 0), 1);
+      targetYear = targetDateObject.getFullYear();
+      targetMonth = targetDateObject.getMonth();
 
-                // If the month we’re going to doesn’t have enough days,
-                // keep decreasing the date until we reach the month’s last date.
-                while ( /*safety &&*/new Date(targetYear, targetMonth, targetDate).getMonth() !== targetMonth) {
-                    targetDate -= 1;
-                    /*safety -= 1
-                    if ( !safety ) {
-                        throw 'Fell into an infinite loop while navigating to ' + new Date( targetYear, targetMonth, targetDate ) + '.'
-                    }*/
-                }
+      // If the month we’re going to doesn’t have enough days,
+      // keep decreasing the date until we reach the month’s last date.
+      while ( /*safety &&*/new Date(targetYear, targetMonth, targetDate).getMonth() !== targetMonth) {
+        targetDate -= 1;
+        /*safety -= 1
+        if ( !safety ) {
+            throw 'Fell into an infinite loop while navigating to ' + new Date( targetYear, targetMonth, targetDate ) + '.'
+        }*/
+      }
 
-                value = [targetYear, targetMonth, targetDate];
-            }
+      value = [targetYear, targetMonth, targetDate];
+    }
 
-            return value;
-        }; //DatePicker.prototype.navigate
-
-
-        /**
-         * Normalize a date by setting the hours to midnight.
-         */
-        DatePicker.prototype.normalize = function (value /*, options*/) {
-            value.setHours(0, 0, 0, 0);
-            return value;
-        };
-
-        /**
-         * Measure the range of dates.
-         */
-        DatePicker.prototype.measure = function (type, value /*, options*/) {
-
-            var calendar = this;
-
-            // If it’s anything false-y, remove the limits.
-            if (!value) {
-                value = type == 'min' ? -Infinity : Infinity;
-            }
-
-                // If it’s a string, parse it.
-            else if (typeof value == 'string') {
-                value = calendar.parse(type, value);
-            }
-
-                // If it's an integer, get a date relative to today.
-            else if (_.isInteger(value)) {
-                value = calendar.now(type, value, { rel: value });
-            }
-
-            return value;
-        }; ///DatePicker.prototype.measure
+    return value;
+  }; //DatePicker.prototype.navigate
 
 
-        /**
-         * Create a viewset object based on navigation.
-         */
-        DatePicker.prototype.viewset = function (type, dateObject /*, options*/) {
-            return this.create([dateObject.year, dateObject.month, 1]);
-        };
+  /**
+   * Normalize a date by setting the hours to midnight.
+   */
+  DatePicker.prototype.normalize = function (value /*, options*/) {
+    value.setHours(0, 0, 0, 0);
+    return value;
+  };
 
-        /**
-         * Validate a date as enabled and shift if needed.
-         */
-        DatePicker.prototype.validate = function (type, dateObject, options) {
+  /**
+   * Measure the range of dates.
+   */
+  DatePicker.prototype.measure = function (type, value /*, options*/) {
 
-            var calendar = this,
+    var calendar = this;
 
+    // If it’s anything false-y, remove the limits.
+    if (!value) {
+      value = type == 'min' ? -Infinity : Infinity;
+    }
 
-            // Keep a reference to the original date.
-            originalDateObject = dateObject,
+    // If it’s a string, parse it.
+    else if (typeof value == 'string') {
+        value = calendar.parse(type, value);
+      }
 
+      // If it's an integer, get a date relative to today.
+      else if (_.isInteger(value)) {
+          value = calendar.now(type, value, { rel: value });
+        }
 
-            // Make sure we have an interval.
-            interval = options && options.interval ? options.interval : 1,
-
-
-            // Check if the calendar enabled dates are inverted.
-            isFlippedBase = calendar.item.enable === -1,
-
-
-            // Check if we have any enabled dates after/before now.
-            hasEnabledBeforeTarget,
-                hasEnabledAfterTarget,
-
-
-            // The min & max limits.
-            minLimitObject = calendar.item.min,
-                maxLimitObject = calendar.item.max,
+    return value;
+  }; ///DatePicker.prototype.measure
 
 
-            // Check if we’ve reached the limit during shifting.
-            reachedMin,
-                reachedMax,
+  /**
+   * Create a viewset object based on navigation.
+   */
+  DatePicker.prototype.viewset = function (type, dateObject /*, options*/) {
+    return this.create([dateObject.year, dateObject.month, 1]);
+  };
+
+  /**
+   * Validate a date as enabled and shift if needed.
+   */
+  DatePicker.prototype.validate = function (type, dateObject, options) {
+
+    var calendar = this,
 
 
-            // Check if the calendar is inverted and at least one weekday is enabled.
-            hasEnabledWeekdays = isFlippedBase && calendar.item.disable.filter(function (value) {
+    // Keep a reference to the original date.
+    originalDateObject = dateObject,
 
-                // If there’s a date, check where it is relative to the target.
-                if ($.isArray(value)) {
-                    var dateTime = calendar.create(value).pick;
-                    if (dateTime < dateObject.pick) hasEnabledBeforeTarget = true;else if (dateTime > dateObject.pick) hasEnabledAfterTarget = true;
-                }
 
-                // Return only integers for enabled weekdays.
-                return _.isInteger(value);
-            }).length; /*,
+    // Make sure we have an interval.
+    interval = options && options.interval ? options.interval : 1,
+
+
+    // Check if the calendar enabled dates are inverted.
+    isFlippedBase = calendar.item.enable === -1,
+
+
+    // Check if we have any enabled dates after/before now.
+    hasEnabledBeforeTarget,
+        hasEnabledAfterTarget,
+
+
+    // The min & max limits.
+    minLimitObject = calendar.item.min,
+        maxLimitObject = calendar.item.max,
+
+
+    // Check if we’ve reached the limit during shifting.
+    reachedMin,
+        reachedMax,
+
+
+    // Check if the calendar is inverted and at least one weekday is enabled.
+    hasEnabledWeekdays = isFlippedBase && calendar.item.disable.filter(function (value) {
+
+      // If there’s a date, check where it is relative to the target.
+      if ($.isArray(value)) {
+        var dateTime = calendar.create(value).pick;
+        if (dateTime < dateObject.pick) hasEnabledBeforeTarget = true;else if (dateTime > dateObject.pick) hasEnabledAfterTarget = true;
+      }
+
+      // Return only integers for enabled weekdays.
+      return _.isInteger(value);
+    }).length; /*,
                safety = 100*/
 
-            // Cases to validate for:
-            // [1] Not inverted and date disabled.
-            // [2] Inverted and some dates enabled.
-            // [3] Not inverted and out of range.
-            //
-            // Cases to **not** validate for:
-            // • Navigating months.
-            // • Not inverted and date enabled.
-            // • Inverted and all dates disabled.
-            // • ..and anything else.
-            if (!options || !options.nav) if (
-                /* 1 */!isFlippedBase && calendar.disabled(dateObject) ||
-                /* 2 */isFlippedBase && calendar.disabled(dateObject) && (hasEnabledWeekdays || hasEnabledBeforeTarget || hasEnabledAfterTarget) ||
-                /* 3 */!isFlippedBase && (dateObject.pick <= minLimitObject.pick || dateObject.pick >= maxLimitObject.pick)) {
-
-                // When inverted, flip the direction if there aren’t any enabled weekdays
-                // and there are no enabled dates in the direction of the interval.
-                if (isFlippedBase && !hasEnabledWeekdays && (!hasEnabledAfterTarget && interval > 0 || !hasEnabledBeforeTarget && interval < 0)) {
-                    interval *= -1;
-                }
-
-                // Keep looping until we reach an enabled date.
-                while ( /*safety &&*/calendar.disabled(dateObject)) {
-
-                    /*safety -= 1
-                    if ( !safety ) {
-                        throw 'Fell into an infinite loop while validating ' + dateObject.obj + '.'
-                    }*/
-
-                    // If we’ve looped into the next/prev month with a large interval, return to the original date and flatten the interval.
-                    if (Math.abs(interval) > 1 && (dateObject.month < originalDateObject.month || dateObject.month > originalDateObject.month)) {
-                        dateObject = originalDateObject;
-                        interval = interval > 0 ? 1 : -1;
-                    }
-
-                    // If we’ve reached the min/max limit, reverse the direction, flatten the interval and set it to the limit.
-                    if (dateObject.pick <= minLimitObject.pick) {
-                        reachedMin = true;
-                        interval = 1;
-                        dateObject = calendar.create([minLimitObject.year, minLimitObject.month, minLimitObject.date + (dateObject.pick === minLimitObject.pick ? 0 : -1)]);
-                    } else if (dateObject.pick >= maxLimitObject.pick) {
-                        reachedMax = true;
-                        interval = -1;
-                        dateObject = calendar.create([maxLimitObject.year, maxLimitObject.month, maxLimitObject.date + (dateObject.pick === maxLimitObject.pick ? 0 : 1)]);
-                    }
-
-                    // If we’ve reached both limits, just break out of the loop.
-                    if (reachedMin && reachedMax) {
-                        break;
-                    }
-
-                    // Finally, create the shifted date using the interval and keep looping.
-                    dateObject = calendar.create([dateObject.year, dateObject.month, dateObject.date + interval]);
-                }
-            } //endif
-
-
-            // Return the date object settled on.
-            return dateObject;
-        }; //DatePicker.prototype.validate
-
-
-        /**
-         * Check if a date is disabled.
-         */
-        DatePicker.prototype.disabled = function (dateToVerify) {
-
-            var calendar = this,
-
-
-            // Filter through the disabled dates to check if this is one.
-            isDisabledMatch = calendar.item.disable.filter(function (dateToDisable) {
-
-                // If the date is a number, match the weekday with 0index and `firstDay` check.
-                if (_.isInteger(dateToDisable)) {
-                    return dateToVerify.day === (calendar.settings.firstDay ? dateToDisable : dateToDisable - 1) % 7;
-                }
-
-                // If it’s an array or a native JS date, create and match the exact date.
-                if ($.isArray(dateToDisable) || _.isDate(dateToDisable)) {
-                    return dateToVerify.pick === calendar.create(dateToDisable).pick;
-                }
-
-                // If it’s an object, match a date within the “from” and “to” range.
-                if ($.isPlainObject(dateToDisable)) {
-                    return calendar.withinRange(dateToDisable, dateToVerify);
-                }
-            });
-
-            // If this date matches a disabled date, confirm it’s not inverted.
-            isDisabledMatch = isDisabledMatch.length && !isDisabledMatch.filter(function (dateToDisable) {
-                return $.isArray(dateToDisable) && dateToDisable[3] == 'inverted' || $.isPlainObject(dateToDisable) && dateToDisable.inverted;
-            }).length;
-
-            // Check the calendar “enabled” flag and respectively flip the
-            // disabled state. Then also check if it’s beyond the min/max limits.
-            return calendar.item.enable === -1 ? !isDisabledMatch : isDisabledMatch || dateToVerify.pick < calendar.item.min.pick || dateToVerify.pick > calendar.item.max.pick;
-        }; //DatePicker.prototype.disabled
-
-
-        /**
-         * Parse a string into a usable type.
-         */
-        DatePicker.prototype.parse = function (type, value, options) {
-
-            var calendar = this,
-                parsingObject = {};
-
-            // If it’s already parsed, we’re good.
-            if (!value || typeof value != 'string') {
-                return value;
-            }
-
-            // We need a `.format` to parse the value with.
-            if (!(options && options.format)) {
-                options = options || {};
-                options.format = calendar.settings.format;
-            }
-
-            // Convert the format into an array and then map through it.
-            calendar.formats.toArray(options.format).map(function (label) {
-
-                var
-                // Grab the formatting label.
-                formattingLabel = calendar.formats[label],
-
-
-                // The format length is from the formatting label function or the
-                // label length without the escaping exclamation (!) mark.
-                formatLength = formattingLabel ? _.trigger(formattingLabel, calendar, [value, parsingObject]) : label.replace(/^!/, '').length;
-
-                // If there's a format label, split the value up to the format length.
-                // Then add it to the parsing object with appropriate label.
-                if (formattingLabel) {
-                    parsingObject[label] = value.substr(0, formatLength);
-                }
-
-                // Update the value as the substring from format length to end.
-                value = value.substr(formatLength);
-            });
-
-            // Compensate for month 0index.
-            return [parsingObject.yyyy || parsingObject.yy, +(parsingObject.mm || parsingObject.m) - 1, parsingObject.dd || parsingObject.d];
-        }; //DatePicker.prototype.parse
-
-
-        /**
-         * Various formats to display the object in.
-         */
-        DatePicker.prototype.formats = function () {
-
-            // Return the length of the first word in a collection.
-            function getWordLengthFromCollection(string, collection, dateObject) {
-
-                // Grab the first word from the string.
-                var word = string.match(/\w+/)[0];
-
-                // If there's no month index, add it to the date object
-                if (!dateObject.mm && !dateObject.m) {
-                    dateObject.m = collection.indexOf(word) + 1;
-                }
-
-                // Return the length of the word.
-                return word.length;
-            }
-
-            // Get the length of the first word in a string.
-            function getFirstWordLength(string) {
-                return string.match(/\w+/)[0].length;
-            }
-
-            return {
-
-                d: function (string, dateObject) {
-
-                    // If there's string, then get the digits length.
-                    // Otherwise return the selected date.
-                    return string ? _.digits(string) : dateObject.date;
-                },
-                dd: function (string, dateObject) {
-
-                    // If there's a string, then the length is always 2.
-                    // Otherwise return the selected date with a leading zero.
-                    return string ? 2 : _.lead(dateObject.date);
-                },
-                ddd: function (string, dateObject) {
-
-                    // If there's a string, then get the length of the first word.
-                    // Otherwise return the short selected weekday.
-                    return string ? getFirstWordLength(string) : this.settings.weekdaysShort[dateObject.day];
-                },
-                dddd: function (string, dateObject) {
-
-                    // If there's a string, then get the length of the first word.
-                    // Otherwise return the full selected weekday.
-                    return string ? getFirstWordLength(string) : this.settings.weekdaysFull[dateObject.day];
-                },
-                m: function (string, dateObject) {
-
-                    // If there's a string, then get the length of the digits
-                    // Otherwise return the selected month with 0index compensation.
-                    return string ? _.digits(string) : dateObject.month + 1;
-                },
-                mm: function (string, dateObject) {
-
-                    // If there's a string, then the length is always 2.
-                    // Otherwise return the selected month with 0index and leading zero.
-                    return string ? 2 : _.lead(dateObject.month + 1);
-                },
-                mmm: function (string, dateObject) {
-
-                    var collection = this.settings.monthsShort;
-
-                    // If there's a string, get length of the relevant month from the short
-                    // months collection. Otherwise return the selected month from that collection.
-                    return string ? getWordLengthFromCollection(string, collection, dateObject) : collection[dateObject.month];
-                },
-                mmmm: function (string, dateObject) {
-
-                    var collection = this.settings.monthsFull;
-
-                    // If there's a string, get length of the relevant month from the full
-                    // months collection. Otherwise return the selected month from that collection.
-                    return string ? getWordLengthFromCollection(string, collection, dateObject) : collection[dateObject.month];
-                },
-                yy: function (string, dateObject) {
-
-                    // If there's a string, then the length is always 2.
-                    // Otherwise return the selected year by slicing out the first 2 digits.
-                    return string ? 2 : ('' + dateObject.year).slice(2);
-                },
-                yyyy: function (string, dateObject) {
-
-                    // If there's a string, then the length is always 4.
-                    // Otherwise return the selected year.
-                    return string ? 4 : dateObject.year;
-                },
-
-                // Create an array by splitting the formatting string passed.
-                toArray: function (formatString) {
-                    return formatString.split(/(d{1,4}|m{1,4}|y{4}|yy|!.)/g);
-                },
-
-                // Format an object into a string using the formatting options.
-                toString: function (formatString, itemObject) {
-                    var calendar = this;
-                    return calendar.formats.toArray(formatString).map(function (label) {
-                        return _.trigger(calendar.formats[label], calendar, [0, itemObject]) || label.replace(/^!/, '');
-                    }).join('');
-                }
-            };
-        }(); //DatePicker.prototype.formats
-
-
-        /**
-         * Check if two date units are the exact.
-         */
-        DatePicker.prototype.isDateExact = function (one, two) {
-
-            var calendar = this;
-
-            // When we’re working with weekdays, do a direct comparison.
-            if (_.isInteger(one) && _.isInteger(two) || typeof one == 'boolean' && typeof two == 'boolean') {
-                return one === two;
-            }
-
-            // When we’re working with date representations, compare the “pick” value.
-            if ((_.isDate(one) || $.isArray(one)) && (_.isDate(two) || $.isArray(two))) {
-                return calendar.create(one).pick === calendar.create(two).pick;
-            }
-
-            // When we’re working with range objects, compare the “from” and “to”.
-            if ($.isPlainObject(one) && $.isPlainObject(two)) {
-                return calendar.isDateExact(one.from, two.from) && calendar.isDateExact(one.to, two.to);
-            }
-
-            return false;
-        };
-
-        /**
-         * Check if two date units overlap.
-         */
-        DatePicker.prototype.isDateOverlap = function (one, two) {
-
-            var calendar = this,
-                firstDay = calendar.settings.firstDay ? 1 : 0;
-
-            // When we’re working with a weekday index, compare the days.
-            if (_.isInteger(one) && (_.isDate(two) || $.isArray(two))) {
-                one = one % 7 + firstDay;
-                return one === calendar.create(two).day + 1;
-            }
-            if (_.isInteger(two) && (_.isDate(one) || $.isArray(one))) {
-                two = two % 7 + firstDay;
-                return two === calendar.create(one).day + 1;
-            }
-
-            // When we’re working with range objects, check if the ranges overlap.
-            if ($.isPlainObject(one) && $.isPlainObject(two)) {
-                return calendar.overlapRanges(one, two);
-            }
-
-            return false;
-        };
-
-        /**
-         * Flip the “enabled” state.
-         */
-        DatePicker.prototype.flipEnable = function (val) {
-            var itemObject = this.item;
-            itemObject.enable = val || (itemObject.enable == -1 ? 1 : -1);
-        };
-
-        /**
-         * Mark a collection of dates as “disabled”.
-         */
-        DatePicker.prototype.deactivate = function (type, datesToDisable) {
-
-            var calendar = this,
-                disabledItems = calendar.item.disable.slice(0);
-
-            // If we’re flipping, that’s all we need to do.
-            if (datesToDisable == 'flip') {
-                calendar.flipEnable();
-            } else if (datesToDisable === false) {
-                calendar.flipEnable(1);
-                disabledItems = [];
-            } else if (datesToDisable === true) {
-                calendar.flipEnable(-1);
-                disabledItems = [];
-            }
-
-                // Otherwise go through the dates to disable.
-            else {
-
-                datesToDisable.map(function (unitToDisable) {
-
-                    var matchFound;
-
-                    // When we have disabled items, check for matches.
-                    // If something is matched, immediately break out.
-                    for (var index = 0; index < disabledItems.length; index += 1) {
-                        if (calendar.isDateExact(unitToDisable, disabledItems[index])) {
-                            matchFound = true;
-                            break;
-                        }
-                    }
-
-                    // If nothing was found, add the validated unit to the collection.
-                    if (!matchFound) {
-                        if (_.isInteger(unitToDisable) || _.isDate(unitToDisable) || $.isArray(unitToDisable) || $.isPlainObject(unitToDisable) && unitToDisable.from && unitToDisable.to) {
-                            disabledItems.push(unitToDisable);
-                        }
-                    }
-                });
-            }
-
-            // Return the updated collection.
-            return disabledItems;
-        }; //DatePicker.prototype.deactivate
-
-
-        /**
-         * Mark a collection of dates as “enabled”.
-         */
-        DatePicker.prototype.activate = function (type, datesToEnable) {
-
-            var calendar = this,
-                disabledItems = calendar.item.disable,
-                disabledItemsCount = disabledItems.length;
-
-            // If we’re flipping, that’s all we need to do.
-            if (datesToEnable == 'flip') {
-                calendar.flipEnable();
-            } else if (datesToEnable === true) {
-                calendar.flipEnable(1);
-                disabledItems = [];
-            } else if (datesToEnable === false) {
-                calendar.flipEnable(-1);
-                disabledItems = [];
-            }
-
-                // Otherwise go through the disabled dates.
-            else {
-
-                datesToEnable.map(function (unitToEnable) {
-
-                    var matchFound, disabledUnit, index, isExactRange;
-
-                    // Go through the disabled items and try to find a match.
-                    for (index = 0; index < disabledItemsCount; index += 1) {
-
-                        disabledUnit = disabledItems[index];
-
-                        // When an exact match is found, remove it from the collection.
-                        if (calendar.isDateExact(disabledUnit, unitToEnable)) {
-                            matchFound = disabledItems[index] = null;
-                            isExactRange = true;
-                            break;
-                        }
-
-                            // When an overlapped match is found, add the “inverted” state to it.
-                        else if (calendar.isDateOverlap(disabledUnit, unitToEnable)) {
-                            if ($.isPlainObject(unitToEnable)) {
-                                unitToEnable.inverted = true;
-                                matchFound = unitToEnable;
-                            } else if ($.isArray(unitToEnable)) {
-                                matchFound = unitToEnable;
-                                if (!matchFound[3]) matchFound.push('inverted');
-                            } else if (_.isDate(unitToEnable)) {
-                                matchFound = [unitToEnable.getFullYear(), unitToEnable.getMonth(), unitToEnable.getDate(), 'inverted'];
-                            }
-                            break;
-                        }
-                    }
-
-                    // If a match was found, remove a previous duplicate entry.
-                    if (matchFound) for (index = 0; index < disabledItemsCount; index += 1) {
-                        if (calendar.isDateExact(disabledItems[index], unitToEnable)) {
-                            disabledItems[index] = null;
-                            break;
-                        }
-                    }
-
-                    // In the event that we’re dealing with an exact range of dates,
-                    // make sure there are no “inverted” dates because of it.
-                    if (isExactRange) for (index = 0; index < disabledItemsCount; index += 1) {
-                        if (calendar.isDateOverlap(disabledItems[index], unitToEnable)) {
-                            disabledItems[index] = null;
-                            break;
-                        }
-                    }
-
-                    // If something is still matched, add it into the collection.
-                    if (matchFound) {
-                        disabledItems.push(matchFound);
-                    }
-                });
-            }
-
-            // Return the updated collection.
-            return disabledItems.filter(function (val) {
-                return val != null;
-            });
-        }; //DatePicker.prototype.activate
-
-
-        /**
-         * Create a string for the nodes in the picker.
-         */
-        DatePicker.prototype.nodes = function (isOpen) {
-
-            var calendar = this,
-                settings = calendar.settings,
-                calendarItem = calendar.item,
-                nowObject = calendarItem.now,
-                selectedObject = calendarItem.select,
-                highlightedObject = calendarItem.highlight,
-                viewsetObject = calendarItem.view,
-                disabledCollection = calendarItem.disable,
-                minLimitObject = calendarItem.min,
-                maxLimitObject = calendarItem.max,
-
-
-            // Create the calendar table head using a copy of weekday labels collection.
-            // * We do a copy so we don't mutate the original array.
-            tableHead = function (collection, fullCollection) {
-
-                // If the first day should be Monday, move Sunday to the end.
-                if (settings.firstDay) {
-                    collection.push(collection.shift());
-                    fullCollection.push(fullCollection.shift());
-                }
-
-                // Create and return the table head group.
-                return _.node('thead', _.node('tr', _.group({
-                    min: 0,
-                    max: DAYS_IN_WEEK - 1,
-                    i: 1,
-                    node: 'th',
-                    item: function (counter) {
-                        return [collection[counter], settings.klass.weekdays, 'scope=col title="' + fullCollection[counter] + '"'];
-                    }
-                }))); //endreturn
-
-                // Materialize modified
-            }((settings.showWeekdaysFull ? settings.weekdaysFull : settings.weekdaysLetter).slice(0), settings.weekdaysFull.slice(0)),
-                //tableHead
-
-
-            // Create the nav for next/prev month.
-            createMonthNav = function (next) {
-
-                // Otherwise, return the created month tag.
-                return _.node('div', ' ', settings.klass['nav' + (next ? 'Next' : 'Prev')] + (
-
-                // If the focused month is outside the range, disabled the button.
-                next && viewsetObject.year >= maxLimitObject.year && viewsetObject.month >= maxLimitObject.month || !next && viewsetObject.year <= minLimitObject.year && viewsetObject.month <= minLimitObject.month ? ' ' + settings.klass.navDisabled : ''), 'data-nav=' + (next || -1) + ' ' + _.ariaAttr({
-                    role: 'button',
-                    controls: calendar.$node[0].id + '_table'
-                }) + ' ' + 'title="' + (next ? settings.labelMonthNext : settings.labelMonthPrev) + '"'); //endreturn
-            },
-                //createMonthNav
-
-
-            // Create the month label.
-            //Materialize modified
-            createMonthLabel = function (override) {
-
-                var monthsCollection = settings.showMonthsShort ? settings.monthsShort : settings.monthsFull;
-
-                // Materialize modified
-                if (override == "short_months") {
-                    monthsCollection = settings.monthsShort;
-                }
-
-                // If there are months to select, add a dropdown menu.
-                if (settings.selectMonths && override == undefined) {
-
-                    return _.node('select', _.group({
-                        min: 0,
-                        max: 11,
-                        i: 1,
-                        node: 'option',
-                        item: function (loopedMonth) {
-
-                            return [
-
-                            // The looped month and no classes.
-                            monthsCollection[loopedMonth], 0,
-
-                            // Set the value and selected index.
-                            'value=' + loopedMonth + (viewsetObject.month == loopedMonth ? ' selected' : '') + (viewsetObject.year == minLimitObject.year && loopedMonth < minLimitObject.month || viewsetObject.year == maxLimitObject.year && loopedMonth > maxLimitObject.month ? ' disabled' : '')];
-                        }
-                    }), settings.klass.selectMonth + ' browser-default', (isOpen ? '' : 'disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id + '_table' }) + ' ' + 'title="' + settings.labelMonthSelect + '"');
-                }
-
-                // Materialize modified
-                if (override == "short_months") if (selectedObject != null) return monthsCollection[selectedObject.month];else return monthsCollection[viewsetObject.month];
-
-                // If there's a need for a month selector
-                return _.node('div', monthsCollection[viewsetObject.month], settings.klass.month);
-            },
-                //createMonthLabel
-
-
-            // Create the year label.
-            // Materialize modified
-            createYearLabel = function (override) {
-
-                var focusedYear = viewsetObject.year,
-
-
-                // If years selector is set to a literal "true", set it to 5. Otherwise
-                // divide in half to get half before and half after focused year.
-                numberYears = settings.selectYears === true ? 5 : ~~(settings.selectYears / 2);
-
-                // If there are years to select, add a dropdown menu.
-                if (numberYears) {
-
-                    var minYear = minLimitObject.year,
-                        maxYear = maxLimitObject.year,
-                        lowestYear = focusedYear - numberYears,
-                        highestYear = focusedYear + numberYears;
-
-                    // If the min year is greater than the lowest year, increase the highest year
-                    // by the difference and set the lowest year to the min year.
-                    if (minYear > lowestYear) {
-                        highestYear += minYear - lowestYear;
-                        lowestYear = minYear;
-                    }
-
-                    // If the max year is less than the highest year, decrease the lowest year
-                    // by the lower of the two: available and needed years. Then set the
-                    // highest year to the max year.
-                    if (maxYear < highestYear) {
-
-                        var availableYears = lowestYear - minYear,
-                            neededYears = highestYear - maxYear;
-
-                        lowestYear -= availableYears > neededYears ? neededYears : availableYears;
-                        highestYear = maxYear;
-                    }
-
-                    if (settings.selectYears && override == undefined) {
-                        return _.node('select', _.group({
-                            min: lowestYear,
-                            max: highestYear,
-                            i: 1,
-                            node: 'option',
-                            item: function (loopedYear) {
-                                return [
-
-                                // The looped year and no classes.
-                                loopedYear, 0,
-
-                                // Set the value and selected index.
-                                'value=' + loopedYear + (focusedYear == loopedYear ? ' selected' : '')];
-                            }
-                        }), settings.klass.selectYear + ' browser-default', (isOpen ? '' : 'disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id + '_table' }) + ' ' + 'title="' + settings.labelYearSelect + '"');
-                    }
-                }
-
-                // Materialize modified
-                if (override === 'raw' && selectedObject != null) {
-                    return _.node('div', selectedObject.year);
-                }
-
-                // Otherwise just return the year focused
-                return _.node('div', focusedYear, settings.klass.year);
-            }; //createYearLabel
-
-
-            // Materialize modified
-            createDayLabel = function () {
-                if (selectedObject != null) return selectedObject.date;else return nowObject.date;
-            };
-            createWeekdayLabel = function () {
-                var display_day;
-
-                if (selectedObject != null) display_day = selectedObject.day;else display_day = nowObject.day;
-                var weekday = settings.weekdaysShort[display_day];
-                return weekday;
-            };
-
-            // Create and return the entire calendar.
-
-            return _.node(
-            // Date presentation View
-            'div', _.node(
-            // Div for Year
-            'div', createYearLabel("raw"), settings.klass.year_display) + _.node('span', createWeekdayLabel() + ', ', "picker__weekday-display") + _.node(
-            // Div for short Month
-            'span', createMonthLabel("short_months") + ' ', settings.klass.month_display) + _.node(
-            // Div for Day
-            'span', createDayLabel(), settings.klass.day_display), settings.klass.date_display) +
-            // Calendar container
-            _.node('div', _.node('div', _.node('div', (settings.selectYears ? createMonthLabel() + createYearLabel() : createMonthLabel() + createYearLabel()) + createMonthNav() + createMonthNav(1), settings.klass.header) + _.node('table', tableHead + _.node('tbody', _.group({
-                min: 0,
-                max: WEEKS_IN_CALENDAR - 1,
-                i: 1,
-                node: 'tr',
-                item: function (rowCounter) {
-
-                    // If Monday is the first day and the month starts on Sunday, shift the date back a week.
-                    var shiftDateBy = settings.firstDay && calendar.create([viewsetObject.year, viewsetObject.month, 1]).day === 0 ? -7 : 0;
-
-                    return [_.group({
-                        min: DAYS_IN_WEEK * rowCounter - viewsetObject.day + shiftDateBy + 1, // Add 1 for weekday 0index
-                        max: function () {
-                            return this.min + DAYS_IN_WEEK - 1;
-                        },
-                        i: 1,
-                        node: 'td',
-                        item: function (targetDate) {
-
-                            // Convert the time date from a relative date to a target date.
-                            targetDate = calendar.create([viewsetObject.year, viewsetObject.month, targetDate + (settings.firstDay ? 1 : 0)]);
-
-                            var isSelected = selectedObject && selectedObject.pick == targetDate.pick,
-                                isHighlighted = highlightedObject && highlightedObject.pick == targetDate.pick,
-                                isDisabled = disabledCollection && calendar.disabled(targetDate) || targetDate.pick < minLimitObject.pick || targetDate.pick > maxLimitObject.pick,
-                                formattedDate = _.trigger(calendar.formats.toString, calendar, [settings.format, targetDate]);
-
-                            return [_.node('div', targetDate.date, function (klasses) {
-
-                                // Add the `infocus` or `outfocus` classes based on month in view.
-                                klasses.push(viewsetObject.month == targetDate.month ? settings.klass.infocus : settings.klass.outfocus);
-
-                                // Add the `today` class if needed.
-                                if (nowObject.pick == targetDate.pick) {
-                                    klasses.push(settings.klass.now);
-                                }
-
-                                // Add the `selected` class if something's selected and the time matches.
-                                if (isSelected) {
-                                    klasses.push(settings.klass.selected);
-                                }
-
-                                // Add the `highlighted` class if something's highlighted and the time matches.
-                                if (isHighlighted) {
-                                    klasses.push(settings.klass.highlighted);
-                                }
-
-                                // Add the `disabled` class if something's disabled and the object matches.
-                                if (isDisabled) {
-                                    klasses.push(settings.klass.disabled);
-                                }
-
-                                return klasses.join(' ');
-                            }([settings.klass.day]), 'data-pick=' + targetDate.pick + ' ' + _.ariaAttr({
-                                role: 'gridcell',
-                                label: formattedDate,
-                                selected: isSelected && calendar.$node.val() === formattedDate ? true : null,
-                                activedescendant: isHighlighted ? true : null,
-                                disabled: isDisabled ? true : null
-                            }) + ' ' + (isDisabled ? '' : 'tabindex="0"')), '', _.ariaAttr({ role: 'presentation' })]; //endreturn
-                        }
-                    })]; //endreturn
-                }
-            })), settings.klass.table, 'id="' + calendar.$node[0].id + '_table' + '" ' + _.ariaAttr({
-                role: 'grid',
-                controls: calendar.$node[0].id,
-                readonly: true
-            })), settings.klass.calendar_container) // end calendar
-
-            +
-
-            // * For Firefox forms to submit, make sure to set the buttons’ `type` attributes as “button”.
-            _.node('div', _.node('button', settings.today, "btn-flat picker__today waves-effect", 'type=button data-pick=' + nowObject.pick + (isOpen && !calendar.disabled(nowObject) ? '' : ' disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id })) + _.node('button', settings.clear, "btn-flat picker__clear waves-effect", 'type=button data-clear=1' + (isOpen ? '' : ' disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id })) + _.node('button', settings.close, "btn-flat picker__close waves-effect", 'type=button data-close=true ' + (isOpen ? '' : ' disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id })), settings.klass.footer), 'picker__container__wrapper'); //endreturn
-        }; //DatePicker.prototype.nodes
-
-
-        /**
-         * The date picker defaults.
-         */
-        DatePicker.defaults = function (prefix) {
-
-            return {
-
-                // The title label to use for the month nav buttons
-                labelMonthNext: 'Next month',
-                labelMonthPrev: 'Previous month',
-
-                // The title label to use for the dropdown selectors
-                labelMonthSelect: 'Select a month',
-                labelYearSelect: 'Select a year',
-
-                // Months and weekdays
-                monthsFull: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                weekdaysFull: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-
-                // Materialize modified
-                weekdaysLetter: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-
-                // Today and clear
-                today: 'Today',
-                clear: 'Clear',
-                close: 'Ok',
-
-                // Picker close behavior (Prevent a change in behaviour for backwards compatibility)
-                closeOnSelect: false,
-
-                // The format to show on the `input` element
-                format: 'd mmmm, yyyy',
-
-                // Classes
-                klass: {
-
-                    table: prefix + 'table',
-
-                    header: prefix + 'header',
-
-                    // Materialize Added klasses
-                    date_display: prefix + 'date-display',
-                    day_display: prefix + 'day-display',
-                    month_display: prefix + 'month-display',
-                    year_display: prefix + 'year-display',
-                    calendar_container: prefix + 'calendar-container',
-                    // end
-
-
-                    navPrev: prefix + 'nav--prev',
-                    navNext: prefix + 'nav--next',
-                    navDisabled: prefix + 'nav--disabled',
-
-                    month: prefix + 'month',
-                    year: prefix + 'year',
-
-                    selectMonth: prefix + 'select--month',
-                    selectYear: prefix + 'select--year',
-
-                    weekdays: prefix + 'weekday',
-
-                    day: prefix + 'day',
-                    disabled: prefix + 'day--disabled',
-                    selected: prefix + 'day--selected',
-                    highlighted: prefix + 'day--highlighted',
-                    now: prefix + 'day--today',
-                    infocus: prefix + 'day--infocus',
-                    outfocus: prefix + 'day--outfocus',
-
-                    footer: prefix + 'footer',
-
-                    buttonClear: prefix + 'button--clear',
-                    buttonToday: prefix + 'button--today',
-                    buttonClose: prefix + 'button--close'
-                }
-            };
-        }(Picker.klasses().picker + '__');
-
-        /**
-         * Extend the picker to add the date picker.
-         */
-        Picker.extend('pickadate', DatePicker);
+    // Cases to validate for:
+    // [1] Not inverted and date disabled.
+    // [2] Inverted and some dates enabled.
+    // [3] Not inverted and out of range.
+    //
+    // Cases to **not** validate for:
+    // • Navigating months.
+    // • Not inverted and date enabled.
+    // • Inverted and all dates disabled.
+    // • ..and anything else.
+    if (!options || !options.nav) if (
+    /* 1 */!isFlippedBase && calendar.disabled(dateObject) ||
+    /* 2 */isFlippedBase && calendar.disabled(dateObject) && (hasEnabledWeekdays || hasEnabledBeforeTarget || hasEnabledAfterTarget) ||
+    /* 3 */!isFlippedBase && (dateObject.pick <= minLimitObject.pick || dateObject.pick >= maxLimitObject.pick)) {
+
+      // When inverted, flip the direction if there aren’t any enabled weekdays
+      // and there are no enabled dates in the direction of the interval.
+      if (isFlippedBase && !hasEnabledWeekdays && (!hasEnabledAfterTarget && interval > 0 || !hasEnabledBeforeTarget && interval < 0)) {
+        interval *= -1;
+      }
+
+      // Keep looping until we reach an enabled date.
+      while ( /*safety &&*/calendar.disabled(dateObject)) {
+
+        /*safety -= 1
+        if ( !safety ) {
+            throw 'Fell into an infinite loop while validating ' + dateObject.obj + '.'
+        }*/
+
+        // If we’ve looped into the next/prev month with a large interval, return to the original date and flatten the interval.
+        if (Math.abs(interval) > 1 && (dateObject.month < originalDateObject.month || dateObject.month > originalDateObject.month)) {
+          dateObject = originalDateObject;
+          interval = interval > 0 ? 1 : -1;
+        }
+
+        // If we’ve reached the min/max limit, reverse the direction, flatten the interval and set it to the limit.
+        if (dateObject.pick <= minLimitObject.pick) {
+          reachedMin = true;
+          interval = 1;
+          dateObject = calendar.create([minLimitObject.year, minLimitObject.month, minLimitObject.date + (dateObject.pick === minLimitObject.pick ? 0 : -1)]);
+        } else if (dateObject.pick >= maxLimitObject.pick) {
+          reachedMax = true;
+          interval = -1;
+          dateObject = calendar.create([maxLimitObject.year, maxLimitObject.month, maxLimitObject.date + (dateObject.pick === maxLimitObject.pick ? 0 : 1)]);
+        }
+
+        // If we’ve reached both limits, just break out of the loop.
+        if (reachedMin && reachedMax) {
+          break;
+        }
+
+        // Finally, create the shifted date using the interval and keep looping.
+        dateObject = calendar.create([dateObject.year, dateObject.month, dateObject.date + interval]);
+      }
+    } //endif
+
+
+    // Return the date object settled on.
+    return dateObject;
+  }; //DatePicker.prototype.validate
+
+
+  /**
+   * Check if a date is disabled.
+   */
+  DatePicker.prototype.disabled = function (dateToVerify) {
+
+    var calendar = this,
+
+
+    // Filter through the disabled dates to check if this is one.
+    isDisabledMatch = calendar.item.disable.filter(function (dateToDisable) {
+
+      // If the date is a number, match the weekday with 0index and `firstDay` check.
+      if (_.isInteger(dateToDisable)) {
+        return dateToVerify.day === (calendar.settings.firstDay ? dateToDisable : dateToDisable - 1) % 7;
+      }
+
+      // If it’s an array or a native JS date, create and match the exact date.
+      if ($.isArray(dateToDisable) || _.isDate(dateToDisable)) {
+        return dateToVerify.pick === calendar.create(dateToDisable).pick;
+      }
+
+      // If it’s an object, match a date within the “from” and “to” range.
+      if ($.isPlainObject(dateToDisable)) {
+        return calendar.withinRange(dateToDisable, dateToVerify);
+      }
     });
-    ; /*!
+
+    // If this date matches a disabled date, confirm it’s not inverted.
+    isDisabledMatch = isDisabledMatch.length && !isDisabledMatch.filter(function (dateToDisable) {
+      return $.isArray(dateToDisable) && dateToDisable[3] == 'inverted' || $.isPlainObject(dateToDisable) && dateToDisable.inverted;
+    }).length;
+
+    // Check the calendar “enabled” flag and respectively flip the
+    // disabled state. Then also check if it’s beyond the min/max limits.
+    return calendar.item.enable === -1 ? !isDisabledMatch : isDisabledMatch || dateToVerify.pick < calendar.item.min.pick || dateToVerify.pick > calendar.item.max.pick;
+  }; //DatePicker.prototype.disabled
+
+
+  /**
+   * Parse a string into a usable type.
+   */
+  DatePicker.prototype.parse = function (type, value, options) {
+
+    var calendar = this,
+        parsingObject = {};
+
+    // If it’s already parsed, we’re good.
+    if (!value || typeof value != 'string') {
+      return value;
+    }
+
+    // We need a `.format` to parse the value with.
+    if (!(options && options.format)) {
+      options = options || {};
+      options.format = calendar.settings.format;
+    }
+
+    // Convert the format into an array and then map through it.
+    calendar.formats.toArray(options.format).map(function (label) {
+
+      var
+      // Grab the formatting label.
+      formattingLabel = calendar.formats[label],
+
+
+      // The format length is from the formatting label function or the
+      // label length without the escaping exclamation (!) mark.
+      formatLength = formattingLabel ? _.trigger(formattingLabel, calendar, [value, parsingObject]) : label.replace(/^!/, '').length;
+
+      // If there's a format label, split the value up to the format length.
+      // Then add it to the parsing object with appropriate label.
+      if (formattingLabel) {
+        parsingObject[label] = value.substr(0, formatLength);
+      }
+
+      // Update the value as the substring from format length to end.
+      value = value.substr(formatLength);
+    });
+
+    // Compensate for month 0index.
+    return [parsingObject.yyyy || parsingObject.yy, +(parsingObject.mm || parsingObject.m) - 1, parsingObject.dd || parsingObject.d];
+  }; //DatePicker.prototype.parse
+
+
+  /**
+   * Various formats to display the object in.
+   */
+  DatePicker.prototype.formats = function () {
+
+    // Return the length of the first word in a collection.
+    function getWordLengthFromCollection(string, collection, dateObject) {
+
+      // Grab the first word from the string.
+      var word = string.match(/\w+/)[0];
+
+      // If there's no month index, add it to the date object
+      if (!dateObject.mm && !dateObject.m) {
+        dateObject.m = collection.indexOf(word) + 1;
+      }
+
+      // Return the length of the word.
+      return word.length;
+    }
+
+    // Get the length of the first word in a string.
+    function getFirstWordLength(string) {
+      return string.match(/\w+/)[0].length;
+    }
+
+    return {
+
+      d: function (string, dateObject) {
+
+        // If there's string, then get the digits length.
+        // Otherwise return the selected date.
+        return string ? _.digits(string) : dateObject.date;
+      },
+      dd: function (string, dateObject) {
+
+        // If there's a string, then the length is always 2.
+        // Otherwise return the selected date with a leading zero.
+        return string ? 2 : _.lead(dateObject.date);
+      },
+      ddd: function (string, dateObject) {
+
+        // If there's a string, then get the length of the first word.
+        // Otherwise return the short selected weekday.
+        return string ? getFirstWordLength(string) : this.settings.weekdaysShort[dateObject.day];
+      },
+      dddd: function (string, dateObject) {
+
+        // If there's a string, then get the length of the first word.
+        // Otherwise return the full selected weekday.
+        return string ? getFirstWordLength(string) : this.settings.weekdaysFull[dateObject.day];
+      },
+      m: function (string, dateObject) {
+
+        // If there's a string, then get the length of the digits
+        // Otherwise return the selected month with 0index compensation.
+        return string ? _.digits(string) : dateObject.month + 1;
+      },
+      mm: function (string, dateObject) {
+
+        // If there's a string, then the length is always 2.
+        // Otherwise return the selected month with 0index and leading zero.
+        return string ? 2 : _.lead(dateObject.month + 1);
+      },
+      mmm: function (string, dateObject) {
+
+        var collection = this.settings.monthsShort;
+
+        // If there's a string, get length of the relevant month from the short
+        // months collection. Otherwise return the selected month from that collection.
+        return string ? getWordLengthFromCollection(string, collection, dateObject) : collection[dateObject.month];
+      },
+      mmmm: function (string, dateObject) {
+
+        var collection = this.settings.monthsFull;
+
+        // If there's a string, get length of the relevant month from the full
+        // months collection. Otherwise return the selected month from that collection.
+        return string ? getWordLengthFromCollection(string, collection, dateObject) : collection[dateObject.month];
+      },
+      yy: function (string, dateObject) {
+
+        // If there's a string, then the length is always 2.
+        // Otherwise return the selected year by slicing out the first 2 digits.
+        return string ? 2 : ('' + dateObject.year).slice(2);
+      },
+      yyyy: function (string, dateObject) {
+
+        // If there's a string, then the length is always 4.
+        // Otherwise return the selected year.
+        return string ? 4 : dateObject.year;
+      },
+
+      // Create an array by splitting the formatting string passed.
+      toArray: function (formatString) {
+        return formatString.split(/(d{1,4}|m{1,4}|y{4}|yy|!.)/g);
+      },
+
+      // Format an object into a string using the formatting options.
+      toString: function (formatString, itemObject) {
+        var calendar = this;
+        return calendar.formats.toArray(formatString).map(function (label) {
+          return _.trigger(calendar.formats[label], calendar, [0, itemObject]) || label.replace(/^!/, '');
+        }).join('');
+      }
+    };
+  }(); //DatePicker.prototype.formats
+
+
+  /**
+   * Check if two date units are the exact.
+   */
+  DatePicker.prototype.isDateExact = function (one, two) {
+
+    var calendar = this;
+
+    // When we’re working with weekdays, do a direct comparison.
+    if (_.isInteger(one) && _.isInteger(two) || typeof one == 'boolean' && typeof two == 'boolean') {
+      return one === two;
+    }
+
+    // When we’re working with date representations, compare the “pick” value.
+    if ((_.isDate(one) || $.isArray(one)) && (_.isDate(two) || $.isArray(two))) {
+      return calendar.create(one).pick === calendar.create(two).pick;
+    }
+
+    // When we’re working with range objects, compare the “from” and “to”.
+    if ($.isPlainObject(one) && $.isPlainObject(two)) {
+      return calendar.isDateExact(one.from, two.from) && calendar.isDateExact(one.to, two.to);
+    }
+
+    return false;
+  };
+
+  /**
+   * Check if two date units overlap.
+   */
+  DatePicker.prototype.isDateOverlap = function (one, two) {
+
+    var calendar = this,
+        firstDay = calendar.settings.firstDay ? 1 : 0;
+
+    // When we’re working with a weekday index, compare the days.
+    if (_.isInteger(one) && (_.isDate(two) || $.isArray(two))) {
+      one = one % 7 + firstDay;
+      return one === calendar.create(two).day + 1;
+    }
+    if (_.isInteger(two) && (_.isDate(one) || $.isArray(one))) {
+      two = two % 7 + firstDay;
+      return two === calendar.create(one).day + 1;
+    }
+
+    // When we’re working with range objects, check if the ranges overlap.
+    if ($.isPlainObject(one) && $.isPlainObject(two)) {
+      return calendar.overlapRanges(one, two);
+    }
+
+    return false;
+  };
+
+  /**
+   * Flip the “enabled” state.
+   */
+  DatePicker.prototype.flipEnable = function (val) {
+    var itemObject = this.item;
+    itemObject.enable = val || (itemObject.enable == -1 ? 1 : -1);
+  };
+
+  /**
+   * Mark a collection of dates as “disabled”.
+   */
+  DatePicker.prototype.deactivate = function (type, datesToDisable) {
+
+    var calendar = this,
+        disabledItems = calendar.item.disable.slice(0);
+
+    // If we’re flipping, that’s all we need to do.
+    if (datesToDisable == 'flip') {
+      calendar.flipEnable();
+    } else if (datesToDisable === false) {
+      calendar.flipEnable(1);
+      disabledItems = [];
+    } else if (datesToDisable === true) {
+      calendar.flipEnable(-1);
+      disabledItems = [];
+    }
+
+    // Otherwise go through the dates to disable.
+    else {
+
+        datesToDisable.map(function (unitToDisable) {
+
+          var matchFound;
+
+          // When we have disabled items, check for matches.
+          // If something is matched, immediately break out.
+          for (var index = 0; index < disabledItems.length; index += 1) {
+            if (calendar.isDateExact(unitToDisable, disabledItems[index])) {
+              matchFound = true;
+              break;
+            }
+          }
+
+          // If nothing was found, add the validated unit to the collection.
+          if (!matchFound) {
+            if (_.isInteger(unitToDisable) || _.isDate(unitToDisable) || $.isArray(unitToDisable) || $.isPlainObject(unitToDisable) && unitToDisable.from && unitToDisable.to) {
+              disabledItems.push(unitToDisable);
+            }
+          }
+        });
+      }
+
+    // Return the updated collection.
+    return disabledItems;
+  }; //DatePicker.prototype.deactivate
+
+
+  /**
+   * Mark a collection of dates as “enabled”.
+   */
+  DatePicker.prototype.activate = function (type, datesToEnable) {
+
+    var calendar = this,
+        disabledItems = calendar.item.disable,
+        disabledItemsCount = disabledItems.length;
+
+    // If we’re flipping, that’s all we need to do.
+    if (datesToEnable == 'flip') {
+      calendar.flipEnable();
+    } else if (datesToEnable === true) {
+      calendar.flipEnable(1);
+      disabledItems = [];
+    } else if (datesToEnable === false) {
+      calendar.flipEnable(-1);
+      disabledItems = [];
+    }
+
+    // Otherwise go through the disabled dates.
+    else {
+
+        datesToEnable.map(function (unitToEnable) {
+
+          var matchFound, disabledUnit, index, isExactRange;
+
+          // Go through the disabled items and try to find a match.
+          for (index = 0; index < disabledItemsCount; index += 1) {
+
+            disabledUnit = disabledItems[index];
+
+            // When an exact match is found, remove it from the collection.
+            if (calendar.isDateExact(disabledUnit, unitToEnable)) {
+              matchFound = disabledItems[index] = null;
+              isExactRange = true;
+              break;
+            }
+
+            // When an overlapped match is found, add the “inverted” state to it.
+            else if (calendar.isDateOverlap(disabledUnit, unitToEnable)) {
+                if ($.isPlainObject(unitToEnable)) {
+                  unitToEnable.inverted = true;
+                  matchFound = unitToEnable;
+                } else if ($.isArray(unitToEnable)) {
+                  matchFound = unitToEnable;
+                  if (!matchFound[3]) matchFound.push('inverted');
+                } else if (_.isDate(unitToEnable)) {
+                  matchFound = [unitToEnable.getFullYear(), unitToEnable.getMonth(), unitToEnable.getDate(), 'inverted'];
+                }
+                break;
+              }
+          }
+
+          // If a match was found, remove a previous duplicate entry.
+          if (matchFound) for (index = 0; index < disabledItemsCount; index += 1) {
+            if (calendar.isDateExact(disabledItems[index], unitToEnable)) {
+              disabledItems[index] = null;
+              break;
+            }
+          }
+
+          // In the event that we’re dealing with an exact range of dates,
+          // make sure there are no “inverted” dates because of it.
+          if (isExactRange) for (index = 0; index < disabledItemsCount; index += 1) {
+            if (calendar.isDateOverlap(disabledItems[index], unitToEnable)) {
+              disabledItems[index] = null;
+              break;
+            }
+          }
+
+          // If something is still matched, add it into the collection.
+          if (matchFound) {
+            disabledItems.push(matchFound);
+          }
+        });
+      }
+
+    // Return the updated collection.
+    return disabledItems.filter(function (val) {
+      return val != null;
+    });
+  }; //DatePicker.prototype.activate
+
+
+  /**
+   * Create a string for the nodes in the picker.
+   */
+  DatePicker.prototype.nodes = function (isOpen) {
+
+    var calendar = this,
+        settings = calendar.settings,
+        calendarItem = calendar.item,
+        nowObject = calendarItem.now,
+        selectedObject = calendarItem.select,
+        highlightedObject = calendarItem.highlight,
+        viewsetObject = calendarItem.view,
+        disabledCollection = calendarItem.disable,
+        minLimitObject = calendarItem.min,
+        maxLimitObject = calendarItem.max,
+
+
+    // Create the calendar table head using a copy of weekday labels collection.
+    // * We do a copy so we don't mutate the original array.
+    tableHead = function (collection, fullCollection) {
+
+      // If the first day should be Monday, move Sunday to the end.
+      if (settings.firstDay) {
+        collection.push(collection.shift());
+        fullCollection.push(fullCollection.shift());
+      }
+
+      // Create and return the table head group.
+      return _.node('thead', _.node('tr', _.group({
+        min: 0,
+        max: DAYS_IN_WEEK - 1,
+        i: 1,
+        node: 'th',
+        item: function (counter) {
+          return [collection[counter], settings.klass.weekdays, 'scope=col title="' + fullCollection[counter] + '"'];
+        }
+      }))); //endreturn
+
+      // Materialize modified
+    }((settings.showWeekdaysFull ? settings.weekdaysFull : settings.weekdaysLetter).slice(0), settings.weekdaysFull.slice(0)),
+        //tableHead
+
+
+    // Create the nav for next/prev month.
+    createMonthNav = function (next) {
+
+      // Otherwise, return the created month tag.
+      return _.node('div', ' ', settings.klass['nav' + (next ? 'Next' : 'Prev')] + (
+
+      // If the focused month is outside the range, disabled the button.
+      next && viewsetObject.year >= maxLimitObject.year && viewsetObject.month >= maxLimitObject.month || !next && viewsetObject.year <= minLimitObject.year && viewsetObject.month <= minLimitObject.month ? ' ' + settings.klass.navDisabled : ''), 'data-nav=' + (next || -1) + ' ' + _.ariaAttr({
+        role: 'button',
+        controls: calendar.$node[0].id + '_table'
+      }) + ' ' + 'title="' + (next ? settings.labelMonthNext : settings.labelMonthPrev) + '"'); //endreturn
+    },
+        //createMonthNav
+
+
+    // Create the month label.
+    //Materialize modified
+    createMonthLabel = function (override) {
+
+      var monthsCollection = settings.showMonthsShort ? settings.monthsShort : settings.monthsFull;
+
+      // Materialize modified
+      if (override == "short_months") {
+        monthsCollection = settings.monthsShort;
+      }
+
+      // If there are months to select, add a dropdown menu.
+      if (settings.selectMonths && override == undefined) {
+
+        return _.node('select', _.group({
+          min: 0,
+          max: 11,
+          i: 1,
+          node: 'option',
+          item: function (loopedMonth) {
+
+            return [
+
+            // The looped month and no classes.
+            monthsCollection[loopedMonth], 0,
+
+            // Set the value and selected index.
+            'value=' + loopedMonth + (viewsetObject.month == loopedMonth ? ' selected' : '') + (viewsetObject.year == minLimitObject.year && loopedMonth < minLimitObject.month || viewsetObject.year == maxLimitObject.year && loopedMonth > maxLimitObject.month ? ' disabled' : '')];
+          }
+        }), settings.klass.selectMonth + ' browser-default', (isOpen ? '' : 'disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id + '_table' }) + ' ' + 'title="' + settings.labelMonthSelect + '"');
+      }
+
+      // Materialize modified
+      if (override == "short_months") if (selectedObject != null) return monthsCollection[selectedObject.month];else return monthsCollection[viewsetObject.month];
+
+      // If there's a need for a month selector
+      return _.node('div', monthsCollection[viewsetObject.month], settings.klass.month);
+    },
+        //createMonthLabel
+
+
+    // Create the year label.
+    // Materialize modified
+    createYearLabel = function (override) {
+
+      var focusedYear = viewsetObject.year,
+
+
+      // If years selector is set to a literal "true", set it to 5. Otherwise
+      // divide in half to get half before and half after focused year.
+      numberYears = settings.selectYears === true ? 5 : ~~(settings.selectYears / 2);
+
+      // If there are years to select, add a dropdown menu.
+      if (numberYears) {
+
+        var minYear = minLimitObject.year,
+            maxYear = maxLimitObject.year,
+            lowestYear = focusedYear - numberYears,
+            highestYear = focusedYear + numberYears;
+
+        // If the min year is greater than the lowest year, increase the highest year
+        // by the difference and set the lowest year to the min year.
+        if (minYear > lowestYear) {
+          highestYear += minYear - lowestYear;
+          lowestYear = minYear;
+        }
+
+        // If the max year is less than the highest year, decrease the lowest year
+        // by the lower of the two: available and needed years. Then set the
+        // highest year to the max year.
+        if (maxYear < highestYear) {
+
+          var availableYears = lowestYear - minYear,
+              neededYears = highestYear - maxYear;
+
+          lowestYear -= availableYears > neededYears ? neededYears : availableYears;
+          highestYear = maxYear;
+        }
+
+        if (settings.selectYears && override == undefined) {
+          return _.node('select', _.group({
+            min: lowestYear,
+            max: highestYear,
+            i: 1,
+            node: 'option',
+            item: function (loopedYear) {
+              return [
+
+              // The looped year and no classes.
+              loopedYear, 0,
+
+              // Set the value and selected index.
+              'value=' + loopedYear + (focusedYear == loopedYear ? ' selected' : '')];
+            }
+          }), settings.klass.selectYear + ' browser-default', (isOpen ? '' : 'disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id + '_table' }) + ' ' + 'title="' + settings.labelYearSelect + '"');
+        }
+      }
+
+      // Materialize modified
+      if (override === 'raw' && selectedObject != null) {
+        return _.node('div', selectedObject.year);
+      }
+
+      // Otherwise just return the year focused
+      return _.node('div', focusedYear, settings.klass.year);
+    }; //createYearLabel
+
+
+    // Materialize modified
+    createDayLabel = function () {
+      if (selectedObject != null) return selectedObject.date;else return nowObject.date;
+    };
+    createWeekdayLabel = function () {
+      var display_day;
+
+      if (selectedObject != null) display_day = selectedObject.day;else display_day = nowObject.day;
+      var weekday = settings.weekdaysShort[display_day];
+      return weekday;
+    };
+
+    // Create and return the entire calendar.
+
+    return _.node(
+    // Date presentation View
+    'div', _.node(
+    // Div for Year
+    'div', createYearLabel("raw"), settings.klass.year_display) + _.node('span', createWeekdayLabel() + ', ', "picker__weekday-display") + _.node(
+    // Div for short Month
+    'span', createMonthLabel("short_months") + ' ', settings.klass.month_display) + _.node(
+    // Div for Day
+    'span', createDayLabel(), settings.klass.day_display), settings.klass.date_display) +
+    // Calendar container
+    _.node('div', _.node('div', _.node('div', (settings.selectYears ? createMonthLabel() + createYearLabel() : createMonthLabel() + createYearLabel()) + createMonthNav() + createMonthNav(1), settings.klass.header) + _.node('table', tableHead + _.node('tbody', _.group({
+      min: 0,
+      max: WEEKS_IN_CALENDAR - 1,
+      i: 1,
+      node: 'tr',
+      item: function (rowCounter) {
+
+        // If Monday is the first day and the month starts on Sunday, shift the date back a week.
+        var shiftDateBy = settings.firstDay && calendar.create([viewsetObject.year, viewsetObject.month, 1]).day === 0 ? -7 : 0;
+
+        return [_.group({
+          min: DAYS_IN_WEEK * rowCounter - viewsetObject.day + shiftDateBy + 1, // Add 1 for weekday 0index
+          max: function () {
+            return this.min + DAYS_IN_WEEK - 1;
+          },
+          i: 1,
+          node: 'td',
+          item: function (targetDate) {
+
+            // Convert the time date from a relative date to a target date.
+            targetDate = calendar.create([viewsetObject.year, viewsetObject.month, targetDate + (settings.firstDay ? 1 : 0)]);
+
+            var isSelected = selectedObject && selectedObject.pick == targetDate.pick,
+                isHighlighted = highlightedObject && highlightedObject.pick == targetDate.pick,
+                isDisabled = disabledCollection && calendar.disabled(targetDate) || targetDate.pick < minLimitObject.pick || targetDate.pick > maxLimitObject.pick,
+                formattedDate = _.trigger(calendar.formats.toString, calendar, [settings.format, targetDate]);
+
+            return [_.node('div', targetDate.date, function (klasses) {
+
+              // Add the `infocus` or `outfocus` classes based on month in view.
+              klasses.push(viewsetObject.month == targetDate.month ? settings.klass.infocus : settings.klass.outfocus);
+
+              // Add the `today` class if needed.
+              if (nowObject.pick == targetDate.pick) {
+                klasses.push(settings.klass.now);
+              }
+
+              // Add the `selected` class if something's selected and the time matches.
+              if (isSelected) {
+                klasses.push(settings.klass.selected);
+              }
+
+              // Add the `highlighted` class if something's highlighted and the time matches.
+              if (isHighlighted) {
+                klasses.push(settings.klass.highlighted);
+              }
+
+              // Add the `disabled` class if something's disabled and the object matches.
+              if (isDisabled) {
+                klasses.push(settings.klass.disabled);
+              }
+
+              return klasses.join(' ');
+            }([settings.klass.day]), 'data-pick=' + targetDate.pick + ' ' + _.ariaAttr({
+              role: 'gridcell',
+              label: formattedDate,
+              selected: isSelected && calendar.$node.val() === formattedDate ? true : null,
+              activedescendant: isHighlighted ? true : null,
+              disabled: isDisabled ? true : null
+            }) + ' ' + (isDisabled ? '' : 'tabindex="0"')), '', _.ariaAttr({ role: 'presentation' })]; //endreturn
+          }
+        })]; //endreturn
+      }
+    })), settings.klass.table, 'id="' + calendar.$node[0].id + '_table' + '" ' + _.ariaAttr({
+      role: 'grid',
+      controls: calendar.$node[0].id,
+      readonly: true
+    })), settings.klass.calendar_container) // end calendar
+
+    +
+
+    // * For Firefox forms to submit, make sure to set the buttons’ `type` attributes as “button”.
+    _.node('div', _.node('button', settings.today, "btn-flat picker__today waves-effect", 'type=button data-pick=' + nowObject.pick + (isOpen && !calendar.disabled(nowObject) ? '' : ' disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id })) + _.node('button', settings.clear, "btn-flat picker__clear waves-effect", 'type=button data-clear=1' + (isOpen ? '' : ' disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id })) + _.node('button', settings.close, "btn-flat picker__close waves-effect", 'type=button data-close=true ' + (isOpen ? '' : ' disabled') + ' ' + _.ariaAttr({ controls: calendar.$node[0].id })), settings.klass.footer), 'picker__container__wrapper'); //endreturn
+  }; //DatePicker.prototype.nodes
+
+
+  /**
+   * The date picker defaults.
+   */
+  DatePicker.defaults = function (prefix) {
+
+    return {
+
+      // The title label to use for the month nav buttons
+      labelMonthNext: 'Next month',
+      labelMonthPrev: 'Previous month',
+
+      // The title label to use for the dropdown selectors
+      labelMonthSelect: 'Select a month',
+      labelYearSelect: 'Select a year',
+
+      // Months and weekdays
+      monthsFull: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      weekdaysFull: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+
+      // Materialize modified
+      weekdaysLetter: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+
+      // Today and clear
+      today: 'Today',
+      clear: 'Clear',
+      close: 'Ok',
+
+      // Picker close behavior (Prevent a change in behaviour for backwards compatibility)
+      closeOnSelect: false,
+
+      // The format to show on the `input` element
+      format: 'd mmmm, yyyy',
+
+      // Classes
+      klass: {
+
+        table: prefix + 'table',
+
+        header: prefix + 'header',
+
+        // Materialize Added klasses
+        date_display: prefix + 'date-display',
+        day_display: prefix + 'day-display',
+        month_display: prefix + 'month-display',
+        year_display: prefix + 'year-display',
+        calendar_container: prefix + 'calendar-container',
+        // end
+
+
+        navPrev: prefix + 'nav--prev',
+        navNext: prefix + 'nav--next',
+        navDisabled: prefix + 'nav--disabled',
+
+        month: prefix + 'month',
+        year: prefix + 'year',
+
+        selectMonth: prefix + 'select--month',
+        selectYear: prefix + 'select--year',
+
+        weekdays: prefix + 'weekday',
+
+        day: prefix + 'day',
+        disabled: prefix + 'day--disabled',
+        selected: prefix + 'day--selected',
+        highlighted: prefix + 'day--highlighted',
+        now: prefix + 'day--today',
+        infocus: prefix + 'day--infocus',
+        outfocus: prefix + 'day--outfocus',
+
+        footer: prefix + 'footer',
+
+        buttonClear: prefix + 'button--clear',
+        buttonToday: prefix + 'button--today',
+        buttonClose: prefix + 'button--close'
+      }
+    };
+  }(Picker.klasses().picker + '__');
+
+  /**
+   * Extend the picker to add the date picker.
+   */
+  Picker.extend('pickadate', DatePicker);
+});
+; /*!
   * ClockPicker v0.0.7 (http://weareoutman.github.io/clockpicker/)
   * Copyright 2014 Wang Shenwei.
   * Licensed under MIT (https://github.com/weareoutman/clockpicker/blob/gh-pages/LICENSE)
@@ -8521,1431 +8591,1431 @@ if (Vel) {
   * Copyright 2015 Ching Yaw Hao.
   */
 
-    (function ($) {
-        var $win = $(window),
-            $doc = $(document);
-
-        // Can I use inline svg ?
-        var svgNS = 'http://www.w3.org/2000/svg',
-            svgSupported = 'SVGAngle' in window && function () {
-                var supported,
-                    el = document.createElement('div');
-                el.innerHTML = '<svg/>';
-                supported = (el.firstChild && el.firstChild.namespaceURI) == svgNS;
-                el.innerHTML = '';
-                return supported;
-            }();
-
-        // Can I use transition ?
-        var transitionSupported = function () {
-            var style = document.createElement('div').style;
-            return 'transition' in style || 'WebkitTransition' in style || 'MozTransition' in style || 'msTransition' in style || 'OTransition' in style;
-        }();
-
-        // Listen touch events in touch screen device, instead of mouse events in desktop.
-        var touchSupported = 'ontouchstart' in window,
-            mousedownEvent = 'mousedown' + (touchSupported ? ' touchstart' : ''),
-            mousemoveEvent = 'mousemove.clockpicker' + (touchSupported ? ' touchmove.clockpicker' : ''),
-            mouseupEvent = 'mouseup.clockpicker' + (touchSupported ? ' touchend.clockpicker' : '');
-
-        // Vibrate the device if supported
-        var vibrate = navigator.vibrate ? 'vibrate' : navigator.webkitVibrate ? 'webkitVibrate' : null;
-
-        function createSvgElement(name) {
-            return document.createElementNS(svgNS, name);
-        }
-
-        function leadingZero(num) {
-            return (num < 10 ? '0' : '') + num;
-        }
-
-        // Get a unique id
-        var idCounter = 0;
-        function uniqueId(prefix) {
-            var id = ++idCounter + '';
-            return prefix ? prefix + id : id;
-        }
-
-        // Clock size
-        var dialRadius = 135,
-            outerRadius = 105,
-
-        // innerRadius = 80 on 12 hour clock
-        innerRadius = 70,
-            tickRadius = 20,
-            diameter = dialRadius * 2,
-            duration = transitionSupported ? 350 : 1;
-
-        // Popover template
-        var tpl = ['<div class="clockpicker picker">', '<div class="picker__holder">', '<div class="picker__frame">', '<div class="picker__wrap">', '<div class="picker__box">', '<div class="picker__date-display">', '<div class="clockpicker-display">', '<div class="clockpicker-display-column">', '<span class="clockpicker-span-hours text-primary"></span>', ':', '<span class="clockpicker-span-minutes"></span>', '</div>', '<div class="clockpicker-display-column clockpicker-display-am-pm">', '<div class="clockpicker-span-am-pm"></div>', '</div>', '</div>', '</div>', '<div class="picker__container__wrapper">', '<div class="picker__calendar-container">', '<div class="clockpicker-plate">', '<div class="clockpicker-canvas"></div>', '<div class="clockpicker-dial clockpicker-hours"></div>', '<div class="clockpicker-dial clockpicker-minutes clockpicker-dial-out"></div>', '</div>', '<div class="clockpicker-am-pm-block">', '</div>', '</div>', '<div class="picker__footer">', '</div>', '</div>', '</div>', '</div>', '</div>', '</div>', '</div>'].join('');
-
-        // ClockPicker
-        function ClockPicker(element, options) {
-            var popover = $(tpl),
-                plate = popover.find('.clockpicker-plate'),
-                holder = popover.find('.picker__holder'),
-                hoursView = popover.find('.clockpicker-hours'),
-                minutesView = popover.find('.clockpicker-minutes'),
-                amPmBlock = popover.find('.clockpicker-am-pm-block'),
-                isInput = element.prop('tagName') === 'INPUT',
-                input = isInput ? element : element.find('input'),
-                label = $("label[for=" + input.attr("id") + "]"),
-                self = this;
-
-            this.id = uniqueId('cp');
-            this.element = element;
-            this.holder = holder;
-            this.options = options;
-            this.isAppended = false;
-            this.isShown = false;
-            this.currentView = 'hours';
-            this.isInput = isInput;
-            this.input = input;
-            this.label = label;
-            this.popover = popover;
-            this.plate = plate;
-            this.hoursView = hoursView;
-            this.minutesView = minutesView;
-            this.amPmBlock = amPmBlock;
-            this.spanHours = popover.find('.clockpicker-span-hours');
-            this.spanMinutes = popover.find('.clockpicker-span-minutes');
-            this.spanAmPm = popover.find('.clockpicker-span-am-pm');
-            this.footer = popover.find('.picker__footer');
-            this.amOrPm = "PM";
-
-            // Setup for for 12 hour clock if option is selected
-            if (options.twelvehour) {
-                if (!options.ampmclickable) {
-                    this.spanAmPm.empty();
-                    $('<div id="click-am">AM</div>').appendTo(this.spanAmPm);
-                    $('<div id="click-pm">PM</div>').appendTo(this.spanAmPm);
-                } else {
-                    this.spanAmPm.empty();
-                    $('<div id="click-am">AM</div>').on("click", function () {
-                        self.spanAmPm.children('#click-am').addClass("text-primary");
-                        self.spanAmPm.children('#click-pm').removeClass("text-primary");
-                        self.amOrPm = "AM";
-                    }).appendTo(this.spanAmPm);
-                    $('<div id="click-pm">PM</div>').on("click", function () {
-                        self.spanAmPm.children('#click-pm').addClass("text-primary");
-                        self.spanAmPm.children('#click-am').removeClass("text-primary");
-                        self.amOrPm = 'PM';
-                    }).appendTo(this.spanAmPm);
-                }
-            }
-
-            // Add buttons to footer
-            $('<button type="button" class="btn-flat picker__clear" tabindex="' + (options.twelvehour ? '3' : '1') + '">' + options.cleartext + '</button>').click($.proxy(this.clear, this)).appendTo(this.footer);
-            $('<button type="button" class="btn-flat picker__close" tabindex="' + (options.twelvehour ? '3' : '1') + '">' + options.canceltext + '</button>').click($.proxy(this.hide, this)).appendTo(this.footer);
-            $('<button type="button" class="btn-flat picker__close" tabindex="' + (options.twelvehour ? '3' : '1') + '">' + options.donetext + '</button>').click($.proxy(this.done, this)).appendTo(this.footer);
-
-            this.spanHours.click($.proxy(this.toggleView, this, 'hours'));
-            this.spanMinutes.click($.proxy(this.toggleView, this, 'minutes'));
-
-            // Show or toggle
-            input.on('focus.clockpicker click.clockpicker', $.proxy(this.show, this));
-
-            // Build ticks
-            var tickTpl = $('<div class="clockpicker-tick"></div>'),
-                i,
-                tick,
-                radian,
-                radius;
-
-            // Hours view
-            if (options.twelvehour) {
-                for (i = 1; i < 13; i += 1) {
-                    tick = tickTpl.clone();
-                    radian = i / 6 * Math.PI;
-                    radius = outerRadius;
-                    tick.css({
-                        left: dialRadius + Math.sin(radian) * radius - tickRadius,
-                        top: dialRadius - Math.cos(radian) * radius - tickRadius
-                    });
-                    tick.html(i === 0 ? '00' : i);
-                    hoursView.append(tick);
-                    tick.on(mousedownEvent, mousedown);
-                }
-            } else {
-                for (i = 0; i < 24; i += 1) {
-                    tick = tickTpl.clone();
-                    radian = i / 6 * Math.PI;
-                    var inner = i > 0 && i < 13;
-                    radius = inner ? innerRadius : outerRadius;
-                    tick.css({
-                        left: dialRadius + Math.sin(radian) * radius - tickRadius,
-                        top: dialRadius - Math.cos(radian) * radius - tickRadius
-                    });
-                    tick.html(i === 0 ? '00' : i);
-                    hoursView.append(tick);
-                    tick.on(mousedownEvent, mousedown);
-                }
-            }
-
-            // Minutes view
-            for (i = 0; i < 60; i += 5) {
-                tick = tickTpl.clone();
-                radian = i / 30 * Math.PI;
-                tick.css({
-                    left: dialRadius + Math.sin(radian) * outerRadius - tickRadius,
-                    top: dialRadius - Math.cos(radian) * outerRadius - tickRadius
-                });
-                tick.html(leadingZero(i));
-                minutesView.append(tick);
-                tick.on(mousedownEvent, mousedown);
-            }
-
-            // Clicking on minutes view space
-            plate.on(mousedownEvent, function (e) {
-                if ($(e.target).closest('.clockpicker-tick').length === 0) {
-                    mousedown(e, true);
-                }
-            });
-
-            // Mousedown or touchstart
-            function mousedown(e, space) {
-                var offset = plate.offset(),
-                    isTouch = /^touch/.test(e.type),
-                    x0 = offset.left + dialRadius,
-                    y0 = offset.top + dialRadius,
-                    dx = (isTouch ? e.originalEvent.touches[0] : e).pageX - x0,
-                    dy = (isTouch ? e.originalEvent.touches[0] : e).pageY - y0,
-                    z = Math.sqrt(dx * dx + dy * dy),
-                    moved = false;
-
-                // When clicking on minutes view space, check the mouse position
-                if (space && (z < outerRadius - tickRadius || z > outerRadius + tickRadius)) {
-                    return;
-                }
-                e.preventDefault();
-
-                // Set cursor style of body after 200ms
-                var movingTimer = setTimeout(function () {
-                    self.popover.addClass('clockpicker-moving');
-                }, 200);
-
-                // Clock
-                self.setHand(dx, dy, !space, true);
-
-                // Mousemove on document
-                $doc.off(mousemoveEvent).on(mousemoveEvent, function (e) {
-                    e.preventDefault();
-                    var isTouch = /^touch/.test(e.type),
-                        x = (isTouch ? e.originalEvent.touches[0] : e).pageX - x0,
-                        y = (isTouch ? e.originalEvent.touches[0] : e).pageY - y0;
-                    if (!moved && x === dx && y === dy) {
-                        // Clicking in chrome on windows will trigger a mousemove event
-                        return;
-                    }
-                    moved = true;
-                    self.setHand(x, y, false, true);
-                });
-
-                // Mouseup on document
-                $doc.off(mouseupEvent).on(mouseupEvent, function (e) {
-                    $doc.off(mouseupEvent);
-                    e.preventDefault();
-                    var isTouch = /^touch/.test(e.type),
-                        x = (isTouch ? e.originalEvent.changedTouches[0] : e).pageX - x0,
-                        y = (isTouch ? e.originalEvent.changedTouches[0] : e).pageY - y0;
-                    if ((space || moved) && x === dx && y === dy) {
-                        self.setHand(x, y);
-                    }
-
-                    if (self.currentView === 'hours') {
-                        self.toggleView('minutes', duration / 2);
-                    } else if (options.autoclose) {
-                        self.minutesView.addClass('clockpicker-dial-out');
-                        setTimeout(function () {
-                            self.done();
-                        }, duration / 2);
-                    }
-                    plate.prepend(canvas);
-
-                    // Reset cursor style of body
-                    clearTimeout(movingTimer);
-                    self.popover.removeClass('clockpicker-moving');
-
-                    // Unbind mousemove event
-                    $doc.off(mousemoveEvent);
-                });
-            }
-
-            if (svgSupported) {
-                // Draw clock hands and others
-                var canvas = popover.find('.clockpicker-canvas'),
-                    svg = createSvgElement('svg');
-                svg.setAttribute('class', 'clockpicker-svg');
-                svg.setAttribute('width', diameter);
-                svg.setAttribute('height', diameter);
-                var g = createSvgElement('g');
-                g.setAttribute('transform', 'translate(' + dialRadius + ',' + dialRadius + ')');
-                var bearing = createSvgElement('circle');
-                bearing.setAttribute('class', 'clockpicker-canvas-bearing');
-                bearing.setAttribute('cx', 0);
-                bearing.setAttribute('cy', 0);
-                bearing.setAttribute('r', 4);
-                var hand = createSvgElement('line');
-                hand.setAttribute('x1', 0);
-                hand.setAttribute('y1', 0);
-                var bg = createSvgElement('circle');
-                bg.setAttribute('class', 'clockpicker-canvas-bg');
-                bg.setAttribute('r', tickRadius);
-                g.appendChild(hand);
-                g.appendChild(bg);
-                g.appendChild(bearing);
-                svg.appendChild(g);
-                canvas.append(svg);
-
-                this.hand = hand;
-                this.bg = bg;
-                this.bearing = bearing;
-                this.g = g;
-                this.canvas = canvas;
-            }
-
-            raiseCallback(this.options.init);
-        }
-
-        function raiseCallback(callbackFunction) {
-            if (callbackFunction && typeof callbackFunction === "function") callbackFunction();
-        }
-
-        // Default options
-        ClockPicker.DEFAULTS = {
-            'default': '', // default time, 'now' or '13:14' e.g.
-            fromnow: 0, // set default time to * milliseconds from now (using with default = 'now')
-            donetext: 'Ok', // done button text
-            cleartext: 'Clear',
-            canceltext: 'Cancel',
-            autoclose: false, // auto close when minute is selected
-            ampmclickable: true, // set am/pm button on itself
-            darktheme: false, // set to dark theme
-            twelvehour: true, // change to 12 hour AM/PM clock from 24 hour
-            vibrate: true // vibrate the device when dragging clock hand
-        };
-
-        // Show or hide popover
-        ClockPicker.prototype.toggle = function () {
-            this[this.isShown ? 'hide' : 'show']();
-        };
-
-        // Set popover position
-        ClockPicker.prototype.locate = function () {
-            var element = this.element,
-                popover = this.popover,
-                offset = element.offset(),
-                width = element.outerWidth(),
-                height = element.outerHeight(),
-                align = this.options.align,
-                self = this;
-
-            popover.show();
-        };
-
-        // Show popover
-        ClockPicker.prototype.show = function (e) {
-            // Not show again
-            if (this.isShown) {
-                return;
-            }
-            raiseCallback(this.options.beforeShow);
-            $(':input').each(function () {
-                $(this).attr('tabindex', -1);
-            });
-            var self = this;
-            // Initialize
-            this.input.blur();
-            this.popover.addClass('picker--opened');
-            this.input.addClass('picker__input picker__input--active');
-            $(document.body).css('overflow', 'hidden');
-            // Get the time
-            var value = ((this.input.prop('value') || this.options['default'] || '') + '').split(':');
-            if (this.options.twelvehour && !(typeof value[1] === 'undefined')) {
-                if (value[1].indexOf("AM") > 0) {
-                    this.amOrPm = 'AM';
-                } else {
-                    this.amOrPm = 'PM';
-                }
-                value[1] = value[1].replace("AM", "").replace("PM", "");
-            }
-            if (value[0] === 'now') {
-                var now = new Date(+new Date() + this.options.fromnow);
-                value = [now.getHours(), now.getMinutes()];
-                if (this.options.twelvehour) {
-                    this.amOrPm = value[0] >= 12 && value[0] < 24 ? 'PM' : 'AM';
-                }
-            }
-            this.hours = +value[0] || 0;
-            this.minutes = +value[1] || 0;
-            this.spanHours.html(this.hours);
-            this.spanMinutes.html(leadingZero(this.minutes));
-            if (!this.isAppended) {
-
-                // Append popover to input by default
-                var containerEl = document.querySelector(this.options.container);
-                if (this.options.container && containerEl) {
-                    containerEl.appendChild(this.popover[0]);
-                } else {
-                    this.popover.insertAfter(this.input);
-                }
-
-                if (this.options.twelvehour) {
-                    if (this.amOrPm === 'PM') {
-                        this.spanAmPm.children('#click-pm').addClass("text-primary");
-                        this.spanAmPm.children('#click-am').removeClass("text-primary");
-                    } else {
-                        this.spanAmPm.children('#click-am').addClass("text-primary");
-                        this.spanAmPm.children('#click-pm').removeClass("text-primary");
-                    }
-                }
-                // Reset position when resize
-                $win.on('resize.clockpicker' + this.id, function () {
-                    if (self.isShown) {
-                        self.locate();
-                    }
-                });
-                this.isAppended = true;
-            }
-            // Toggle to hours view
-            this.toggleView('hours');
-            // Set position
-            this.locate();
-            this.isShown = true;
-            // Hide when clicking or tabbing on any element except the clock and input
-            $doc.on('click.clockpicker.' + this.id + ' focusin.clockpicker.' + this.id, function (e) {
-                var target = $(e.target);
-                if (target.closest(self.popover.find('.picker__wrap')).length === 0 && target.closest(self.input).length === 0) {
-                    self.hide();
-                }
-            });
-            // Hide when ESC is pressed
-            $doc.on('keyup.clockpicker.' + this.id, function (e) {
-                if (e.keyCode === 27) {
-                    self.hide();
-                }
-            });
-            raiseCallback(this.options.afterShow);
-        };
-        // Hide popover
-        ClockPicker.prototype.hide = function () {
-            raiseCallback(this.options.beforeHide);
-            this.input.removeClass('picker__input picker__input--active');
-            this.popover.removeClass('picker--opened');
-            $(document.body).css('overflow', 'visible');
-            this.isShown = false;
-            $(':input').each(function (index) {
-                $(this).attr('tabindex', index + 1);
-            });
-            // Unbinding events on document
-            $doc.off('click.clockpicker.' + this.id + ' focusin.clockpicker.' + this.id);
-            $doc.off('keyup.clockpicker.' + this.id);
-            this.popover.hide();
-            raiseCallback(this.options.afterHide);
-        };
-        // Toggle to hours or minutes view
-        ClockPicker.prototype.toggleView = function (view, delay) {
-            var raiseAfterHourSelect = false;
-            if (view === 'minutes' && $(this.hoursView).css("visibility") === "visible") {
-                raiseCallback(this.options.beforeHourSelect);
-                raiseAfterHourSelect = true;
-            }
-            var isHours = view === 'hours',
-                nextView = isHours ? this.hoursView : this.minutesView,
-                hideView = isHours ? this.minutesView : this.hoursView;
-            this.currentView = view;
-
-            this.spanHours.toggleClass('text-primary', isHours);
-            this.spanMinutes.toggleClass('text-primary', !isHours);
-
-            // Let's make transitions
-            hideView.addClass('clockpicker-dial-out');
-            nextView.css('visibility', 'visible').removeClass('clockpicker-dial-out');
-
-            // Reset clock hand
-            this.resetClock(delay);
-
-            // After transitions ended
-            clearTimeout(this.toggleViewTimer);
-            this.toggleViewTimer = setTimeout(function () {
-                hideView.css('visibility', 'hidden');
-            }, duration);
-
-            if (raiseAfterHourSelect) {
-                raiseCallback(this.options.afterHourSelect);
-            }
-        };
-
-        // Reset clock hand
-        ClockPicker.prototype.resetClock = function (delay) {
-            var view = this.currentView,
-                value = this[view],
-                isHours = view === 'hours',
-                unit = Math.PI / (isHours ? 6 : 30),
-                radian = value * unit,
-                radius = isHours && value > 0 && value < 13 ? innerRadius : outerRadius,
-                x = Math.sin(radian) * radius,
-                y = -Math.cos(radian) * radius,
-                self = this;
-
-            if (svgSupported && delay) {
-                self.canvas.addClass('clockpicker-canvas-out');
-                setTimeout(function () {
-                    self.canvas.removeClass('clockpicker-canvas-out');
-                    self.setHand(x, y);
-                }, delay);
-            } else this.setHand(x, y);
-        };
-
-        // Set clock hand to (x, y)
-        ClockPicker.prototype.setHand = function (x, y, roundBy5, dragging) {
-            var radian = Math.atan2(x, -y),
-                isHours = this.currentView === 'hours',
-                unit = Math.PI / (isHours || roundBy5 ? 6 : 30),
-                z = Math.sqrt(x * x + y * y),
-                options = this.options,
-                inner = isHours && z < (outerRadius + innerRadius) / 2,
-                radius = inner ? innerRadius : outerRadius,
-                value;
-
-            if (options.twelvehour) {
-                radius = outerRadius;
-            }
-
-            // Radian should in range [0, 2PI]
-            if (radian < 0) {
-                radian = Math.PI * 2 + radian;
-            }
-
-            // Get the round value
-            value = Math.round(radian / unit);
-
-            // Get the round radian
-            radian = value * unit;
-
-            // Correct the hours or minutes
-            if (options.twelvehour) {
-                if (isHours) {
-                    if (value === 0) value = 12;
-                } else {
-                    if (roundBy5) value *= 5;
-                    if (value === 60) value = 0;
-                }
-            } else {
-                if (isHours) {
-                    if (value === 12) value = 0;
-                    value = inner ? value === 0 ? 12 : value : value === 0 ? 0 : value + 12;
-                } else {
-                    if (roundBy5) value *= 5;
-                    if (value === 60) value = 0;
-                }
-            }
-
-            // Once hours or minutes changed, vibrate the device
-            if (this[this.currentView] !== value) {
-                if (vibrate && this.options.vibrate) {
-                    // Do not vibrate too frequently
-                    if (!this.vibrateTimer) {
-                        navigator[vibrate](10);
-                        this.vibrateTimer = setTimeout($.proxy(function () {
-                            this.vibrateTimer = null;
-                        }, this), 100);
-                    }
-                }
-            }
-
-            this[this.currentView] = value;
-            if (isHours) {
-                this['spanHours'].html(value);
-            } else {
-                this['spanMinutes'].html(leadingZero(value));
-            }
-
-            // If svg is not supported, just add an active class to the tick
-            if (!svgSupported) {
-                this[isHours ? 'hoursView' : 'minutesView'].find('.clockpicker-tick').each(function () {
-                    var tick = $(this);
-                    tick.toggleClass('active', value === +tick.html());
-                });
-                return;
-            }
-
-            // Set clock hand and others' position
-            var cx1 = Math.sin(radian) * (radius - tickRadius),
-                cy1 = -Math.cos(radian) * (radius - tickRadius),
-                cx2 = Math.sin(radian) * radius,
-                cy2 = -Math.cos(radian) * radius;
-            this.hand.setAttribute('x2', cx1);
-            this.hand.setAttribute('y2', cy1);
-            this.bg.setAttribute('cx', cx2);
-            this.bg.setAttribute('cy', cy2);
-        };
-
-        // Hours and minutes are selected
-        ClockPicker.prototype.done = function () {
-            raiseCallback(this.options.beforeDone);
-            this.hide();
-            this.label.addClass('active');
-
-            var last = this.input.prop('value'),
-                value = leadingZero(this.hours) + ':' + leadingZero(this.minutes);
-            if (this.options.twelvehour) {
-                value = value + this.amOrPm;
-            }
-
-            this.input.prop('value', value);
-            if (value !== last) {
-                this.input.triggerHandler('change');
-                if (!this.isInput) {
-                    this.element.trigger('change');
-                }
-            }
-
-            if (this.options.autoclose) this.input.trigger('blur');
-
-            raiseCallback(this.options.afterDone);
-        };
-
-        // Clear input field
-        ClockPicker.prototype.clear = function () {
-            this.hide();
-            this.label.removeClass('active');
-
-            var last = this.input.prop('value'),
-                value = '';
-
-            this.input.prop('value', value);
-            if (value !== last) {
-                this.input.triggerHandler('change');
-                if (!this.isInput) {
-                    this.element.trigger('change');
-                }
-            }
-
-            if (this.options.autoclose) {
-                this.input.trigger('blur');
-            }
-        };
-
-        // Remove clockpicker from input
-        ClockPicker.prototype.remove = function () {
-            this.element.removeData('clockpicker');
-            this.input.off('focus.clockpicker click.clockpicker');
-            if (this.isShown) {
-                this.hide();
-            }
-            if (this.isAppended) {
-                $win.off('resize.clockpicker' + this.id);
-                this.popover.remove();
-            }
-        };
-
-        // Extends $.fn.clockpicker
-        $.fn.pickatime = function (option) {
-            var args = Array.prototype.slice.call(arguments, 1);
-            return this.each(function () {
-                var $this = $(this),
-                    data = $this.data('clockpicker');
-                if (!data) {
-                    var options = $.extend({}, ClockPicker.DEFAULTS, $this.data(), typeof option == 'object' && option);
-                    $this.data('clockpicker', new ClockPicker($this, options));
-                } else {
-                    // Manual operatsions. show, hide, remove, e.g.
-                    if (typeof data[option] === 'function') {
-                        data[option].apply(data, args);
-                    }
-                }
-            });
-        };
-    })(jQuery);
-    ;(function ($) {
-
-        $.fn.characterCounter = function () {
-            return this.each(function () {
-                var $input = $(this);
-                var $counterElement = $input.parent().find('span[class="character-counter"]');
-
-                // character counter has already been added appended to the parent container
-                if ($counterElement.length) {
-                    return;
-                }
-
-                var itHasLengthAttribute = $input.attr('data-length') !== undefined;
-
-                if (itHasLengthAttribute) {
-                    $input.on('input', updateCounter);
-                    $input.on('focus', updateCounter);
-                    $input.on('blur', removeCounterElement);
-
-                    addCounterElement($input);
-                }
-            });
-        };
-
-        function updateCounter() {
-            var maxLength = +$(this).attr('data-length'),
-                actualLength = +$(this).val().length,
-                isValidLength = actualLength <= maxLength;
-
-            $(this).parent().find('span[class="character-counter"]').html(actualLength + '/' + maxLength);
-
-            addInputStyle(isValidLength, $(this));
-        }
-
-        function addCounterElement($input) {
-            var $counterElement = $input.parent().find('span[class="character-counter"]');
-
-            if ($counterElement.length) {
-                return;
-            }
-
-            $counterElement = $('<span/>').addClass('character-counter').css('float', 'right').css('font-size', '12px').css('height', 1);
-
-            $input.parent().append($counterElement);
-        }
-
-        function removeCounterElement() {
-            $(this).parent().find('span[class="character-counter"]').html('');
-        }
-
-        function addInputStyle(isValidLength, $input) {
-            var inputHasInvalidClass = $input.hasClass('invalid');
-            if (isValidLength && inputHasInvalidClass) {
-                $input.removeClass('invalid');
-            } else if (!isValidLength && !inputHasInvalidClass) {
-                $input.removeClass('valid');
-                $input.addClass('invalid');
-            }
-        }
-
-        $(document).ready(function () {
-            $('input, textarea').characterCounter();
+(function ($) {
+  var $win = $(window),
+      $doc = $(document);
+
+  // Can I use inline svg ?
+  var svgNS = 'http://www.w3.org/2000/svg',
+      svgSupported = 'SVGAngle' in window && function () {
+    var supported,
+        el = document.createElement('div');
+    el.innerHTML = '<svg/>';
+    supported = (el.firstChild && el.firstChild.namespaceURI) == svgNS;
+    el.innerHTML = '';
+    return supported;
+  }();
+
+  // Can I use transition ?
+  var transitionSupported = function () {
+    var style = document.createElement('div').style;
+    return 'transition' in style || 'WebkitTransition' in style || 'MozTransition' in style || 'msTransition' in style || 'OTransition' in style;
+  }();
+
+  // Listen touch events in touch screen device, instead of mouse events in desktop.
+  var touchSupported = 'ontouchstart' in window,
+      mousedownEvent = 'mousedown' + (touchSupported ? ' touchstart' : ''),
+      mousemoveEvent = 'mousemove.clockpicker' + (touchSupported ? ' touchmove.clockpicker' : ''),
+      mouseupEvent = 'mouseup.clockpicker' + (touchSupported ? ' touchend.clockpicker' : '');
+
+  // Vibrate the device if supported
+  var vibrate = navigator.vibrate ? 'vibrate' : navigator.webkitVibrate ? 'webkitVibrate' : null;
+
+  function createSvgElement(name) {
+    return document.createElementNS(svgNS, name);
+  }
+
+  function leadingZero(num) {
+    return (num < 10 ? '0' : '') + num;
+  }
+
+  // Get a unique id
+  var idCounter = 0;
+  function uniqueId(prefix) {
+    var id = ++idCounter + '';
+    return prefix ? prefix + id : id;
+  }
+
+  // Clock size
+  var dialRadius = 135,
+      outerRadius = 105,
+
+  // innerRadius = 80 on 12 hour clock
+  innerRadius = 70,
+      tickRadius = 20,
+      diameter = dialRadius * 2,
+      duration = transitionSupported ? 350 : 1;
+
+  // Popover template
+  var tpl = ['<div class="clockpicker picker">', '<div class="picker__holder">', '<div class="picker__frame">', '<div class="picker__wrap">', '<div class="picker__box">', '<div class="picker__date-display">', '<div class="clockpicker-display">', '<div class="clockpicker-display-column">', '<span class="clockpicker-span-hours text-primary"></span>', ':', '<span class="clockpicker-span-minutes"></span>', '</div>', '<div class="clockpicker-display-column clockpicker-display-am-pm">', '<div class="clockpicker-span-am-pm"></div>', '</div>', '</div>', '</div>', '<div class="picker__container__wrapper">', '<div class="picker__calendar-container">', '<div class="clockpicker-plate">', '<div class="clockpicker-canvas"></div>', '<div class="clockpicker-dial clockpicker-hours"></div>', '<div class="clockpicker-dial clockpicker-minutes clockpicker-dial-out"></div>', '</div>', '<div class="clockpicker-am-pm-block">', '</div>', '</div>', '<div class="picker__footer">', '</div>', '</div>', '</div>', '</div>', '</div>', '</div>', '</div>'].join('');
+
+  // ClockPicker
+  function ClockPicker(element, options) {
+    var popover = $(tpl),
+        plate = popover.find('.clockpicker-plate'),
+        holder = popover.find('.picker__holder'),
+        hoursView = popover.find('.clockpicker-hours'),
+        minutesView = popover.find('.clockpicker-minutes'),
+        amPmBlock = popover.find('.clockpicker-am-pm-block'),
+        isInput = element.prop('tagName') === 'INPUT',
+        input = isInput ? element : element.find('input'),
+        label = $("label[for=" + input.attr("id") + "]"),
+        self = this;
+
+    this.id = uniqueId('cp');
+    this.element = element;
+    this.holder = holder;
+    this.options = options;
+    this.isAppended = false;
+    this.isShown = false;
+    this.currentView = 'hours';
+    this.isInput = isInput;
+    this.input = input;
+    this.label = label;
+    this.popover = popover;
+    this.plate = plate;
+    this.hoursView = hoursView;
+    this.minutesView = minutesView;
+    this.amPmBlock = amPmBlock;
+    this.spanHours = popover.find('.clockpicker-span-hours');
+    this.spanMinutes = popover.find('.clockpicker-span-minutes');
+    this.spanAmPm = popover.find('.clockpicker-span-am-pm');
+    this.footer = popover.find('.picker__footer');
+    this.amOrPm = "PM";
+
+    // Setup for for 12 hour clock if option is selected
+    if (options.twelvehour) {
+      if (!options.ampmclickable) {
+        this.spanAmPm.empty();
+        $('<div id="click-am">AM</div>').appendTo(this.spanAmPm);
+        $('<div id="click-pm">PM</div>').appendTo(this.spanAmPm);
+      } else {
+        this.spanAmPm.empty();
+        $('<div id="click-am">AM</div>').on("click", function () {
+          self.spanAmPm.children('#click-am').addClass("text-primary");
+          self.spanAmPm.children('#click-pm').removeClass("text-primary");
+          self.amOrPm = "AM";
+        }).appendTo(this.spanAmPm);
+        $('<div id="click-pm">PM</div>').on("click", function () {
+          self.spanAmPm.children('#click-pm').addClass("text-primary");
+          self.spanAmPm.children('#click-am').removeClass("text-primary");
+          self.amOrPm = 'PM';
+        }).appendTo(this.spanAmPm);
+      }
+    }
+
+    // Add buttons to footer
+    $('<button type="button" class="btn-flat picker__clear" tabindex="' + (options.twelvehour ? '3' : '1') + '">' + options.cleartext + '</button>').click($.proxy(this.clear, this)).appendTo(this.footer);
+    $('<button type="button" class="btn-flat picker__close" tabindex="' + (options.twelvehour ? '3' : '1') + '">' + options.canceltext + '</button>').click($.proxy(this.hide, this)).appendTo(this.footer);
+    $('<button type="button" class="btn-flat picker__close" tabindex="' + (options.twelvehour ? '3' : '1') + '">' + options.donetext + '</button>').click($.proxy(this.done, this)).appendTo(this.footer);
+
+    this.spanHours.click($.proxy(this.toggleView, this, 'hours'));
+    this.spanMinutes.click($.proxy(this.toggleView, this, 'minutes'));
+
+    // Show or toggle
+    input.on('focus.clockpicker click.clockpicker', $.proxy(this.show, this));
+
+    // Build ticks
+    var tickTpl = $('<div class="clockpicker-tick"></div>'),
+        i,
+        tick,
+        radian,
+        radius;
+
+    // Hours view
+    if (options.twelvehour) {
+      for (i = 1; i < 13; i += 1) {
+        tick = tickTpl.clone();
+        radian = i / 6 * Math.PI;
+        radius = outerRadius;
+        tick.css({
+          left: dialRadius + Math.sin(radian) * radius - tickRadius,
+          top: dialRadius - Math.cos(radian) * radius - tickRadius
         });
-    })(jQuery);
-    ;(function ($) {
+        tick.html(i === 0 ? '00' : i);
+        hoursView.append(tick);
+        tick.on(mousedownEvent, mousedown);
+      }
+    } else {
+      for (i = 0; i < 24; i += 1) {
+        tick = tickTpl.clone();
+        radian = i / 6 * Math.PI;
+        var inner = i > 0 && i < 13;
+        radius = inner ? innerRadius : outerRadius;
+        tick.css({
+          left: dialRadius + Math.sin(radian) * radius - tickRadius,
+          top: dialRadius - Math.cos(radian) * radius - tickRadius
+        });
+        tick.html(i === 0 ? '00' : i);
+        hoursView.append(tick);
+        tick.on(mousedownEvent, mousedown);
+      }
+    }
 
-        var methods = {
+    // Minutes view
+    for (i = 0; i < 60; i += 5) {
+      tick = tickTpl.clone();
+      radian = i / 30 * Math.PI;
+      tick.css({
+        left: dialRadius + Math.sin(radian) * outerRadius - tickRadius,
+        top: dialRadius - Math.cos(radian) * outerRadius - tickRadius
+      });
+      tick.html(leadingZero(i));
+      minutesView.append(tick);
+      tick.on(mousedownEvent, mousedown);
+    }
 
-            init: function (options) {
-                var defaults = {
-                    duration: 200, // ms
-                    dist: -100, // zoom scale TODO: make this more intuitive as an option
-                    shift: 0, // spacing for center image
-                    padding: 0, // Padding between non center items
-                    fullWidth: false, // Change to full width styles
-                    indicators: false, // Toggle indicators
-                    noWrap: false, // Don't wrap around and cycle through items.
-                    onCycleTo: null // Callback for when a new slide is cycled to.
-                };
-                options = $.extend(defaults, options);
-                var namespace = Materialize.objectSelectorString($(this));
+    // Clicking on minutes view space
+    plate.on(mousedownEvent, function (e) {
+      if ($(e.target).closest('.clockpicker-tick').length === 0) {
+        mousedown(e, true);
+      }
+    });
 
-                return this.each(function (i) {
+    // Mousedown or touchstart
+    function mousedown(e, space) {
+      var offset = plate.offset(),
+          isTouch = /^touch/.test(e.type),
+          x0 = offset.left + dialRadius,
+          y0 = offset.top + dialRadius,
+          dx = (isTouch ? e.originalEvent.touches[0] : e).pageX - x0,
+          dy = (isTouch ? e.originalEvent.touches[0] : e).pageY - y0,
+          z = Math.sqrt(dx * dx + dy * dy),
+          moved = false;
 
-                    var images, item_width, item_height, offset, center, pressed, dim, count, reference, referenceY, amplitude, target, velocity, scrolling, xform, frame, timestamp, ticker, dragged, vertical_dragged;
-                    var $indicators = $('<ul class="indicators"></ul>');
-                    var scrollingTimeout = null;
-                    var oneTimeCallback = null;
+      // When clicking on minutes view space, check the mouse position
+      if (space && (z < outerRadius - tickRadius || z > outerRadius + tickRadius)) {
+        return;
+      }
+      e.preventDefault();
 
-                    // Initialize
-                    var view = $(this);
-                    var hasMultipleSlides = view.find('.carousel-item').length > 1;
-                    var showIndicators = (view.attr('data-indicators') || options.indicators) && hasMultipleSlides;
-                    var noWrap = view.attr('data-no-wrap') || options.noWrap || !hasMultipleSlides;
-                    var uniqueNamespace = view.attr('data-namespace') || namespace + i;
-                    view.attr('data-namespace', uniqueNamespace);
+      // Set cursor style of body after 200ms
+      var movingTimer = setTimeout(function () {
+        self.popover.addClass('clockpicker-moving');
+      }, 200);
 
-                    // Options
-                    var setCarouselHeight = function (imageOnly) {
-                        var firstSlide = view.find('.carousel-item.active').length ? view.find('.carousel-item.active').first() : view.find('.carousel-item').first();
-                        var firstImage = firstSlide.find('img').first();
-                        if (firstImage.length) {
-                            if (firstImage[0].complete) {
-                                // If image won't trigger the load event
-                                var imageHeight = firstImage.height();
-                                if (imageHeight > 0) {
-                                    view.css('height', firstImage.height());
-                                } else {
-                                    // If image still has no height, use the natural dimensions to calculate
-                                    var naturalWidth = firstImage[0].naturalWidth;
-                                    var naturalHeight = firstImage[0].naturalHeight;
-                                    var adjustedHeight = view.width() / naturalWidth * naturalHeight;
-                                    view.css('height', adjustedHeight);
-                                }
-                            } else {
-                                // Get height when image is loaded normally
-                                firstImage.on('load', function () {
-                                    view.css('height', $(this).height());
-                                });
-                            }
-                        } else if (!imageOnly) {
-                            var slideHeight = firstSlide.height();
-                            view.css('height', slideHeight);
-                        }
-                    };
+      // Clock
+      self.setHand(dx, dy, !space, true);
 
-                    if (options.fullWidth) {
-                        options.dist = 0;
-                        setCarouselHeight();
+      // Mousemove on document
+      $doc.off(mousemoveEvent).on(mousemoveEvent, function (e) {
+        e.preventDefault();
+        var isTouch = /^touch/.test(e.type),
+            x = (isTouch ? e.originalEvent.touches[0] : e).pageX - x0,
+            y = (isTouch ? e.originalEvent.touches[0] : e).pageY - y0;
+        if (!moved && x === dx && y === dy) {
+          // Clicking in chrome on windows will trigger a mousemove event
+          return;
+        }
+        moved = true;
+        self.setHand(x, y, false, true);
+      });
 
-                        // Offset fixed items when indicators.
-                        if (showIndicators) {
-                            view.find('.carousel-fixed-item').addClass('with-indicators');
-                        }
-                    }
+      // Mouseup on document
+      $doc.off(mouseupEvent).on(mouseupEvent, function (e) {
+        $doc.off(mouseupEvent);
+        e.preventDefault();
+        var isTouch = /^touch/.test(e.type),
+            x = (isTouch ? e.originalEvent.changedTouches[0] : e).pageX - x0,
+            y = (isTouch ? e.originalEvent.changedTouches[0] : e).pageY - y0;
+        if ((space || moved) && x === dx && y === dy) {
+          self.setHand(x, y);
+        }
 
-                    // Don't double initialize.
-                    if (view.hasClass('initialized')) {
-                        // Recalculate variables
-                        $(window).trigger('resize');
+        if (self.currentView === 'hours') {
+          self.toggleView('minutes', duration / 2);
+        } else if (options.autoclose) {
+          self.minutesView.addClass('clockpicker-dial-out');
+          setTimeout(function () {
+            self.done();
+          }, duration / 2);
+        }
+        plate.prepend(canvas);
 
-                        // Redraw carousel.
-                        view.trigger('carouselNext', [0.000001]);
-                        return true;
-                    }
+        // Reset cursor style of body
+        clearTimeout(movingTimer);
+        self.popover.removeClass('clockpicker-moving');
 
-                    view.addClass('initialized');
-                    pressed = false;
-                    offset = target = 0;
-                    images = [];
-                    item_width = view.find('.carousel-item').first().innerWidth();
-                    item_height = view.find('.carousel-item').first().innerHeight();
-                    dim = item_width * 2 + options.padding;
+        // Unbind mousemove event
+        $doc.off(mousemoveEvent);
+      });
+    }
 
-                    view.find('.carousel-item').each(function (i) {
-                        images.push($(this)[0]);
-                        if (showIndicators) {
-                            var $indicator = $('<li class="indicator-item"></li>');
+    if (svgSupported) {
+      // Draw clock hands and others
+      var canvas = popover.find('.clockpicker-canvas'),
+          svg = createSvgElement('svg');
+      svg.setAttribute('class', 'clockpicker-svg');
+      svg.setAttribute('width', diameter);
+      svg.setAttribute('height', diameter);
+      var g = createSvgElement('g');
+      g.setAttribute('transform', 'translate(' + dialRadius + ',' + dialRadius + ')');
+      var bearing = createSvgElement('circle');
+      bearing.setAttribute('class', 'clockpicker-canvas-bearing');
+      bearing.setAttribute('cx', 0);
+      bearing.setAttribute('cy', 0);
+      bearing.setAttribute('r', 4);
+      var hand = createSvgElement('line');
+      hand.setAttribute('x1', 0);
+      hand.setAttribute('y1', 0);
+      var bg = createSvgElement('circle');
+      bg.setAttribute('class', 'clockpicker-canvas-bg');
+      bg.setAttribute('r', tickRadius);
+      g.appendChild(hand);
+      g.appendChild(bg);
+      g.appendChild(bearing);
+      svg.appendChild(g);
+      canvas.append(svg);
 
-                            // Add active to first by default.
-                            if (i === 0) {
-                                $indicator.addClass('active');
-                            }
+      this.hand = hand;
+      this.bg = bg;
+      this.bearing = bearing;
+      this.g = g;
+      this.canvas = canvas;
+    }
 
-                            // Handle clicks on indicators.
-                            $indicator.click(function (e) {
-                                e.stopPropagation();
+    raiseCallback(this.options.init);
+  }
 
-                                var index = $(this).index();
-                                cycleTo(index);
-                            });
-                            $indicators.append($indicator);
-                        }
-                    });
+  function raiseCallback(callbackFunction) {
+    if (callbackFunction && typeof callbackFunction === "function") callbackFunction();
+  }
 
-                    if (showIndicators) {
-                        view.append($indicators);
-                    }
-                    count = images.length;
+  // Default options
+  ClockPicker.DEFAULTS = {
+    'default': '', // default time, 'now' or '13:14' e.g.
+    fromnow: 0, // set default time to * milliseconds from now (using with default = 'now')
+    donetext: 'Ok', // done button text
+    cleartext: 'Clear',
+    canceltext: 'Cancel',
+    autoclose: false, // auto close when minute is selected
+    ampmclickable: true, // set am/pm button on itself
+    darktheme: false, // set to dark theme
+    twelvehour: true, // change to 12 hour AM/PM clock from 24 hour
+    vibrate: true // vibrate the device when dragging clock hand
+  };
 
-                    function setupEvents() {
-                        if (typeof window.ontouchstart !== 'undefined') {
-                            view.on('touchstart.carousel', tap);
-                            view.on('touchmove.carousel', drag);
-                            view.on('touchend.carousel', release);
-                        }
-                        view.on('mousedown.carousel', tap);
-                        view.on('mousemove.carousel', drag);
-                        view.on('mouseup.carousel', release);
-                        view.on('mouseleave.carousel', release);
-                        view.on('click.carousel', click);
-                    }
+  // Show or hide popover
+  ClockPicker.prototype.toggle = function () {
+    this[this.isShown ? 'hide' : 'show']();
+  };
 
-                    function xpos(e) {
-                        // touch event
-                        if (e.targetTouches && e.targetTouches.length >= 1) {
-                            return e.targetTouches[0].clientX;
-                        }
+  // Set popover position
+  ClockPicker.prototype.locate = function () {
+    var element = this.element,
+        popover = this.popover,
+        offset = element.offset(),
+        width = element.outerWidth(),
+        height = element.outerHeight(),
+        align = this.options.align,
+        self = this;
 
-                        // mouse event
-                        return e.clientX;
-                    }
+    popover.show();
+  };
 
-                    function ypos(e) {
-                        // touch event
-                        if (e.targetTouches && e.targetTouches.length >= 1) {
-                            return e.targetTouches[0].clientY;
-                        }
+  // Show popover
+  ClockPicker.prototype.show = function (e) {
+    // Not show again
+    if (this.isShown) {
+      return;
+    }
+    raiseCallback(this.options.beforeShow);
+    $(':input').each(function () {
+      $(this).attr('tabindex', -1);
+    });
+    var self = this;
+    // Initialize
+    this.input.blur();
+    this.popover.addClass('picker--opened');
+    this.input.addClass('picker__input picker__input--active');
+    $(document.body).css('overflow', 'hidden');
+    // Get the time
+    var value = ((this.input.prop('value') || this.options['default'] || '') + '').split(':');
+    if (this.options.twelvehour && !(typeof value[1] === 'undefined')) {
+      if (value[1].indexOf("AM") > 0) {
+        this.amOrPm = 'AM';
+      } else {
+        this.amOrPm = 'PM';
+      }
+      value[1] = value[1].replace("AM", "").replace("PM", "");
+    }
+    if (value[0] === 'now') {
+      var now = new Date(+new Date() + this.options.fromnow);
+      value = [now.getHours(), now.getMinutes()];
+      if (this.options.twelvehour) {
+        this.amOrPm = value[0] >= 12 && value[0] < 24 ? 'PM' : 'AM';
+      }
+    }
+    this.hours = +value[0] || 0;
+    this.minutes = +value[1] || 0;
+    this.spanHours.html(this.hours);
+    this.spanMinutes.html(leadingZero(this.minutes));
+    if (!this.isAppended) {
 
-                        // mouse event
-                        return e.clientY;
-                    }
+      // Append popover to input by default
+      var containerEl = document.querySelector(this.options.container);
+      if (this.options.container && containerEl) {
+        containerEl.appendChild(this.popover[0]);
+      } else {
+        this.popover.insertAfter(this.input);
+      }
 
-                    function wrap(x) {
-                        return x >= count ? x % count : x < 0 ? wrap(count + x % count) : x;
-                    }
+      if (this.options.twelvehour) {
+        if (this.amOrPm === 'PM') {
+          this.spanAmPm.children('#click-pm').addClass("text-primary");
+          this.spanAmPm.children('#click-am').removeClass("text-primary");
+        } else {
+          this.spanAmPm.children('#click-am').addClass("text-primary");
+          this.spanAmPm.children('#click-pm').removeClass("text-primary");
+        }
+      }
+      // Reset position when resize
+      $win.on('resize.clockpicker' + this.id, function () {
+        if (self.isShown) {
+          self.locate();
+        }
+      });
+      this.isAppended = true;
+    }
+    // Toggle to hours view
+    this.toggleView('hours');
+    // Set position
+    this.locate();
+    this.isShown = true;
+    // Hide when clicking or tabbing on any element except the clock and input
+    $doc.on('click.clockpicker.' + this.id + ' focusin.clockpicker.' + this.id, function (e) {
+      var target = $(e.target);
+      if (target.closest(self.popover.find('.picker__wrap')).length === 0 && target.closest(self.input).length === 0) {
+        self.hide();
+      }
+    });
+    // Hide when ESC is pressed
+    $doc.on('keyup.clockpicker.' + this.id, function (e) {
+      if (e.keyCode === 27) {
+        self.hide();
+      }
+    });
+    raiseCallback(this.options.afterShow);
+  };
+  // Hide popover
+  ClockPicker.prototype.hide = function () {
+    raiseCallback(this.options.beforeHide);
+    this.input.removeClass('picker__input picker__input--active');
+    this.popover.removeClass('picker--opened');
+    $(document.body).css('overflow', 'visible');
+    this.isShown = false;
+    $(':input').each(function (index) {
+      $(this).attr('tabindex', index + 1);
+    });
+    // Unbinding events on document
+    $doc.off('click.clockpicker.' + this.id + ' focusin.clockpicker.' + this.id);
+    $doc.off('keyup.clockpicker.' + this.id);
+    this.popover.hide();
+    raiseCallback(this.options.afterHide);
+  };
+  // Toggle to hours or minutes view
+  ClockPicker.prototype.toggleView = function (view, delay) {
+    var raiseAfterHourSelect = false;
+    if (view === 'minutes' && $(this.hoursView).css("visibility") === "visible") {
+      raiseCallback(this.options.beforeHourSelect);
+      raiseAfterHourSelect = true;
+    }
+    var isHours = view === 'hours',
+        nextView = isHours ? this.hoursView : this.minutesView,
+        hideView = isHours ? this.minutesView : this.hoursView;
+    this.currentView = view;
 
-                    function scroll(x) {
-                        // Track scrolling state
-                        scrolling = true;
-                        if (!view.hasClass('scrolling')) {
-                            view.addClass('scrolling');
-                        }
-                        if (scrollingTimeout != null) {
-                            window.clearTimeout(scrollingTimeout);
-                        }
-                        scrollingTimeout = window.setTimeout(function () {
-                            scrolling = false;
-                            view.removeClass('scrolling');
-                        }, options.duration);
+    this.spanHours.toggleClass('text-primary', isHours);
+    this.spanMinutes.toggleClass('text-primary', !isHours);
 
-                        // Start actual scroll
-                        var i, half, delta, dir, tween, el, alignment, xTranslation;
-                        var lastCenter = center;
+    // Let's make transitions
+    hideView.addClass('clockpicker-dial-out');
+    nextView.css('visibility', 'visible').removeClass('clockpicker-dial-out');
 
-                        offset = typeof x === 'number' ? x : offset;
-                        center = Math.floor((offset + dim / 2) / dim);
-                        delta = offset - center * dim;
-                        dir = delta < 0 ? 1 : -1;
-                        tween = -dir * delta * 2 / dim;
-                        half = count >> 1;
+    // Reset clock hand
+    this.resetClock(delay);
 
-                        if (!options.fullWidth) {
-                            alignment = 'translateX(' + (view[0].clientWidth - item_width) / 2 + 'px) ';
-                            alignment += 'translateY(' + (view[0].clientHeight - item_height) / 2 + 'px)';
-                        } else {
-                            alignment = 'translateX(0)';
-                        }
+    // After transitions ended
+    clearTimeout(this.toggleViewTimer);
+    this.toggleViewTimer = setTimeout(function () {
+      hideView.css('visibility', 'hidden');
+    }, duration);
 
-                        // Set indicator active
-                        if (showIndicators) {
-                            var diff = center % count;
-                            var activeIndicator = $indicators.find('.indicator-item.active');
-                            if (activeIndicator.index() !== diff) {
-                                activeIndicator.removeClass('active');
-                                $indicators.find('.indicator-item').eq(diff).addClass('active');
-                            }
-                        }
+    if (raiseAfterHourSelect) {
+      raiseCallback(this.options.afterHourSelect);
+    }
+  };
 
-                        // center
-                        // Don't show wrapped items.
-                        if (!noWrap || center >= 0 && center < count) {
-                            el = images[wrap(center)];
+  // Reset clock hand
+  ClockPicker.prototype.resetClock = function (delay) {
+    var view = this.currentView,
+        value = this[view],
+        isHours = view === 'hours',
+        unit = Math.PI / (isHours ? 6 : 30),
+        radian = value * unit,
+        radius = isHours && value > 0 && value < 13 ? innerRadius : outerRadius,
+        x = Math.sin(radian) * radius,
+        y = -Math.cos(radian) * radius,
+        self = this;
 
-                            // Add active class to center item.
-                            if (!$(el).hasClass('active')) {
-                                view.find('.carousel-item').removeClass('active');
-                                $(el).addClass('active');
-                            }
-                            el.style[xform] = alignment + ' translateX(' + -delta / 2 + 'px)' + ' translateX(' + dir * options.shift * tween * i + 'px)' + ' translateZ(' + options.dist * tween + 'px)';
-                            el.style.zIndex = 0;
-                            if (options.fullWidth) {
-                                tweenedOpacity = 1;
-                            } else {
-                                tweenedOpacity = 1 - 0.2 * tween;
-                            }
-                            el.style.opacity = tweenedOpacity;
-                            el.style.display = 'block';
-                        }
+    if (svgSupported && delay) {
+      self.canvas.addClass('clockpicker-canvas-out');
+      setTimeout(function () {
+        self.canvas.removeClass('clockpicker-canvas-out');
+        self.setHand(x, y);
+      }, delay);
+    } else this.setHand(x, y);
+  };
 
-                        for (i = 1; i <= half; ++i) {
-                            // right side
-                            if (options.fullWidth) {
-                                zTranslation = options.dist;
-                                tweenedOpacity = i === half && delta < 0 ? 1 - tween : 1;
-                            } else {
-                                zTranslation = options.dist * (i * 2 + tween * dir);
-                                tweenedOpacity = 1 - 0.2 * (i * 2 + tween * dir);
-                            }
-                            // Don't show wrapped items.
-                            if (!noWrap || center + i < count) {
-                                el = images[wrap(center + i)];
-                                el.style[xform] = alignment + ' translateX(' + (options.shift + (dim * i - delta) / 2) + 'px)' + ' translateZ(' + zTranslation + 'px)';
-                                el.style.zIndex = -i;
-                                el.style.opacity = tweenedOpacity;
-                                el.style.display = 'block';
-                            }
+  // Set clock hand to (x, y)
+  ClockPicker.prototype.setHand = function (x, y, roundBy5, dragging) {
+    var radian = Math.atan2(x, -y),
+        isHours = this.currentView === 'hours',
+        unit = Math.PI / (isHours || roundBy5 ? 6 : 30),
+        z = Math.sqrt(x * x + y * y),
+        options = this.options,
+        inner = isHours && z < (outerRadius + innerRadius) / 2,
+        radius = inner ? innerRadius : outerRadius,
+        value;
 
-                            // left side
-                            if (options.fullWidth) {
-                                zTranslation = options.dist;
-                                tweenedOpacity = i === half && delta > 0 ? 1 - tween : 1;
-                            } else {
-                                zTranslation = options.dist * (i * 2 - tween * dir);
-                                tweenedOpacity = 1 - 0.2 * (i * 2 - tween * dir);
-                            }
-                            // Don't show wrapped items.
-                            if (!noWrap || center - i >= 0) {
-                                el = images[wrap(center - i)];
-                                el.style[xform] = alignment + ' translateX(' + (-options.shift + (-dim * i - delta) / 2) + 'px)' + ' translateZ(' + zTranslation + 'px)';
-                                el.style.zIndex = -i;
-                                el.style.opacity = tweenedOpacity;
-                                el.style.display = 'block';
-                            }
-                        }
+    if (options.twelvehour) {
+      radius = outerRadius;
+    }
 
-                        // center
-                        // Don't show wrapped items.
-                        if (!noWrap || center >= 0 && center < count) {
-                            el = images[wrap(center)];
-                            el.style[xform] = alignment + ' translateX(' + -delta / 2 + 'px)' + ' translateX(' + dir * options.shift * tween + 'px)' + ' translateZ(' + options.dist * tween + 'px)';
-                            el.style.zIndex = 0;
-                            if (options.fullWidth) {
-                                tweenedOpacity = 1;
-                            } else {
-                                tweenedOpacity = 1 - 0.2 * tween;
-                            }
-                            el.style.opacity = tweenedOpacity;
-                            el.style.display = 'block';
-                        }
+    // Radian should in range [0, 2PI]
+    if (radian < 0) {
+      radian = Math.PI * 2 + radian;
+    }
 
-                        // onCycleTo callback
-                        if (lastCenter !== center && typeof options.onCycleTo === "function") {
-                            var $curr_item = view.find('.carousel-item').eq(wrap(center));
-                            options.onCycleTo.call(this, $curr_item, dragged);
-                        }
+    // Get the round value
+    value = Math.round(radian / unit);
 
-                        // One time callback
-                        if (typeof oneTimeCallback === "function") {
-                            oneTimeCallback.call(this, $curr_item, dragged);
-                            oneTimeCallback = null;
-                        }
-                    }
+    // Get the round radian
+    radian = value * unit;
 
-                    function track() {
-                        var now, elapsed, delta, v;
+    // Correct the hours or minutes
+    if (options.twelvehour) {
+      if (isHours) {
+        if (value === 0) value = 12;
+      } else {
+        if (roundBy5) value *= 5;
+        if (value === 60) value = 0;
+      }
+    } else {
+      if (isHours) {
+        if (value === 12) value = 0;
+        value = inner ? value === 0 ? 12 : value : value === 0 ? 0 : value + 12;
+      } else {
+        if (roundBy5) value *= 5;
+        if (value === 60) value = 0;
+      }
+    }
 
-                        now = Date.now();
-                        elapsed = now - timestamp;
-                        timestamp = now;
-                        delta = offset - frame;
-                        frame = offset;
+    // Once hours or minutes changed, vibrate the device
+    if (this[this.currentView] !== value) {
+      if (vibrate && this.options.vibrate) {
+        // Do not vibrate too frequently
+        if (!this.vibrateTimer) {
+          navigator[vibrate](10);
+          this.vibrateTimer = setTimeout($.proxy(function () {
+            this.vibrateTimer = null;
+          }, this), 100);
+        }
+      }
+    }
 
-                        v = 1000 * delta / (1 + elapsed);
-                        velocity = 0.8 * v + 0.2 * velocity;
-                    }
+    this[this.currentView] = value;
+    if (isHours) {
+      this['spanHours'].html(value);
+    } else {
+      this['spanMinutes'].html(leadingZero(value));
+    }
 
-                    function autoScroll() {
-                        var elapsed, delta;
+    // If svg is not supported, just add an active class to the tick
+    if (!svgSupported) {
+      this[isHours ? 'hoursView' : 'minutesView'].find('.clockpicker-tick').each(function () {
+        var tick = $(this);
+        tick.toggleClass('active', value === +tick.html());
+      });
+      return;
+    }
 
-                        if (amplitude) {
-                            elapsed = Date.now() - timestamp;
-                            delta = amplitude * Math.exp(-elapsed / options.duration);
-                            if (delta > 2 || delta < -2) {
-                                scroll(target - delta);
-                                requestAnimationFrame(autoScroll);
-                            } else {
-                                scroll(target);
-                            }
-                        }
-                    }
+    // Set clock hand and others' position
+    var cx1 = Math.sin(radian) * (radius - tickRadius),
+        cy1 = -Math.cos(radian) * (radius - tickRadius),
+        cx2 = Math.sin(radian) * radius,
+        cy2 = -Math.cos(radian) * radius;
+    this.hand.setAttribute('x2', cx1);
+    this.hand.setAttribute('y2', cy1);
+    this.bg.setAttribute('cx', cx2);
+    this.bg.setAttribute('cy', cy2);
+  };
 
-                    function click(e) {
-                        // Disable clicks if carousel was dragged.
-                        if (dragged) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            return false;
-                        } else if (!options.fullWidth) {
-                            var clickedIndex = $(e.target).closest('.carousel-item').index();
-                            var diff = wrap(center) - clickedIndex;
+  // Hours and minutes are selected
+  ClockPicker.prototype.done = function () {
+    raiseCallback(this.options.beforeDone);
+    this.hide();
+    this.label.addClass('active');
 
-                            // Disable clicks if carousel was shifted by click
-                            if (diff !== 0) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                            }
-                            cycleTo(clickedIndex);
-                        }
-                    }
+    var last = this.input.prop('value'),
+        value = leadingZero(this.hours) + ':' + leadingZero(this.minutes);
+    if (this.options.twelvehour) {
+      value = value + this.amOrPm;
+    }
 
-                    function cycleTo(n) {
-                        var diff = center % count - n;
+    this.input.prop('value', value);
+    if (value !== last) {
+      this.input.triggerHandler('change');
+      if (!this.isInput) {
+        this.element.trigger('change');
+      }
+    }
 
-                        // Account for wraparound.
-                        if (!noWrap) {
-                            if (diff < 0) {
-                                if (Math.abs(diff + count) < Math.abs(diff)) {
-                                    diff += count;
-                                }
-                            } else if (diff > 0) {
-                                if (Math.abs(diff - count) < diff) {
-                                    diff -= count;
-                                }
-                            }
-                        }
+    if (this.options.autoclose) this.input.trigger('blur');
 
-                        // Call prev or next accordingly.
-                        if (diff < 0) {
-                            view.trigger('carouselNext', [Math.abs(diff)]);
-                        } else if (diff > 0) {
-                            view.trigger('carouselPrev', [diff]);
-                        }
-                    }
+    raiseCallback(this.options.afterDone);
+  };
 
-                    function tap(e) {
-                        // Fixes firefox draggable image bug
-                        if (e.type === 'mousedown' && $(e.target).is('img')) {
-                            e.preventDefault();
-                        }
-                        pressed = true;
-                        dragged = false;
-                        vertical_dragged = false;
-                        reference = xpos(e);
-                        referenceY = ypos(e);
+  // Clear input field
+  ClockPicker.prototype.clear = function () {
+    this.hide();
+    this.label.removeClass('active');
 
-                        velocity = amplitude = 0;
-                        frame = offset;
-                        timestamp = Date.now();
-                        clearInterval(ticker);
-                        ticker = setInterval(track, 100);
-                    }
+    var last = this.input.prop('value'),
+        value = '';
 
-                    function drag(e) {
-                        var x, delta, deltaY;
-                        if (pressed) {
-                            x = xpos(e);
-                            y = ypos(e);
-                            delta = reference - x;
-                            deltaY = Math.abs(referenceY - y);
-                            if (deltaY < 30 && !vertical_dragged) {
-                                // If vertical scrolling don't allow dragging.
-                                if (delta > 2 || delta < -2) {
-                                    dragged = true;
-                                    reference = x;
-                                    scroll(offset + delta);
-                                }
-                            } else if (dragged) {
-                                // If dragging don't allow vertical scroll.
-                                e.preventDefault();
-                                e.stopPropagation();
-                                return false;
-                            } else {
-                                // Vertical scrolling.
-                                vertical_dragged = true;
-                            }
-                        }
+    this.input.prop('value', value);
+    if (value !== last) {
+      this.input.triggerHandler('change');
+      if (!this.isInput) {
+        this.element.trigger('change');
+      }
+    }
 
-                        if (dragged) {
-                            // If dragging don't allow vertical scroll.
-                            e.preventDefault();
-                            e.stopPropagation();
-                            return false;
-                        }
-                    }
+    if (this.options.autoclose) {
+      this.input.trigger('blur');
+    }
+  };
 
-                    function release(e) {
-                        if (pressed) {
-                            pressed = false;
-                        } else {
-                            return;
-                        }
+  // Remove clockpicker from input
+  ClockPicker.prototype.remove = function () {
+    this.element.removeData('clockpicker');
+    this.input.off('focus.clockpicker click.clockpicker');
+    if (this.isShown) {
+      this.hide();
+    }
+    if (this.isAppended) {
+      $win.off('resize.clockpicker' + this.id);
+      this.popover.remove();
+    }
+  };
 
-                        clearInterval(ticker);
-                        target = offset;
-                        if (velocity > 10 || velocity < -10) {
-                            amplitude = 0.9 * velocity;
-                            target = offset + amplitude;
-                        }
-                        target = Math.round(target / dim) * dim;
+  // Extends $.fn.clockpicker
+  $.fn.pickatime = function (option) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return this.each(function () {
+      var $this = $(this),
+          data = $this.data('clockpicker');
+      if (!data) {
+        var options = $.extend({}, ClockPicker.DEFAULTS, $this.data(), typeof option == 'object' && option);
+        $this.data('clockpicker', new ClockPicker($this, options));
+      } else {
+        // Manual operatsions. show, hide, remove, e.g.
+        if (typeof data[option] === 'function') {
+          data[option].apply(data, args);
+        }
+      }
+    });
+  };
+})(jQuery);
+;(function ($) {
 
-                        // No wrap of items.
-                        if (noWrap) {
-                            if (target >= dim * (count - 1)) {
-                                target = dim * (count - 1);
-                            } else if (target < 0) {
-                                target = 0;
-                            }
-                        }
-                        amplitude = target - offset;
-                        timestamp = Date.now();
-                        requestAnimationFrame(autoScroll);
+  $.fn.characterCounter = function () {
+    return this.each(function () {
+      var $input = $(this);
+      var $counterElement = $input.parent().find('span[class="character-counter"]');
 
-                        if (dragged) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                        }
-                        return false;
-                    }
+      // character counter has already been added appended to the parent container
+      if ($counterElement.length) {
+        return;
+      }
 
-                    xform = 'transform';
-                    ['webkit', 'Moz', 'O', 'ms'].every(function (prefix) {
-                        var e = prefix + 'Transform';
-                        if (typeof document.body.style[e] !== 'undefined') {
-                            xform = e;
-                            return false;
-                        }
-                        return true;
-                    });
+      var itHasLengthAttribute = $input.attr('data-length') !== undefined;
 
-                    var throttledResize = Materialize.throttle(function () {
-                        if (options.fullWidth) {
-                            item_width = view.find('.carousel-item').first().innerWidth();
-                            var imageHeight = view.find('.carousel-item.active').height();
-                            dim = item_width * 2 + options.padding;
-                            offset = center * 2 * item_width;
-                            target = offset;
-                            setCarouselHeight(true);
-                        } else {
-                            scroll();
-                        }
-                    }, 200);
-                    $(window).off('resize.carousel-' + uniqueNamespace).on('resize.carousel-' + uniqueNamespace, throttledResize);
+      if (itHasLengthAttribute) {
+        $input.on('input', updateCounter);
+        $input.on('focus', updateCounter);
+        $input.on('blur', removeCounterElement);
 
-                    setupEvents();
-                    scroll(offset);
+        addCounterElement($input);
+      }
+    });
+  };
 
-                    $(this).on('carouselNext', function (e, n, callback) {
-                        if (n === undefined) {
-                            n = 1;
-                        }
-                        if (typeof callback === "function") {
-                            oneTimeCallback = callback;
-                        }
+  function updateCounter() {
+    var maxLength = +$(this).attr('data-length'),
+        actualLength = +$(this).val().length,
+        isValidLength = actualLength <= maxLength;
 
-                        target = dim * Math.round(offset / dim) + dim * n;
-                        if (offset !== target) {
-                            amplitude = target - offset;
-                            timestamp = Date.now();
-                            requestAnimationFrame(autoScroll);
-                        }
-                    });
+    $(this).parent().find('span[class="character-counter"]').html(actualLength + '/' + maxLength);
 
-                    $(this).on('carouselPrev', function (e, n, callback) {
-                        if (n === undefined) {
-                            n = 1;
-                        }
-                        if (typeof callback === "function") {
-                            oneTimeCallback = callback;
-                        }
+    addInputStyle(isValidLength, $(this));
+  }
 
-                        target = dim * Math.round(offset / dim) - dim * n;
-                        if (offset !== target) {
-                            amplitude = target - offset;
-                            timestamp = Date.now();
-                            requestAnimationFrame(autoScroll);
-                        }
-                    });
+  function addCounterElement($input) {
+    var $counterElement = $input.parent().find('span[class="character-counter"]');
 
-                    $(this).on('carouselSet', function (e, n, callback) {
-                        if (n === undefined) {
-                            n = 0;
-                        }
-                        if (typeof callback === "function") {
-                            oneTimeCallback = callback;
-                        }
+    if ($counterElement.length) {
+      return;
+    }
 
-                        cycleTo(n);
-                    });
-                });
-            },
-            next: function (n, callback) {
-                $(this).trigger('carouselNext', [n, callback]);
-            },
-            prev: function (n, callback) {
-                $(this).trigger('carouselPrev', [n, callback]);
-            },
-            set: function (n, callback) {
-                $(this).trigger('carouselSet', [n, callback]);
-            },
-            destroy: function () {
-                var uniqueNamespace = $(this).attr('data-namespace');
-                $(this).removeAttr('data-namespace');
-                $(this).removeClass('initialized');
-                $(this).find('.indicators').remove();
+    $counterElement = $('<span/>').addClass('character-counter').css('float', 'right').css('font-size', '12px').css('height', 1);
 
-                // Remove event handlers
-                $(this).off('carouselNext carouselPrev carouselSet');
-                $(window).off('resize.carousel-' + uniqueNamespace);
-                if (typeof window.ontouchstart !== 'undefined') {
-                    $(this).off('touchstart.carousel touchmove.carousel touchend.carousel');
-                }
-                $(this).off('mousedown.carousel mousemove.carousel mouseup.carousel mouseleave.carousel click.carousel');
-            }
-        };
+    $input.parent().append($counterElement);
+  }
 
-        $.fn.carousel = function (methodOrOptions) {
-            if (methods[methodOrOptions]) {
-                return methods[methodOrOptions].apply(this, Array.prototype.slice.call(arguments, 1));
-            } else if (typeof methodOrOptions === 'object' || !methodOrOptions) {
-                // Default to "init"
-                return methods.init.apply(this, arguments);
+  function removeCounterElement() {
+    $(this).parent().find('span[class="character-counter"]').html('');
+  }
+
+  function addInputStyle(isValidLength, $input) {
+    var inputHasInvalidClass = $input.hasClass('invalid');
+    if (isValidLength && inputHasInvalidClass) {
+      $input.removeClass('invalid');
+    } else if (!isValidLength && !inputHasInvalidClass) {
+      $input.removeClass('valid');
+      $input.addClass('invalid');
+    }
+  }
+
+  $(document).ready(function () {
+    $('input, textarea').characterCounter();
+  });
+})(jQuery);
+;(function ($) {
+
+  var methods = {
+
+    init: function (options) {
+      var defaults = {
+        duration: 200, // ms
+        dist: -100, // zoom scale TODO: make this more intuitive as an option
+        shift: 0, // spacing for center image
+        padding: 0, // Padding between non center items
+        fullWidth: false, // Change to full width styles
+        indicators: false, // Toggle indicators
+        noWrap: false, // Don't wrap around and cycle through items.
+        onCycleTo: null // Callback for when a new slide is cycled to.
+      };
+      options = $.extend(defaults, options);
+      var namespace = Materialize.objectSelectorString($(this));
+
+      return this.each(function (i) {
+
+        var images, item_width, item_height, offset, center, pressed, dim, count, reference, referenceY, amplitude, target, velocity, scrolling, xform, frame, timestamp, ticker, dragged, vertical_dragged;
+        var $indicators = $('<ul class="indicators"></ul>');
+        var scrollingTimeout = null;
+        var oneTimeCallback = null;
+
+        // Initialize
+        var view = $(this);
+        var hasMultipleSlides = view.find('.carousel-item').length > 1;
+        var showIndicators = (view.attr('data-indicators') || options.indicators) && hasMultipleSlides;
+        var noWrap = view.attr('data-no-wrap') || options.noWrap || !hasMultipleSlides;
+        var uniqueNamespace = view.attr('data-namespace') || namespace + i;
+        view.attr('data-namespace', uniqueNamespace);
+
+        // Options
+        var setCarouselHeight = function (imageOnly) {
+          var firstSlide = view.find('.carousel-item.active').length ? view.find('.carousel-item.active').first() : view.find('.carousel-item').first();
+          var firstImage = firstSlide.find('img').first();
+          if (firstImage.length) {
+            if (firstImage[0].complete) {
+              // If image won't trigger the load event
+              var imageHeight = firstImage.height();
+              if (imageHeight > 0) {
+                view.css('height', firstImage.height());
+              } else {
+                // If image still has no height, use the natural dimensions to calculate
+                var naturalWidth = firstImage[0].naturalWidth;
+                var naturalHeight = firstImage[0].naturalHeight;
+                var adjustedHeight = view.width() / naturalWidth * naturalHeight;
+                view.css('height', adjustedHeight);
+              }
             } else {
-                $.error('Method ' + methodOrOptions + ' does not exist on jQuery.carousel');
+              // Get height when image is loaded normally
+              firstImage.on('load', function () {
+                view.css('height', $(this).height());
+              });
             }
-        }; // Plugin end
-    })(jQuery);
-    ;(function ($) {
-
-        var methods = {
-            init: function (options) {
-                return this.each(function () {
-                    var origin = $('#' + $(this).attr('data-activates'));
-                    var screen = $('body');
-
-                    // Creating tap target
-                    var tapTargetEl = $(this);
-                    var tapTargetWrapper = tapTargetEl.parent('.tap-target-wrapper');
-                    var tapTargetWave = tapTargetWrapper.find('.tap-target-wave');
-                    var tapTargetOriginEl = tapTargetWrapper.find('.tap-target-origin');
-                    var tapTargetContentEl = tapTargetEl.find('.tap-target-content');
-
-                    // Creating wrapper
-                    if (!tapTargetWrapper.length) {
-                        tapTargetWrapper = tapTargetEl.wrap($('<div class="tap-target-wrapper"></div>')).parent();
-                    }
-
-                    // Creating content
-                    if (!tapTargetContentEl.length) {
-                        tapTargetContentEl = $('<div class="tap-target-content"></div>');
-                        tapTargetEl.append(tapTargetContentEl);
-                    }
-
-                    // Creating foreground wave
-                    if (!tapTargetWave.length) {
-                        tapTargetWave = $('<div class="tap-target-wave"></div>');
-
-                        // Creating origin
-                        if (!tapTargetOriginEl.length) {
-                            tapTargetOriginEl = origin.clone(true, true);
-                            tapTargetOriginEl.addClass('tap-target-origin');
-                            tapTargetOriginEl.removeAttr('id');
-                            tapTargetOriginEl.removeAttr('style');
-                            tapTargetWave.append(tapTargetOriginEl);
-                        }
-
-                        tapTargetWrapper.append(tapTargetWave);
-                    }
-
-                    // Open
-                    var openTapTarget = function () {
-                        if (tapTargetWrapper.is('.open')) {
-                            return;
-                        }
-
-                        // Adding open class
-                        tapTargetWrapper.addClass('open');
-
-                        setTimeout(function () {
-                            tapTargetOriginEl.off('click.tapTarget').on('click.tapTarget', function (e) {
-                                closeTapTarget();
-                                tapTargetOriginEl.off('click.tapTarget');
-                            });
-
-                            $(document).off('click.tapTarget').on('click.tapTarget', function (e) {
-                                closeTapTarget();
-                                $(document).off('click.tapTarget');
-                            });
-
-                            var throttledCalc = Materialize.throttle(function () {
-                                calculateTapTarget();
-                            }, 200);
-                            $(window).off('resize.tapTarget').on('resize.tapTarget', throttledCalc);
-                        }, 0);
-                    };
-
-                    // Close
-                    var closeTapTarget = function () {
-                        if (!tapTargetWrapper.is('.open')) {
-                            return;
-                        }
-
-                        tapTargetWrapper.removeClass('open');
-                        tapTargetOriginEl.off('click.tapTarget');
-                        $(document).off('click.tapTarget');
-                        $(window).off('resize.tapTarget');
-                    };
-
-                    // Pre calculate
-                    var calculateTapTarget = function () {
-                        // Element or parent is fixed position?
-                        var isFixed = origin.css('position') === 'fixed';
-                        if (!isFixed) {
-                            var parents = origin.parents();
-                            for (var i = 0; i < parents.length; i++) {
-                                isFixed = $(parents[i]).css('position') == 'fixed';
-                                if (isFixed) {
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Calculating origin
-                        var originWidth = origin.outerWidth();
-                        var originHeight = origin.outerHeight();
-                        var originTop = isFixed ? origin.offset().top - $(document).scrollTop() : origin.offset().top;
-                        var originLeft = isFixed ? origin.offset().left - $(document).scrollLeft() : origin.offset().left;
-
-                        // Calculating screen
-                        var windowWidth = $(window).width();
-                        var windowHeight = $(window).height();
-                        var centerX = windowWidth / 2;
-                        var centerY = windowHeight / 2;
-                        var isLeft = originLeft <= centerX;
-                        var isRight = originLeft > centerX;
-                        var isTop = originTop <= centerY;
-                        var isBottom = originTop > centerY;
-                        var isCenterX = originLeft >= windowWidth * 0.25 && originLeft <= windowWidth * 0.75;
-                        var isCenterY = originTop >= windowHeight * 0.25 && originTop <= windowHeight * 0.75;
-
-                        // Calculating tap target
-                        var tapTargetWidth = tapTargetEl.outerWidth();
-                        var tapTargetHeight = tapTargetEl.outerHeight();
-                        var tapTargetTop = originTop + originHeight / 2 - tapTargetHeight / 2;
-                        var tapTargetLeft = originLeft + originWidth / 2 - tapTargetWidth / 2;
-                        var tapTargetPosition = isFixed ? 'fixed' : 'absolute';
-
-                        // Calculating content
-                        var tapTargetTextWidth = isCenterX ? tapTargetWidth : tapTargetWidth / 2 + originWidth;
-                        var tapTargetTextHeight = tapTargetHeight / 2;
-                        var tapTargetTextTop = isTop ? tapTargetHeight / 2 : 0;
-                        var tapTargetTextBottom = 0;
-                        var tapTargetTextLeft = isLeft && !isCenterX ? tapTargetWidth / 2 - originWidth : 0;
-                        var tapTargetTextRight = 0;
-                        var tapTargetTextPadding = originWidth;
-                        var tapTargetTextAlign = isBottom ? 'bottom' : 'top';
-
-                        // Calculating wave
-                        var tapTargetWaveWidth = originWidth > originHeight ? originWidth * 2 : originWidth * 2;
-                        var tapTargetWaveHeight = tapTargetWaveWidth;
-                        var tapTargetWaveTop = tapTargetHeight / 2 - tapTargetWaveHeight / 2;
-                        var tapTargetWaveLeft = tapTargetWidth / 2 - tapTargetWaveWidth / 2;
-
-                        // Setting tap target
-                        var tapTargetWrapperCssObj = {};
-                        tapTargetWrapperCssObj.top = isTop ? tapTargetTop : '';
-                        tapTargetWrapperCssObj.right = isRight ? windowWidth - tapTargetLeft - tapTargetWidth : '';
-                        tapTargetWrapperCssObj.bottom = isBottom ? windowHeight - tapTargetTop - tapTargetHeight : '';
-                        tapTargetWrapperCssObj.left = isLeft ? tapTargetLeft : '';
-                        tapTargetWrapperCssObj.position = tapTargetPosition;
-                        tapTargetWrapper.css(tapTargetWrapperCssObj);
-
-                        // Setting content
-                        tapTargetContentEl.css({
-                            width: tapTargetTextWidth,
-                            height: tapTargetTextHeight,
-                            top: tapTargetTextTop,
-                            right: tapTargetTextRight,
-                            bottom: tapTargetTextBottom,
-                            left: tapTargetTextLeft,
-                            padding: tapTargetTextPadding,
-                            verticalAlign: tapTargetTextAlign
-                        });
-
-                        // Setting wave
-                        tapTargetWave.css({
-                            top: tapTargetWaveTop,
-                            left: tapTargetWaveLeft,
-                            width: tapTargetWaveWidth,
-                            height: tapTargetWaveHeight
-                        });
-                    };
-
-                    if (options == 'open') {
-                        calculateTapTarget();
-                        openTapTarget();
-                    }
-
-                    if (options == 'close') closeTapTarget();
-                });
-            },
-            open: function () {},
-            close: function () {}
+          } else if (!imageOnly) {
+            var slideHeight = firstSlide.height();
+            view.css('height', slideHeight);
+          }
         };
 
-        $.fn.tapTarget = function (methodOrOptions) {
-            if (methods[methodOrOptions] || typeof methodOrOptions === 'object') return methods.init.apply(this, arguments);
+        if (options.fullWidth) {
+          options.dist = 0;
+          setCarouselHeight();
 
-            $.error('Method ' + methodOrOptions + ' does not exist on jQuery.tap-target');
+          // Offset fixed items when indicators.
+          if (showIndicators) {
+            view.find('.carousel-fixed-item').addClass('with-indicators');
+          }
+        }
+
+        // Don't double initialize.
+        if (view.hasClass('initialized')) {
+          // Recalculate variables
+          $(window).trigger('resize');
+
+          // Redraw carousel.
+          view.trigger('carouselNext', [0.000001]);
+          return true;
+        }
+
+        view.addClass('initialized');
+        pressed = false;
+        offset = target = 0;
+        images = [];
+        item_width = view.find('.carousel-item').first().innerWidth();
+        item_height = view.find('.carousel-item').first().innerHeight();
+        dim = item_width * 2 + options.padding;
+
+        view.find('.carousel-item').each(function (i) {
+          images.push($(this)[0]);
+          if (showIndicators) {
+            var $indicator = $('<li class="indicator-item"></li>');
+
+            // Add active to first by default.
+            if (i === 0) {
+              $indicator.addClass('active');
+            }
+
+            // Handle clicks on indicators.
+            $indicator.click(function (e) {
+              e.stopPropagation();
+
+              var index = $(this).index();
+              cycleTo(index);
+            });
+            $indicators.append($indicator);
+          }
+        });
+
+        if (showIndicators) {
+          view.append($indicators);
+        }
+        count = images.length;
+
+        function setupEvents() {
+          if (typeof window.ontouchstart !== 'undefined') {
+            view.on('touchstart.carousel', tap);
+            view.on('touchmove.carousel', drag);
+            view.on('touchend.carousel', release);
+          }
+          view.on('mousedown.carousel', tap);
+          view.on('mousemove.carousel', drag);
+          view.on('mouseup.carousel', release);
+          view.on('mouseleave.carousel', release);
+          view.on('click.carousel', click);
+        }
+
+        function xpos(e) {
+          // touch event
+          if (e.targetTouches && e.targetTouches.length >= 1) {
+            return e.targetTouches[0].clientX;
+          }
+
+          // mouse event
+          return e.clientX;
+        }
+
+        function ypos(e) {
+          // touch event
+          if (e.targetTouches && e.targetTouches.length >= 1) {
+            return e.targetTouches[0].clientY;
+          }
+
+          // mouse event
+          return e.clientY;
+        }
+
+        function wrap(x) {
+          return x >= count ? x % count : x < 0 ? wrap(count + x % count) : x;
+        }
+
+        function scroll(x) {
+          // Track scrolling state
+          scrolling = true;
+          if (!view.hasClass('scrolling')) {
+            view.addClass('scrolling');
+          }
+          if (scrollingTimeout != null) {
+            window.clearTimeout(scrollingTimeout);
+          }
+          scrollingTimeout = window.setTimeout(function () {
+            scrolling = false;
+            view.removeClass('scrolling');
+          }, options.duration);
+
+          // Start actual scroll
+          var i, half, delta, dir, tween, el, alignment, xTranslation;
+          var lastCenter = center;
+
+          offset = typeof x === 'number' ? x : offset;
+          center = Math.floor((offset + dim / 2) / dim);
+          delta = offset - center * dim;
+          dir = delta < 0 ? 1 : -1;
+          tween = -dir * delta * 2 / dim;
+          half = count >> 1;
+
+          if (!options.fullWidth) {
+            alignment = 'translateX(' + (view[0].clientWidth - item_width) / 2 + 'px) ';
+            alignment += 'translateY(' + (view[0].clientHeight - item_height) / 2 + 'px)';
+          } else {
+            alignment = 'translateX(0)';
+          }
+
+          // Set indicator active
+          if (showIndicators) {
+            var diff = center % count;
+            var activeIndicator = $indicators.find('.indicator-item.active');
+            if (activeIndicator.index() !== diff) {
+              activeIndicator.removeClass('active');
+              $indicators.find('.indicator-item').eq(diff).addClass('active');
+            }
+          }
+
+          // center
+          // Don't show wrapped items.
+          if (!noWrap || center >= 0 && center < count) {
+            el = images[wrap(center)];
+
+            // Add active class to center item.
+            if (!$(el).hasClass('active')) {
+              view.find('.carousel-item').removeClass('active');
+              $(el).addClass('active');
+            }
+            el.style[xform] = alignment + ' translateX(' + -delta / 2 + 'px)' + ' translateX(' + dir * options.shift * tween * i + 'px)' + ' translateZ(' + options.dist * tween + 'px)';
+            el.style.zIndex = 0;
+            if (options.fullWidth) {
+              tweenedOpacity = 1;
+            } else {
+              tweenedOpacity = 1 - 0.2 * tween;
+            }
+            el.style.opacity = tweenedOpacity;
+            el.style.display = 'block';
+          }
+
+          for (i = 1; i <= half; ++i) {
+            // right side
+            if (options.fullWidth) {
+              zTranslation = options.dist;
+              tweenedOpacity = i === half && delta < 0 ? 1 - tween : 1;
+            } else {
+              zTranslation = options.dist * (i * 2 + tween * dir);
+              tweenedOpacity = 1 - 0.2 * (i * 2 + tween * dir);
+            }
+            // Don't show wrapped items.
+            if (!noWrap || center + i < count) {
+              el = images[wrap(center + i)];
+              el.style[xform] = alignment + ' translateX(' + (options.shift + (dim * i - delta) / 2) + 'px)' + ' translateZ(' + zTranslation + 'px)';
+              el.style.zIndex = -i;
+              el.style.opacity = tweenedOpacity;
+              el.style.display = 'block';
+            }
+
+            // left side
+            if (options.fullWidth) {
+              zTranslation = options.dist;
+              tweenedOpacity = i === half && delta > 0 ? 1 - tween : 1;
+            } else {
+              zTranslation = options.dist * (i * 2 - tween * dir);
+              tweenedOpacity = 1 - 0.2 * (i * 2 - tween * dir);
+            }
+            // Don't show wrapped items.
+            if (!noWrap || center - i >= 0) {
+              el = images[wrap(center - i)];
+              el.style[xform] = alignment + ' translateX(' + (-options.shift + (-dim * i - delta) / 2) + 'px)' + ' translateZ(' + zTranslation + 'px)';
+              el.style.zIndex = -i;
+              el.style.opacity = tweenedOpacity;
+              el.style.display = 'block';
+            }
+          }
+
+          // center
+          // Don't show wrapped items.
+          if (!noWrap || center >= 0 && center < count) {
+            el = images[wrap(center)];
+            el.style[xform] = alignment + ' translateX(' + -delta / 2 + 'px)' + ' translateX(' + dir * options.shift * tween + 'px)' + ' translateZ(' + options.dist * tween + 'px)';
+            el.style.zIndex = 0;
+            if (options.fullWidth) {
+              tweenedOpacity = 1;
+            } else {
+              tweenedOpacity = 1 - 0.2 * tween;
+            }
+            el.style.opacity = tweenedOpacity;
+            el.style.display = 'block';
+          }
+
+          // onCycleTo callback
+          if (lastCenter !== center && typeof options.onCycleTo === "function") {
+            var $curr_item = view.find('.carousel-item').eq(wrap(center));
+            options.onCycleTo.call(this, $curr_item, dragged);
+          }
+
+          // One time callback
+          if (typeof oneTimeCallback === "function") {
+            oneTimeCallback.call(this, $curr_item, dragged);
+            oneTimeCallback = null;
+          }
+        }
+
+        function track() {
+          var now, elapsed, delta, v;
+
+          now = Date.now();
+          elapsed = now - timestamp;
+          timestamp = now;
+          delta = offset - frame;
+          frame = offset;
+
+          v = 1000 * delta / (1 + elapsed);
+          velocity = 0.8 * v + 0.2 * velocity;
+        }
+
+        function autoScroll() {
+          var elapsed, delta;
+
+          if (amplitude) {
+            elapsed = Date.now() - timestamp;
+            delta = amplitude * Math.exp(-elapsed / options.duration);
+            if (delta > 2 || delta < -2) {
+              scroll(target - delta);
+              requestAnimationFrame(autoScroll);
+            } else {
+              scroll(target);
+            }
+          }
+        }
+
+        function click(e) {
+          // Disable clicks if carousel was dragged.
+          if (dragged) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          } else if (!options.fullWidth) {
+            var clickedIndex = $(e.target).closest('.carousel-item').index();
+            var diff = wrap(center) - clickedIndex;
+
+            // Disable clicks if carousel was shifted by click
+            if (diff !== 0) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            cycleTo(clickedIndex);
+          }
+        }
+
+        function cycleTo(n) {
+          var diff = center % count - n;
+
+          // Account for wraparound.
+          if (!noWrap) {
+            if (diff < 0) {
+              if (Math.abs(diff + count) < Math.abs(diff)) {
+                diff += count;
+              }
+            } else if (diff > 0) {
+              if (Math.abs(diff - count) < diff) {
+                diff -= count;
+              }
+            }
+          }
+
+          // Call prev or next accordingly.
+          if (diff < 0) {
+            view.trigger('carouselNext', [Math.abs(diff)]);
+          } else if (diff > 0) {
+            view.trigger('carouselPrev', [diff]);
+          }
+        }
+
+        function tap(e) {
+          // Fixes firefox draggable image bug
+          if (e.type === 'mousedown' && $(e.target).is('img')) {
+            e.preventDefault();
+          }
+          pressed = true;
+          dragged = false;
+          vertical_dragged = false;
+          reference = xpos(e);
+          referenceY = ypos(e);
+
+          velocity = amplitude = 0;
+          frame = offset;
+          timestamp = Date.now();
+          clearInterval(ticker);
+          ticker = setInterval(track, 100);
+        }
+
+        function drag(e) {
+          var x, delta, deltaY;
+          if (pressed) {
+            x = xpos(e);
+            y = ypos(e);
+            delta = reference - x;
+            deltaY = Math.abs(referenceY - y);
+            if (deltaY < 30 && !vertical_dragged) {
+              // If vertical scrolling don't allow dragging.
+              if (delta > 2 || delta < -2) {
+                dragged = true;
+                reference = x;
+                scroll(offset + delta);
+              }
+            } else if (dragged) {
+              // If dragging don't allow vertical scroll.
+              e.preventDefault();
+              e.stopPropagation();
+              return false;
+            } else {
+              // Vertical scrolling.
+              vertical_dragged = true;
+            }
+          }
+
+          if (dragged) {
+            // If dragging don't allow vertical scroll.
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }
+
+        function release(e) {
+          if (pressed) {
+            pressed = false;
+          } else {
+            return;
+          }
+
+          clearInterval(ticker);
+          target = offset;
+          if (velocity > 10 || velocity < -10) {
+            amplitude = 0.9 * velocity;
+            target = offset + amplitude;
+          }
+          target = Math.round(target / dim) * dim;
+
+          // No wrap of items.
+          if (noWrap) {
+            if (target >= dim * (count - 1)) {
+              target = dim * (count - 1);
+            } else if (target < 0) {
+              target = 0;
+            }
+          }
+          amplitude = target - offset;
+          timestamp = Date.now();
+          requestAnimationFrame(autoScroll);
+
+          if (dragged) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          return false;
+        }
+
+        xform = 'transform';
+        ['webkit', 'Moz', 'O', 'ms'].every(function (prefix) {
+          var e = prefix + 'Transform';
+          if (typeof document.body.style[e] !== 'undefined') {
+            xform = e;
+            return false;
+          }
+          return true;
+        });
+
+        var throttledResize = Materialize.throttle(function () {
+          if (options.fullWidth) {
+            item_width = view.find('.carousel-item').first().innerWidth();
+            var imageHeight = view.find('.carousel-item.active').height();
+            dim = item_width * 2 + options.padding;
+            offset = center * 2 * item_width;
+            target = offset;
+            setCarouselHeight(true);
+          } else {
+            scroll();
+          }
+        }, 200);
+        $(window).off('resize.carousel-' + uniqueNamespace).on('resize.carousel-' + uniqueNamespace, throttledResize);
+
+        setupEvents();
+        scroll(offset);
+
+        $(this).on('carouselNext', function (e, n, callback) {
+          if (n === undefined) {
+            n = 1;
+          }
+          if (typeof callback === "function") {
+            oneTimeCallback = callback;
+          }
+
+          target = dim * Math.round(offset / dim) + dim * n;
+          if (offset !== target) {
+            amplitude = target - offset;
+            timestamp = Date.now();
+            requestAnimationFrame(autoScroll);
+          }
+        });
+
+        $(this).on('carouselPrev', function (e, n, callback) {
+          if (n === undefined) {
+            n = 1;
+          }
+          if (typeof callback === "function") {
+            oneTimeCallback = callback;
+          }
+
+          target = dim * Math.round(offset / dim) - dim * n;
+          if (offset !== target) {
+            amplitude = target - offset;
+            timestamp = Date.now();
+            requestAnimationFrame(autoScroll);
+          }
+        });
+
+        $(this).on('carouselSet', function (e, n, callback) {
+          if (n === undefined) {
+            n = 0;
+          }
+          if (typeof callback === "function") {
+            oneTimeCallback = callback;
+          }
+
+          cycleTo(n);
+        });
+      });
+    },
+    next: function (n, callback) {
+      $(this).trigger('carouselNext', [n, callback]);
+    },
+    prev: function (n, callback) {
+      $(this).trigger('carouselPrev', [n, callback]);
+    },
+    set: function (n, callback) {
+      $(this).trigger('carouselSet', [n, callback]);
+    },
+    destroy: function () {
+      var uniqueNamespace = $(this).attr('data-namespace');
+      $(this).removeAttr('data-namespace');
+      $(this).removeClass('initialized');
+      $(this).find('.indicators').remove();
+
+      // Remove event handlers
+      $(this).off('carouselNext carouselPrev carouselSet');
+      $(window).off('resize.carousel-' + uniqueNamespace);
+      if (typeof window.ontouchstart !== 'undefined') {
+        $(this).off('touchstart.carousel touchmove.carousel touchend.carousel');
+      }
+      $(this).off('mousedown.carousel mousemove.carousel mouseup.carousel mouseleave.carousel click.carousel');
+    }
+  };
+
+  $.fn.carousel = function (methodOrOptions) {
+    if (methods[methodOrOptions]) {
+      return methods[methodOrOptions].apply(this, Array.prototype.slice.call(arguments, 1));
+    } else if (typeof methodOrOptions === 'object' || !methodOrOptions) {
+      // Default to "init"
+      return methods.init.apply(this, arguments);
+    } else {
+      $.error('Method ' + methodOrOptions + ' does not exist on jQuery.carousel');
+    }
+  }; // Plugin end
+})(jQuery);
+;(function ($) {
+
+  var methods = {
+    init: function (options) {
+      return this.each(function () {
+        var origin = $('#' + $(this).attr('data-activates'));
+        var screen = $('body');
+
+        // Creating tap target
+        var tapTargetEl = $(this);
+        var tapTargetWrapper = tapTargetEl.parent('.tap-target-wrapper');
+        var tapTargetWave = tapTargetWrapper.find('.tap-target-wave');
+        var tapTargetOriginEl = tapTargetWrapper.find('.tap-target-origin');
+        var tapTargetContentEl = tapTargetEl.find('.tap-target-content');
+
+        // Creating wrapper
+        if (!tapTargetWrapper.length) {
+          tapTargetWrapper = tapTargetEl.wrap($('<div class="tap-target-wrapper"></div>')).parent();
+        }
+
+        // Creating content
+        if (!tapTargetContentEl.length) {
+          tapTargetContentEl = $('<div class="tap-target-content"></div>');
+          tapTargetEl.append(tapTargetContentEl);
+        }
+
+        // Creating foreground wave
+        if (!tapTargetWave.length) {
+          tapTargetWave = $('<div class="tap-target-wave"></div>');
+
+          // Creating origin
+          if (!tapTargetOriginEl.length) {
+            tapTargetOriginEl = origin.clone(true, true);
+            tapTargetOriginEl.addClass('tap-target-origin');
+            tapTargetOriginEl.removeAttr('id');
+            tapTargetOriginEl.removeAttr('style');
+            tapTargetWave.append(tapTargetOriginEl);
+          }
+
+          tapTargetWrapper.append(tapTargetWave);
+        }
+
+        // Open
+        var openTapTarget = function () {
+          if (tapTargetWrapper.is('.open')) {
+            return;
+          }
+
+          // Adding open class
+          tapTargetWrapper.addClass('open');
+
+          setTimeout(function () {
+            tapTargetOriginEl.off('click.tapTarget').on('click.tapTarget', function (e) {
+              closeTapTarget();
+              tapTargetOriginEl.off('click.tapTarget');
+            });
+
+            $(document).off('click.tapTarget').on('click.tapTarget', function (e) {
+              closeTapTarget();
+              $(document).off('click.tapTarget');
+            });
+
+            var throttledCalc = Materialize.throttle(function () {
+              calculateTapTarget();
+            }, 200);
+            $(window).off('resize.tapTarget').on('resize.tapTarget', throttledCalc);
+          }, 0);
         };
-    })(jQuery);
+
+        // Close
+        var closeTapTarget = function () {
+          if (!tapTargetWrapper.is('.open')) {
+            return;
+          }
+
+          tapTargetWrapper.removeClass('open');
+          tapTargetOriginEl.off('click.tapTarget');
+          $(document).off('click.tapTarget');
+          $(window).off('resize.tapTarget');
+        };
+
+        // Pre calculate
+        var calculateTapTarget = function () {
+          // Element or parent is fixed position?
+          var isFixed = origin.css('position') === 'fixed';
+          if (!isFixed) {
+            var parents = origin.parents();
+            for (var i = 0; i < parents.length; i++) {
+              isFixed = $(parents[i]).css('position') == 'fixed';
+              if (isFixed) {
+                break;
+              }
+            }
+          }
+
+          // Calculating origin
+          var originWidth = origin.outerWidth();
+          var originHeight = origin.outerHeight();
+          var originTop = isFixed ? origin.offset().top - $(document).scrollTop() : origin.offset().top;
+          var originLeft = isFixed ? origin.offset().left - $(document).scrollLeft() : origin.offset().left;
+
+          // Calculating screen
+          var windowWidth = $(window).width();
+          var windowHeight = $(window).height();
+          var centerX = windowWidth / 2;
+          var centerY = windowHeight / 2;
+          var isLeft = originLeft <= centerX;
+          var isRight = originLeft > centerX;
+          var isTop = originTop <= centerY;
+          var isBottom = originTop > centerY;
+          var isCenterX = originLeft >= windowWidth * 0.25 && originLeft <= windowWidth * 0.75;
+          var isCenterY = originTop >= windowHeight * 0.25 && originTop <= windowHeight * 0.75;
+
+          // Calculating tap target
+          var tapTargetWidth = tapTargetEl.outerWidth();
+          var tapTargetHeight = tapTargetEl.outerHeight();
+          var tapTargetTop = originTop + originHeight / 2 - tapTargetHeight / 2;
+          var tapTargetLeft = originLeft + originWidth / 2 - tapTargetWidth / 2;
+          var tapTargetPosition = isFixed ? 'fixed' : 'absolute';
+
+          // Calculating content
+          var tapTargetTextWidth = isCenterX ? tapTargetWidth : tapTargetWidth / 2 + originWidth;
+          var tapTargetTextHeight = tapTargetHeight / 2;
+          var tapTargetTextTop = isTop ? tapTargetHeight / 2 : 0;
+          var tapTargetTextBottom = 0;
+          var tapTargetTextLeft = isLeft && !isCenterX ? tapTargetWidth / 2 - originWidth : 0;
+          var tapTargetTextRight = 0;
+          var tapTargetTextPadding = originWidth;
+          var tapTargetTextAlign = isBottom ? 'bottom' : 'top';
+
+          // Calculating wave
+          var tapTargetWaveWidth = originWidth > originHeight ? originWidth * 2 : originWidth * 2;
+          var tapTargetWaveHeight = tapTargetWaveWidth;
+          var tapTargetWaveTop = tapTargetHeight / 2 - tapTargetWaveHeight / 2;
+          var tapTargetWaveLeft = tapTargetWidth / 2 - tapTargetWaveWidth / 2;
+
+          // Setting tap target
+          var tapTargetWrapperCssObj = {};
+          tapTargetWrapperCssObj.top = isTop ? tapTargetTop : '';
+          tapTargetWrapperCssObj.right = isRight ? windowWidth - tapTargetLeft - tapTargetWidth : '';
+          tapTargetWrapperCssObj.bottom = isBottom ? windowHeight - tapTargetTop - tapTargetHeight : '';
+          tapTargetWrapperCssObj.left = isLeft ? tapTargetLeft : '';
+          tapTargetWrapperCssObj.position = tapTargetPosition;
+          tapTargetWrapper.css(tapTargetWrapperCssObj);
+
+          // Setting content
+          tapTargetContentEl.css({
+            width: tapTargetTextWidth,
+            height: tapTargetTextHeight,
+            top: tapTargetTextTop,
+            right: tapTargetTextRight,
+            bottom: tapTargetTextBottom,
+            left: tapTargetTextLeft,
+            padding: tapTargetTextPadding,
+            verticalAlign: tapTargetTextAlign
+          });
+
+          // Setting wave
+          tapTargetWave.css({
+            top: tapTargetWaveTop,
+            left: tapTargetWaveLeft,
+            width: tapTargetWaveWidth,
+            height: tapTargetWaveHeight
+          });
+        };
+
+        if (options == 'open') {
+          calculateTapTarget();
+          openTapTarget();
+        }
+
+        if (options == 'close') closeTapTarget();
+      });
+    },
+    open: function () {},
+    close: function () {}
+  };
+
+  $.fn.tapTarget = function (methodOrOptions) {
+    if (methods[methodOrOptions] || typeof methodOrOptions === 'object') return methods.init.apply(this, arguments);
+
+    $.error('Method ' + methodOrOptions + ' does not exist on jQuery.tap-target');
+  };
+})(jQuery);

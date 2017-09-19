@@ -1,90 +1,90 @@
 ﻿@model De_Gaverbeek.ViewModels.ContactViewModel
 
 <div class="page" id="pageContact">
-        <br />
-        <h2 style="color:#fff;">
-            Contact
-        </h2>
+    <br />
+    <h2 style="color:#fff;">
+        Contact
+    </h2>
     <div class="container-fluid contactform">
         <div class="zwart" id="zwart">
-@using (Html.BeginForm(FormMethod.Post))
-{
-    @Html.AntiForgeryToken()
-    <form class="ui form form-horizontal">
-        <div class="row">
-            <div class="input-field col s12 form">
-                <i class="material-icons prefix">account_circle</i>
+            @using (Html.BeginForm(FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <form class="ui form form-horizontal">
+                    <div class="row">
+                        <div class="input-field col s12 form">
+                            <i class="material-icons prefix">account_circle</i>
 
-                @Html.ValidationMessageFor(model => model.Naam, "", new { @class = "ui left pointing red label block mbl" })
-                @Html.EditorFor(model => model.Naam, new { htmlAttributes = new { @class = "validate", @id = "first_name" } })
-                <label for="first_name">Naam</label>
+                            @Html.ValidationMessageFor(model => model.Naam, "", new { @class = "ui left pointing red label block mbl" })
+                            @Html.EditorFor(model => model.Naam, new { htmlAttributes = new { @class = "validate", @id = "first_name" } })
+                            <label for="first_name">Naam</label>
 
 
-            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 form">
+                            <i class="material-icons prefix">email</i>
+
+                            @Html.ValidationMessageFor(model => model.Emailadres, "", new { @class = "ui left pointing red label block mbl" })
+                            @Html.EditorFor(model => model.Emailadres, new { htmlAttributes = new { @class = "validate", @id = "email" } })
+                            <label for="email" data-error="Voer een geldig emailadres in">Emailadres</label>
+
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 form">
+                            <i class="material-icons prefix">create</i>
+
+                            @Html.ValidationMessageFor(model => model.Onderwerp, "", new { @class = "ui left pointing red label block mbl" })
+                            @Html.EditorFor(model => model.Onderwerp, new { htmlAttributes = new { @class = "validate", @id = "onderwerp" } })
+                            <label for="onderwerp">Onderwerp</label>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 form">
+                            <i class="material-icons prefix">subject</i>
+                            @Html.ValidationMessageFor(model => model.Bericht, "", new { @class = "ui left pointing red label block mbl" })
+                            @Html.EditorFor(model => model.Bericht, new { htmlAttributes = new { @class = "materialize-textarea", @id = "textarea1", @rows = 10 } })
+                            <label for="textarea1">Bericht</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12 form">
+
+                            <button class="btn waves-effect waves-light" type="submit" name="action">
+                                    Verzenden
+                                    <i class="material-icons right">send</i>
+                                </button><span style="margin-left: 15px;">Of contacteer ons op Tel: +32 93 84 03 06 &nbsp;&nbsp; Fax: +32 93 84 00 82</span>
+
+                        </div>
+
+                    </div>
+                </form>
+            }
         </div>
-            <div class="row">
-                <div class="input-field col s12 form">
-                    <i class="material-icons prefix">email</i>
-
-                    @Html.ValidationMessageFor(model => model.Emailadres, "", new { @class = "ui left pointing red label block mbl" })
-                    @Html.EditorFor(model => model.Emailadres, new { htmlAttributes = new { @class = "validate", @id = "email" } })
-                    <label for="email" data-error="Voer een geldig emailadres in">Emailadres</label>
-
-
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s12 form">
-                    <i class="material-icons prefix">create</i>
-
-                    @Html.ValidationMessageFor(model => model.Onderwerp, "", new { @class = "ui left pointing red label block mbl" })
-                    @Html.EditorFor(model => model.Onderwerp, new { htmlAttributes = new { @class = "validate", @id = "onderwerp" } })
-                    <label for="onderwerp">Onderwerp</label>
-
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s12 form">
-                    <i class="material-icons prefix">subject</i>
-                    @Html.ValidationMessageFor(model => model.Bericht, "", new { @class = "ui left pointing red label block mbl" })
-                    @Html.EditorFor(model => model.Bericht, new { htmlAttributes = new { @class = "", @id = "textarea1", @rows = 10 } })
-                    <label for="textarea1">Bericht</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s12 form">
-
-                    @*<button class="btn waves-effect waves-light" type="submit" name="action">
-                        Verzenden
-                        <i class="material-icons right">send</i>
-                    </button><span style="margin-left: 15px;">Of contacteer ons op Tel: +32 93 84 03 06 &nbsp;&nbsp; Fax: +32 93 84 00 82</span>*@
-
-                </div>
-              
-            </div>
-</form>
-}
-        </div>
-            <div class="wit">
-                <div class="iframe-rwd">
+        <div class="wit">
+            <div class="iframe-rwd">
                 <iframe id="wit" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2514.92702147944!2d3.668941815748662!3d50.92506697954365!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c30d1d14d19fd1%3A0x869fa7bc6de7e77b!2sMolenstraat+88%2C+9890+Gavere!5e0!3m2!1snl!2sbe!4v1478374904923" width="600" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
-                </div>
             </div>
+        </div>
         <footer class="page-footer" style="margin-top:-5px;">
             <div class="container">
                 <div class="row">
                     <div class="col l6 s12">
                         <h5 class="white-text" style="text-align:left;">Social Media</h5>
                         <p class="grey-text text-lighten-4"><a href="https://www.facebook.com/degaverbeek/" target="_blank"><i style="display:block;" class="circular inverted blue link facebook f icon"></i></a></p>
-                       
+
                     </div>
                     <div class="col l4 offset-l2 s12">
                         <h5 class="white-text" style="text-align:left;">Navigatie</h5>
                         <ul>
                             <li><a class="grey-text text-lighten-3" id="liHome1">Home</a></li>
-                            <li><a class="grey-text text-lighten-3" id="liFolder1" >Folder</a></li>
-                            <li><a class="grey-text text-lighten-3" id="liNieuwsEnPromoties1" >Nieuws en promoties</a></li>
-                            <li><a class="grey-text text-lighten-3"  id="liProducten1">Producten</a></li>
+                            <li><a class="grey-text text-lighten-3" id="liFolder1">Folder</a></li>
+                            <li><a class="grey-text text-lighten-3" id="liNieuwsEnPromoties1">Nieuws en promoties</a></li>
+                            <li><a class="grey-text text-lighten-3" id="liProducten1">Producten</a></li>
                             <li><a class="grey-text text-lighten-3" id="liContact1">Contact</a></li>
                         </ul>
                     </div>
@@ -93,11 +93,11 @@
             <div class="footer-copyright">
                 <div class="container">
                     <p style="text-align:center;">&copy; @DateTime.Now.Year De Gaverbeek - Development Joachim Verschelde</p>
-                   
+
                 </div>
             </div>
         </footer>
-        
-        </div>
-   
+
     </div>
+
+</div>

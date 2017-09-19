@@ -1,5 +1,5 @@
 ﻿@model De_Gaverbeek.ViewModels.OverOnsViewModel
-
+@using System.Globalization
 <div class="page" id="pageNieuwsEnPromoties">
         <br />
     <div class="bgnieuws"></div>
@@ -10,46 +10,50 @@
     </div>
        </div>
             
-        <div class="ui container-fluid" id="post-container" >
-            <div class="arrow-left"></div>
-            <div class="arrow-right"></div>
-            <div class="ui horizontal segments" id="posts">
-                
+        <div class="ui container-fluid">
+
+            <div class="posts">
                 @foreach (var item in ViewBag.sortedPosts)
                 {
 
-                   
-                        <div class="ui raised segment post">
+
+                    
+
+                        <div class="post col-md-7 col-sm-14">
                             
-                                <div id="divAfbeelding">
-                                    <img alt="" class="imageDisplay" src="data:image;base64,@System.Convert.ToBase64String(item.PostImage)" />
+                            <div class="card">
+                                <div class="card-image waves-effect waves-block waves-light">
+                                    <img alt="" style="width:100%;height:auto;" class="activator" src="data:image;base64,@System.Convert.ToBase64String(item.PostImage)" />
+                                </div>
+                                <div class="card-content">
+                                    <span class="card-title activator grey-text text-darken-4">@item.PostTitel</span>
+
                                 </div>
 
-                                <h4 class="ui header" style="margin-top:5px">
-                                    <i class="quote left icon"></i>
-                                    <div class="content">
-                                        @item.PostTitel
-                                    </div>
-                                </h4>
+                            </div>
 
-                        </div>
-                  
+                       
+
+                    </div>
+
+
+
 
 
                 }
 
-
-                </div>
-            <div id="wrapper" style="text-align:center">
-                <div class="ui raised segment navigationbullets" style="text-align:center;display:inline-block;">
-
-
-
                 </div>
 
-            </div>
+
+
+
+
+
             </div>
 
 
-</div>
+           
+            </div>
+
+
 

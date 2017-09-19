@@ -9,8 +9,6 @@ namespace De_Gaverbeek
         {
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"
-                        ,
-                        "~/Scripts/materialize.js"
                         ));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
@@ -24,28 +22,28 @@ namespace De_Gaverbeek
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js",
-                      "~/Scripts/Site.js", 
+                      "~/Scripts/Site.js",
                       "~/semantic/dist/semantic.min.js",
                       "~/Scripts/jquery.slitslider.js",
                       "~/Scripts/jquery.ba-cond.min.js",
                       "~/Scripts/jquery.waypoints.js",
-                      "~/Scripts/jquery.waypoints.min.js"
+                      "~/Scripts/jquery.waypoints.min.js",
+                      "~/Scripts/materialize.js"
 
 
                       ));
-
+ 
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/bootstrap.min.css",
                       "~/Content/bootstrap-theme.css",
                       "~/Content/bootstrap-theme.min.css",
-            "~/semantic/dist/semantic.min.css",
+                      "~/semantic/dist/semantic.min.css",
                       "~/Content/Site.css",
                       "~/Content/style.css",
                       "~/Content/demo.css",
-                      "~/Content/custom.css"
-                      ,
+                      "~/Content/custom.css",
                       "~/Content/materialize.css"
 
                       ));

@@ -12,23 +12,7 @@ function pageNavigation() {
         }, snelheid);
 
     });
-    $("#liHome1").on("click", function () {
-
-
-        $('html, body').animate({
-            scrollTop: $("#pageHome").position().top
-        }, snelheid);
-
-    });
     $("#liFolder").on("click", function () {
-
-
-        $('html, body').animate({
-            scrollTop: $("#pageFolder").position().top
-        }, snelheid);
-
-    });
-    $("#liFolder1").on("click", function () {
 
 
         $('html, body').animate({
@@ -43,13 +27,6 @@ function pageNavigation() {
         }, snelheid);
 
     });
-    $("#liNieuwsEnPromoties1").on("click", function () {
-
-        $('html, body').animate({
-            scrollTop: $("#pageNieuwsEnPromoties").position().top
-        }, snelheid);
-
-    });
     $("#liProducten").on("click", function () {
 
         $('html, body').animate({
@@ -57,20 +34,7 @@ function pageNavigation() {
         }, snelheid);
 
     });
-    $("#liProducten1").on("click", function () {
-
-        $('html, body').animate({
-            scrollTop: $("#pageProducten").position().top
-        }, snelheid);
-
-    });
     $("#liContact").on("click", function () {
-
-        $('html, body').animate({
-            scrollTop: $("#pageContact").position().top
-        }, snelheid);
-    });
-    $("#liContact1").on("click", function () {
 
         $('html, body').animate({
             scrollTop: $("#pageContact").position().top
@@ -158,38 +122,42 @@ function initSlider() {
     */
 }
 function initMap() {
-    if ($(window).width() < 450) {
+    if ($(window).width()< 450) {
 
         var wit = $("#wit");
         var height = wit.outerWidth();
         wit.attr("height", height);
     }
-    else {
+    else
+    {
         var wit = $("#wit");
         var zwart = $("#zwart");
         var height = zwart.outerHeight();
         wit.attr("height", height);
     }
-
+    
 }
 function initProducts() {
-
-    if ($(window).width() < 1000) {
+   
+    if ($(window).width() < 1000)
+    {
         $('.special.cards .image').dimmer('show');
         $('.special.cards .image').on('click', function () {
             $('.special.cards .image').dimmer('hide');
         });
     }
-    else {
+    else
+    {
         $('.special.cards .image').dimmer({
             on: 'hover'
         });
     }
-
+    
 }
 function mobileErrormsg() {
 
-    if ($(window).width() < 500) {
+    if ($(window).width() < 500)
+    {
         var errormsg = $(".mbl");
         errormsg.removeClass("left");
         errormsg.removeClass("pointing");
@@ -198,37 +166,39 @@ function mobileErrormsg() {
     }
 
 }
-function initTabs() {
+function initTabs()
+{
     $('.tabular.menu .item').tab();
 }
-function initDataTables() {
-    if ($("#myTable").length) {
+function initDataTables()
+{
+    if($("#myTable").length){
         table = $("#myTable");
-        table.DataTable({
-            "searching": false,
-            "ordering": false,
-            "lengthChange": false,
-            "info": false,
-            "pageLength": 3,
-            "language": {
-                "decimal": "",
-                "emptyTable": "Geen gegevens beschikbaar",
-                "info": "Toont _START_ tot _END_ van de _TOTAL_ posts",
-                "infoPostFix": "",
-                "thousands": " ",
-                "loadingRecords": "Laden...",
-                "processing": "Verwerken...",
-                "search": "Zoeken:",
+    table.DataTable({
+        "searching": false,
+        "ordering": false,
+        "lengthChange": false,
+        "info":false,
+        "pageLength": 3,
+        "language":{
+            "decimal":        "",
+            "emptyTable":     "Geen gegevens beschikbaar",
+            "info":           "Toont _START_ tot _END_ van de _TOTAL_ posts",
+            "infoPostFix":    "",
+            "thousands":      " ",
+            "loadingRecords": "Laden...",
+            "processing":     "Verwerken...",
+            "search":         "Zoeken:",
 
-                "paginate": {
-                    "first": "Eerste",
-                    "last": "Laatste",
-                    "next": "Volgende",
-                    "previous": "Vorige"
-                },
-
-            }
-        });
+            "paginate": {
+                "first":      "Eerste",
+                "last":       "Laatste",
+                "next":       "Volgende",
+                "previous":   "Vorige"
+            },
+    
+        }
+    });
 
     }
 
@@ -247,11 +217,11 @@ function initSliderImages() {
     img3.addClass("bg-img-3");
     img4.addClass("bg-img-4");
     img5.addClass("bg-img-5");
-
-
+    
+   
     if ($(window).width() < 500) {
 
-
+        
         img2.removeClass("bg-img-2");
         img3.removeClass("bg-img-3");
         img4.removeClass("bg-img-4");
@@ -263,12 +233,13 @@ function initSliderImages() {
     }
 
 
-
+        
 }
 
-function initPosts() {
+function initPosts()
+{
     var screenwidth = $(window).width();
-    var postcontainer = $("#post-container");
+    var postcontainer = $("#post-container");   
     var horizontalsegments = $("#posts");
     var posts = $("div.ui.raised.segment.post");
     var nrPosts = posts.length;
@@ -279,29 +250,30 @@ function initPosts() {
 
 
     if ($(window).width() < 800) {
-        var nrBullets = nrPosts;
+        var nrBullets = Math.floor(nrPosts);
 
-
+        
         for (var i = 0; i < nrBullets; i++) {
 
-            bullets += ("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
+            bullets+= ("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
 
         }
         navigationbullets.html(bullets);
         var MARGIN = 0.95;
         var postcontainerwidth = screenwidth * MARGIN;
         postcontainer.attr("style", "width:" + postcontainerwidth + "px");
-        posts.attr("style", "width:" + postcontainerwidth + "px");
+        posts.attr("style", "width:" + postcontainerwidth+"px");
         postwidth = postcontainerwidth;
-        horizontalsegments.attr("style", "width:" + postwidth * nrPosts + "px")
-
+        horizontalsegments.attr("style", "width:" + postwidth*nrPosts + "px")
+       
     }
-    else {
+    else
+    {
         var nrBullets = Math.floor(nrPosts / 2);
         if ($(window).width() <= 1400) {
 
             for (var i = 0; i <= nrBullets; i++) {
-                bullets += ("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
+                bullets+=("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
 
             }
             navigationbullets.html(bullets);
@@ -312,12 +284,13 @@ function initPosts() {
             postwidth = postcontainerwidth / 2;
             horizontalsegments.attr("style", "width:" + postwidth * nrPosts + "px")
         }
-        else {
+        else
+        {
 
             var nrBullets = Math.floor(nrPosts / 3);
             for (var i = 0; i <= nrBullets; i++) {
-                bullets += ("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
-
+                bullets+=("<div style='border:1px solid #858585;border-radius:50%; width:15px;height:15px; background-color:#fff;display:inline-block;margin:3px;'></div>");
+                   
             }
             navigationbullets.html(bullets);
             var MARGIN = 0.60;
@@ -340,27 +313,12 @@ function initPosts() {
     console.log(postwidth);
     arrowleft.unbind("click");
     arrowleft.click(function () {
+        console.log("left");
+        if (postindex != 0) {
 
-
-        if (postindex == 1) {
-            arrowleft.attr("style", "display:none");
-            arrowright.attr("style", "display:visible");
-            postindex--;
-            navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
-            navigationbullets.children().eq(postindex).css("background-color", "#858585");
-
-
-            horizontalsegments.animate({
-
-                marginLeft: '+=' + postwidth + ''
-
-            }, 500);
-        }
-        else {
-            if (postindex > 0) {
-
-                arrowleft.attr("style", "display:visible");
-                arrowright.attr("style", "display:visible")
+            if (postindex == 1) {
+                arrowleft.attr("style", "display:none;");
+                arrowright.attr("style", "display:visible");
                 postindex--;
                 navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
                 navigationbullets.children().eq(postindex).css("background-color", "#858585");
@@ -371,79 +329,42 @@ function initPosts() {
                     marginLeft: '+=' + postwidth + ''
 
                 }, 500);
-
             }
+            else
+            { 
+                arrowright.attr("style", "display:visible;");
+                postindex--;
+                navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
+                navigationbullets.children().eq(postindex).css("background-color", "#858585");
 
+
+
+                horizontalsegments.animate({
+                   
+                    marginLeft: '+='+postwidth+''
+
+                },500);
+            }
         }
-
-
-
-        //console.log("left");
-        //if (postindex != 0) {
-
-        //    if (postindex == 1) {
-        //        arrowleft.attr("style", "display:none;");
-        //        arrowright.attr("style", "display:visible");
-        //        postindex--;
-        //        navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
-        //        navigationbullets.children().eq(postindex).css("background-color", "#858585");
-
-
-        //        horizontalsegments.animate({
-
-        //            marginLeft: '+=' + postwidth + ''
-
-        //        }, 500);
-        //    }
-        //    else
-        //    { 
-        //        arrowright.attr("style", "display:visible;");
-        //        postindex--;
-        //        navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
-        //        navigationbullets.children().eq(postindex).css("background-color", "#858585");
-
-
-
-        //        horizontalsegments.animate({
-
-        //            marginLeft: '+='+postwidth+''
-
-        //        },500);
-        //    }
-        //}
-        //else
-        //{
-        //    navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
-        //    navigationbullets.children().eq(postindex).css("background-color", "#858585");
-        //        arrowright.attr("style", "display:visible;");
-        //        arrowleft.attr("style", "display:none;");
-
-
-        //}
+        else
+        {
+            navigationbullets.children().eq(postindex + 1).css("background-color", "#fff");
+            navigationbullets.children().eq(postindex).css("background-color", "#858585");
+                arrowright.attr("style", "display:visible;");
+                arrowleft.attr("style", "display:none;");
+            
+            
+        }
     });
     arrowright.unbind("click");
     arrowright.click(function () {
+        console.log("right");
 
+        if (postindex != nrBullets-1) {
 
-        if (postindex == nrBullets - 1) {
-            arrowleft.attr("style", "display:visible");
-            arrowright.attr("style", "display:none");
-            postindex++;
-            navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
-            navigationbullets.children().eq(postindex).css("background-color", "#858585");
-
-
-
-            horizontalsegments.animate({
-
-                marginLeft: '-=' + postwidth + ''
-
-            }, 500);
-        }
-        else {
-            if (postindex < nrBullets) {
-                arrowleft.attr("style", "display:visible");
-                arrowright.attr("style", "display:visible");
+            if (postindex == nrBullets-2) {
+               
+                arrowleft.attr("style", "display:visible;");
                 postindex++;
                 navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
                 navigationbullets.children().eq(postindex).css("background-color", "#858585");
@@ -456,58 +377,36 @@ function initPosts() {
 
                 }, 500);
             }
+            else
+            {
+                arrowleft.attr("style", "display:visible;");
+                horizontalsegments.animate({
 
+                    marginLeft: '-=' + postwidth + ''
+
+                }, 500);
+                postindex++;
+                navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
+                navigationbullets.children().eq(postindex).css("background-color", "#858585");
+            }
+            
         }
+        else {
+           
+                postindex++
+                horizontalsegments.animate({
 
-        //console.log("right");
+                    marginLeft: '-=' + postwidth + ''
 
-        //if (postindex != nrBullets-1) {
-
-        //    if (postindex == nrBullets-2) {
-
-        //        arrowleft.attr("style", "display:visible;");
-        //        postindex++;
-        //        navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
-        //        navigationbullets.children().eq(postindex).css("background-color", "#858585");
-
-
-
-        //        horizontalsegments.animate({
-
-        //            marginLeft: '-=' + postwidth + ''
-
-        //        }, 500);
-        //    }
-        //    else
-        //    {
-        //        arrowleft.attr("style", "display:visible;");
-        //        horizontalsegments.animate({
-
-        //            marginLeft: '-=' + postwidth + ''
-
-        //        }, 500);
-        //        postindex++;
-        //        navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
-        //        navigationbullets.children().eq(postindex).css("background-color", "#858585");
-        //    }
-
-        //}
-        //else {
-
-        //        postindex++
-        //        horizontalsegments.animate({
-
-        //            marginLeft: '-=' + postwidth + ''
-
-        //        }, 500);
-        //        navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
-        //        navigationbullets.children().eq(postindex).css("background-color", "#858585");
-
-        //    arrowleft.attr("style", "display:visible;");
-        //    arrowright.attr("style", "display:none;");
-        //}
+                }, 500);
+                navigationbullets.children().eq(postindex - 1).css("background-color", "#fff");
+                navigationbullets.children().eq(postindex).css("background-color", "#858585");
+           
+            arrowleft.attr("style", "display:visible;");
+            arrowright.attr("style", "display:none;");
+        }
     });
-
+    
     console.log(nrPosts);
     console.log(horizontalsegments);
 
@@ -516,8 +415,8 @@ function initPosts() {
 
 $(document).ready(function () {
 
-
-
+    
+    
 
     pageNavigation();
     initSlider();
@@ -541,7 +440,8 @@ $(document).ready(function () {
     $(window).bind("load", mobileErrormsg);
     $(window).bind("resize", mobileErrormsg);
     $(window).bind("orientationchange", mobileErrormsg);
-
+    $('.carousel').carousel();
+    $('.materialboxed').materialbox();
 });
 $(window).load(function () {
     $("#loader").attr("style", "display:none;");
